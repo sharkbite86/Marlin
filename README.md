@@ -8,9 +8,10 @@ preconfigured Bondtech DDX configurations for the most common Creality machines 
 - [CR10 Max](http://bit.ly/2L6wZRy)
 - [Ender 5 Plus](https://bit.ly/2SriM5I)
 - [CR10 V2/V3 ](https://bit.ly/3nnhPcM)
-- [Ender 3 / Pro 4.2.2 and 4.2.7](https://bit.ly/3ncWu5I)
+- [Ender 3 / Pro 4.2.2 and 4.2.7](https://amzn.to/3gVUg7M)
 - [Ender 3 V2](https://bit.ly/3xmx4XI)
-- [Ender 5 / Pro 4.2.2 and 4.2.7]
+- [Ender 5 / Pro 4.2.2 and 4.2.7](https://amzn.to/3gMb2Yu)
+- [Ender 6](https://amzn.to/3wMaoj3)
 
 
 Screen files are archived with [7-Zip](https://www.7-zip.org/) simply because it came out 1/5 the file size of a zip file. That added up fast!
@@ -28,6 +29,7 @@ root of your hard drive. Here is a legend to help decode the files:
 - ST = Slice Engineering 450C Thermistor
 - PT = Slice Engineering PT1000 Temperature Sensor
 - 50W - PID settings for 50 watt Slice Engineering heater cartridge
+- ZM = BLTouch connected to ZMin port instead of Probe pin 5 connector harness
 
 ## Support
 
@@ -37,6 +39,28 @@ support@tinymachines3d.com about purchasing support hours. Aside from this, we a
 
 3D Printing Discord - https://discord.gg/MZrsgVU
 Marlin Discord - https://discord.gg/n5NJ59y
+
+
+## Primary Notes for DW7.4
+- Added Screen Calibration Options
+-- Standby Brightness
+-- Volume
+-- Both now saved in EEPROM
+-- Screen configuration code based loosely on the work from the CR6 community modified for this screen model
+-- Automatic Screen rotation for the Ender 6 (Default is upside-down)
+- Manual Mesh Controls for no Probe machines
+-- CRX and Ender 6 with no Probe can now use all mesh controls
+-- All machines now use the same screen files except for Ender 3 V2 Rotary Dial machines and CR6
+- Home button added to 5 point adjustment screen
+- Tap mesh values to manually type in a new value - allows for manual adjustment of mesh values
+- Additional functions, messaging on pause / filament runout
+-- No will no longer cancel print
+-- Depending on state, if only option is continue (eg Reheat, Load filament) Any response continues
+-- On final Confirm Continue, No will purge more filament and Yes will resume
+- Most places temperatures are shown, can now tap them to type in a value to set the temerature
+- Updated to Marlin 2.0.9 Base
+- CR6 Branches merged in
+-- Support for this machine is primarily based on the fork by the [CR6 Community](https://github.com/CR6Community)
 
 ## Primary notes for DW7.3
 - File browser rewritten to support paging as well as subdirectories
