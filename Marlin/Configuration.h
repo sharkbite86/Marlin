@@ -1,7 +1,8 @@
 //#define TronxyXY2A
 #define TronxyXY2
 //#define TronxyX5SPro
-//#define TronxyX3 // No ABL - Untested
+//#define TronxyX3
+//#define TronxyX3A
 
 //#define TMC2208Drv
 //#define TitanExtruder
@@ -150,7 +151,7 @@
   #if ANY(TronxyXY2, TronxyXY2A)
     #define MOTHERBOARD BOARD_CHITU3D_V9
   #elif ANY(TronxyX3A, TronxyX3)
-    #define MOTHERBOARD BOARD_CHITU3D_V5
+    #define MOTHERBOARD BOARD_CHITU3D_V9
   #else
     #define MOTHERBOARD BOARD_CHITU3D_V6
   #endif
@@ -1356,7 +1357,7 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#if BOTH(TronxyX5SPro, TMC2208Drv) || ANY(TronxyXY2A, TronxyXY2)
+#if BOTH(TronxyX5SPro, TMC2208Drv) || ANY(TronxyXY2A, TronxyXY2, TronxyX3, TronxyX3A)
   #define INVERT_X_DIR false
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR true
