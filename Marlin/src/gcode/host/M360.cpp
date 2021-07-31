@@ -28,7 +28,7 @@
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 
-#if EXTRUDERS
+#if HAS_EXTRUDERS
   #include "../../module/temperature.h"
 #endif
 
@@ -171,13 +171,13 @@ void GcodeSuite::M360() {
   // Per-Extruder settings
   //
   config_line(PSTR("NumExtruder"), EXTRUDERS);
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     LOOP_L_N(e, EXTRUDERS) {
       config_line_e(e, JERK_STR, TERN(HAS_LINEAR_E_JERK, planner.max_e_jerk[E_INDEX_N(e)], TERN(HAS_CLASSIC_JERK, planner.max_jerk.e, DEFAULT_EJERK)));
       config_line_e(e, PSTR("MaxSpeed"), planner.settings.max_feedrate_mm_s[E_AXIS_N(e)]);
       config_line_e(e, PSTR("Acceleration"), planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(e)]);
       config_line_e(e, PSTR("Diameter"), TERN(NO_VOLUMETRICS, DEFAULT_NOMINAL_FILAMENT_DIA, planner.filament_size[e]));
-      config_line_e(e, PSTR("MaxTemp"), thermalManager.heater_maxtemp[e]);
+      config_line_e(e, PSTR("MaxTemp"), thermalManager.hotend_maxtemp[e]);
     }
   #endif
 }

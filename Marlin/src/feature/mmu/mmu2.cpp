@@ -75,7 +75,7 @@ MMU2 mmu2;
 #define MMU2_NO_TOOL 99
 #define MMU_BAUD    115200
 
-bool MMU2::enabled, MMU2::ready, MMU2::mmu_print_saved;
+bool MMU2::_enabled, MMU2::ready, MMU2::mmu_print_saved;
 #if HAS_PRUSA_MMU2S
   bool MMU2::mmu2s_triggered;
 #endif
@@ -159,7 +159,7 @@ void MMU2::mmu_loop() {
         MMU2_COMMAND("S1");   // Read Version
         state = -2;
       }
-      else if (millis() > 3000000) {
+      else if (millis() > 30000) { // 30sec after reset disable MMU
         SERIAL_ECHOLNPGM("MMU not responding - DISABLED");
         state = 0;
       }
@@ -219,7 +219,7 @@ void MMU2::mmu_loop() {
 
         DEBUG_ECHOLNPAIR("MMU => ", finda, "\nMMU - ENABLED");
 
-        enabled = true;
+        _enabled = true;
         state = 1;
         TERN_(HAS_PRUSA_MMU2S, mmu2s_triggered = false);
       }
@@ -362,7 +362,7 @@ bool MMU2::rx_start() {
 /**
  * Check if the data received ends with the given string.
  */
-bool MMU2::rx_str_P(const char* str) {
+bool MMU2::rx_str_P(const char *str) {
   uint8_t i = strlen(rx_buffer);
 
   while (MMU2_SERIAL.available()) {
@@ -394,7 +394,7 @@ bool MMU2::rx_str_P(const char* str) {
 /**
  * Transfer data to MMU, no argument
  */
-void MMU2::tx_str_P(const char* str) {
+void MMU2::tx_str_P(const char *str) {
   clear_rx_buffer();
   uint8_t len = strlen_P(str);
   LOOP_L_N(i, len) MMU2_SERIAL.write(pgm_read_byte(str++));
@@ -404,7 +404,7 @@ void MMU2::tx_str_P(const char* str) {
 /**
  * Transfer data to MMU, single argument
  */
-void MMU2::tx_printf_P(const char* format, int argument = -1) {
+void MMU2::tx_printf_P(const char *format, int argument = -1) {
   clear_rx_buffer();
   uint8_t len = sprintf_P(tx_buffer, format, argument);
   LOOP_L_N(i, len) MMU2_SERIAL.write(tx_buffer[i]);
@@ -414,7 +414,7 @@ void MMU2::tx_printf_P(const char* format, int argument = -1) {
 /**
  * Transfer data to MMU, two arguments
  */
-void MMU2::tx_printf_P(const char* format, int argument1, int argument2) {
+void MMU2::tx_printf_P(const char *format, int argument1, int argument2) {
   clear_rx_buffer();
   uint8_t len = sprintf_P(tx_buffer, format, argument1, argument2);
   LOOP_L_N(i, len) MMU2_SERIAL.write(tx_buffer[i]);
@@ -480,7 +480,7 @@ static void mmu2_not_responding() {
    */
   void MMU2::tool_change(const uint8_t index) {
 
-    if (!enabled) return;
+    if (!_enabled) return;
 
     set_runout_valid(false);
 
@@ -511,8 +511,8 @@ static void mmu2_not_responding() {
    * Tx Same as T?, except nozzle doesn't have to be preheated. Tc must be placed after extruder nozzle is preheated to finish filament load.
    * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
    */
-  void MMU2::tool_change(const char* special) {
-      if (!enabled) return;
+  void MMU2::tool_change(const char *special) {
+      if (!_enabled) return;
 
       set_runout_valid(false);
 
@@ -561,7 +561,7 @@ static void mmu2_not_responding() {
    * Handle tool change
    */
   void MMU2::tool_change(const uint8_t index) {
-    if (!enabled) return;
+    if (!_enabled) return;
 
     set_runout_valid(false);
 
@@ -598,8 +598,8 @@ static void mmu2_not_responding() {
    * Tx Same as T?, except nozzle doesn't have to be preheated. Tc must be placed after extruder nozzle is preheated to finish filament load.
    * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
    */
-  void MMU2::tool_change(const char* special) {
-    if (!enabled) return;
+  void MMU2::tool_change(const char *special) {
+    if (!_enabled) return;
 
     set_runout_valid(false);
 
@@ -665,7 +665,7 @@ static void mmu2_not_responding() {
    * Handle tool change
    */
   void MMU2::tool_change(const uint8_t index) {
-    if (!enabled) return;
+    if (!_enabled) return;
 
     set_runout_valid(false);
 
@@ -692,8 +692,8 @@ static void mmu2_not_responding() {
    * Tx Same as T?, except nozzle doesn't have to be preheated. Tc must be placed after extruder nozzle is preheated to finish filament load.
    * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
    */
-  void MMU2::tool_change(const char* special) {
-    if (!enabled) return;
+  void MMU2::tool_change(const char *special) {
+    if (!_enabled) return;
 
     set_runout_valid(false);
 
@@ -744,7 +744,7 @@ static void mmu2_not_responding() {
  * Set next command
  */
 void MMU2::command(const uint8_t mmu_cmd) {
-  if (!enabled) return;
+  if (!_enabled) return;
   cmd = mmu_cmd;
   ready = false;
 }
@@ -775,7 +775,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
   bool response = false;
   mmu_print_saved = false;
   xyz_pos_t resume_position;
-  int16_t resume_hotend_temp = thermalManager.degTargetHotend(active_extruder);
+  celsius_t resume_hotend_temp = thermalManager.degTargetHotend(active_extruder);
 
   KEEPALIVE_STATE(PAUSED_FOR_USER);
 
@@ -833,7 +833,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
 }
 
 void MMU2::set_filament_type(const uint8_t index, const uint8_t filamentType) {
-  if (!enabled) return;
+  if (!_enabled) return;
 
   cmd_arg = filamentType;
   command(MMU_CMD_F0 + index);
@@ -892,7 +892,7 @@ void MMU2::filament_runout() {
 
 // Load filament into MMU2
 void MMU2::load_filament(const uint8_t index) {
-  if (!enabled) return;
+  if (!_enabled) return;
 
   command(MMU_CMD_L0 + index);
   manage_response(false, false);
@@ -904,7 +904,7 @@ void MMU2::load_filament(const uint8_t index) {
  */
 bool MMU2::load_filament_to_nozzle(const uint8_t index) {
 
-  if (!enabled) return false;
+  if (!_enabled) return false;
 
   if (thermalManager.tooColdToExtrude(active_extruder)) {
     BUZZ(200, 404);
@@ -940,7 +940,7 @@ void MMU2::load_to_nozzle() {
 
 bool MMU2::eject_filament(const uint8_t index, const bool recover) {
 
-  if (!enabled) return false;
+  if (!_enabled) return false;
 
   if (thermalManager.tooColdToExtrude(active_extruder)) {
     BUZZ(200, 404);
@@ -989,7 +989,7 @@ bool MMU2::eject_filament(const uint8_t index, const bool recover) {
  */
 bool MMU2::unload() {
 
-  if (!enabled) return false;
+  if (!_enabled) return false;
 
   if (thermalManager.tooColdToExtrude(active_extruder)) {
     BUZZ(200, 404);

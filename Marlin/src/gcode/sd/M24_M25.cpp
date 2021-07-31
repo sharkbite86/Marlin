@@ -42,7 +42,7 @@
 #endif
 
 #if ENABLED(DGUS_LCD_UI_MKS)
-  #include "../../lcd/extui/lib/dgus/DGUSDisplayDef.h"
+  #include "../../lcd/extui/dgus/DGUSDisplayDef.h"
 #endif
 
 #include "../../MarlinCore.h" // for startOrResumeJob
@@ -70,7 +70,7 @@ void GcodeSuite::M24() {
   #endif
 
   if (card.isFileOpen()) {
-    card.startFileprint();            // SD card will now be read for commands
+    card.startOrResumeFilePrinting();            // SD card will now be read for commands
     startOrResumeJob();               // Start (or resume) the print job timer
     TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
   }
@@ -87,6 +87,10 @@ void GcodeSuite::M24() {
 
 /**
  * M25: Pause SD Print
+ *
+ * With PARK_HEAD_ON_PAUSE:
+ *   Invoke M125 to store the current position and move to the park
+ *   position. M24 will move the head back before resuming the print.
  */
 void GcodeSuite::M25() {
 
@@ -101,7 +105,7 @@ void GcodeSuite::M25() {
       if (IS_SD_PRINTING()) card.pauseSDPrint();
     #endif
 
-    #if ENABLED(POWER_LOSS_RECOVERY)
+    #if ENABLED(POWER_LOSS_RECOVERY) && DISABLED(DGUS_LCD_UI_MKS)
       if (recovery.enabled) recovery.save(true);
     #endif
 
