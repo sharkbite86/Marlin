@@ -45,15 +45,11 @@
  *         7 | 11
  */
 
-#ifdef TARGET_LPC1768
-  #error "Oops! Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
-#elif defined(__STM32F1__)
-  #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
+#if ENABLED(AZSMZ_12864) && DISABLED(ALLOW_SAM3X8E)
+  #error "No pins defined for RAMPS with AZSMZ_12864."
 #endif
 
-#if NOT_TARGET(IS_RAMPS_SMART, IS_RAMPS_DUO, IS_RAMPS4DUE, TARGET_LPC1768, __AVR_ATmega1280__, __AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' (or other appropriate target) in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 // Custom flags and defines for the build
 //#define BOARD_CUSTOM_BUILD_FLAGS -D__FOO__
@@ -171,10 +167,10 @@
 #endif
 
 //
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 //
-#ifndef MAX6675_SS_PIN
-  #define MAX6675_SS_PIN                      66  // Don't use 53 if using Display/SD card (SDSS) or 49 (SD_DETECT_PIN)
+#ifndef TEMP_0_CS_PIN
+  #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card (SDSS) or 49 (SD_DETECT_PIN)
 #endif
 
 //
@@ -223,7 +219,7 @@
   #define FAN1_PIN                  RAMPS_D8_PIN
 #elif DISABLED(IS_RAMPS_SF)                       // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
   #define HEATER_BED_PIN            RAMPS_D8_PIN
-  #if HOTENDS == 1
+  #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
     #define FAN1_PIN                MOSFET_D_PIN
   #else
     #define HEATER_1_PIN            MOSFET_D_PIN
@@ -245,7 +241,9 @@
 //
 // Misc. Functions
 //
-#define SDSS                         EXP2_07_PIN
+#ifndef SDSS
+  #define SDSS                       EXP2_07_PIN
+#endif
 #define LED_PIN                               13
 
 #ifndef FILWIDTH_PIN
@@ -657,7 +655,9 @@
 
       #define BEEPER_PIN             EXP1_10_PIN
       #define BTN_ENC                EXP1_09_PIN
-      #define SD_DETECT_PIN          EXP2_04_PIN
+      #ifndef SD_DETECT_PIN
+        #define SD_DETECT_PIN        EXP2_04_PIN
+      #endif
 
       #ifndef KILL_PIN
         #define KILL_PIN             EXP2_03_PIN
@@ -728,9 +728,6 @@
     #elif ENABLED(AZSMZ_12864)
 
       // Pins only defined for RAMPS_SMART currently
-      #if DISABLED(IS_RAMPS_SMART)
-        #error "No pins defined for RAMPS with AZSMZ_12864."
-      #endif
 
     #elif IS_TFTGLCD_PANEL
 
