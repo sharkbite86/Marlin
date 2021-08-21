@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -46,6 +46,10 @@
   #include "../../lcd/extui/ui_api.h"
 #endif
 
+#if HAS_RESUME_CONTINUE
+  #include "../../lcd/marlinui.h"
+#endif
+
 #ifndef GET_PIN_MAP_PIN_M43
   #define GET_PIN_MAP_PIN_M43(Q) GET_PIN_MAP_PIN(Q)
 #endif
@@ -67,7 +71,11 @@ inline void toggle_pins() {
     else {
       watchdog_refresh();
       report_pin_state_extended(pin, ignore_protection, true, PSTR("Pulsing   "));
-      const bool prior_mode = GET_PINMODE(pin);
+      #ifdef __STM32F1__
+        const auto prior_mode = _GET_MODE(i);
+      #else
+        const bool prior_mode = GET_PINMODE(pin);
+      #endif
       #if AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
         if (pin == TEENSY_E2) {
           SET_OUTPUT(TEENSY_E2);
@@ -96,7 +104,11 @@ inline void toggle_pins() {
           watchdog_refresh();
         }
       }
-      pinMode(pin, prior_mode);
+      #ifdef __STM32F1__
+        _SET_MODE(i, prior_mode);
+      #else
+        pinMode(pin, prior_mode);
+      #endif
     }
     SERIAL_EOL();
   }
@@ -119,7 +131,7 @@ inline void servo_probe_test() {
     const uint8_t probe_index = parser.byteval('P', Z_PROBE_SERVO_NR);
 
     SERIAL_ECHOLNPAIR("Servo probe test\n"
-                      ". using index:  ", int(probe_index),
+                      ". using index:  ", probe_index,
                       ", deploy angle: ", servo_angles[probe_index][0],
                       ", stow angle:   ", servo_angles[probe_index][1]
     );
@@ -131,7 +143,7 @@ inline void servo_probe_test() {
       #define PROBE_TEST_PIN Z_MIN_PIN
       constexpr bool probe_inverting = Z_MIN_ENDSTOP_INVERTING;
 
-      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PIN: ", int(PROBE_TEST_PIN));
+      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PIN: ", PROBE_TEST_PIN);
       SERIAL_ECHOPGM(". Z_MIN_ENDSTOP_INVERTING: ");
 
     #else
@@ -139,7 +151,7 @@ inline void servo_probe_test() {
       #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
       constexpr bool probe_inverting = Z_MIN_PROBE_ENDSTOP_INVERTING;
 
-      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PROBE_PIN: ", int(PROBE_TEST_PIN));
+      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
       SERIAL_ECHOPGM(   ". Z_MIN_PROBE_ENDSTOP_INVERTING: ");
 
     #endif
@@ -276,8 +288,8 @@ inline void servo_probe_test() {
  *                  S<pin>  - Start Pin number.   If not given, will default to 0
  *                  L<pin>  - End Pin number.   If not given, will default to last pin defined for this board
  *                  I<bool> - Flag to ignore Marlin's pin protection.   Use with caution!!!!
- *                  R       - Repeat pulses on each pin this number of times before continueing to next pin
- *                  W       - Wait time (in miliseconds) between pulses.  If not given will default to 500
+ *                  R       - Repeat pulses on each pin this number of times before continuing to next pin
+ *                  W       - Wait time (in milliseconds) between pulses.  If not given will default to 500
  *
  *  M43 S       - Servo probe test
  *                  P<index> - Probe index (optional - defaults to 0
@@ -291,7 +303,7 @@ void GcodeSuite::M43() {
   if (parser.seen('E')) {
     endstops.monitor_flag = parser.value_bool();
     SERIAL_ECHOPGM("endstop monitor ");
-    serialprintPGM(endstops.monitor_flag ? PSTR("en") : PSTR("dis"));
+    SERIAL_ECHOPGM_P(endstops.monitor_flag ? PSTR("en") : PSTR("dis"));
     SERIAL_ECHOLNPGM("abled");
     return;
   }
@@ -332,12 +344,8 @@ void GcodeSuite::M43() {
     #if HAS_RESUME_CONTINUE
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
-      #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), CONTINUE_STR);
-      #endif
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired_P(PSTR("M43 Wait Called"));
-      #endif
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), CONTINUE_STR));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("M43 Wait Called")));
     #endif
 
     for (;;) {
@@ -359,6 +367,7 @@ void GcodeSuite::M43() {
       }
 
       #if HAS_RESUME_CONTINUE
+        ui.update();
         if (!wait_for_user) break;
       #endif
 

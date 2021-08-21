@@ -16,13 +16,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../gcode.h"
 #include "../../module/printcounter.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
+#if ENABLED(HOST_PAUSE_M76)
+  #include "../../feature/host_actions.h"
+#endif
 
 #include "../../MarlinCore.h" // for startOrResumeJob
 
@@ -38,6 +41,7 @@ void GcodeSuite::M75() {
  */
 void GcodeSuite::M76() {
   print_job_timer.pause();
+  TERN_(HOST_PAUSE_M76, host_action_pause());
 }
 
 /**
