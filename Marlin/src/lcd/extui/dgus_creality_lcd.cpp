@@ -197,15 +197,21 @@ bool hasPrintTimer = false;
 
   #if HAS_MESH
     void onMeshLevelingStart() {
-      ScreenHandler.OnMeshLevelingStart();
+      #if HAS_BED_PROBE
+        ScreenHandler.OnMeshLevelingStart();
+      #endif
     }
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-      ScreenHandler.OnMeshLevelingUpdate(xpos, ypos, zval);
+      #if HAS_BED_PROBE
+        ScreenHandler.OnMeshLevelingUpdate(xpos, ypos, zval);
+      #endif
     }
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {
-      ScreenHandler.OnMeshLevelingUpdate(xpos, ypos, 0);
+      #if HAS_BED_PROBE
+        ScreenHandler.OnMeshLevelingUpdate(xpos, ypos, 0);
+      #endif
     }
   #endif
 

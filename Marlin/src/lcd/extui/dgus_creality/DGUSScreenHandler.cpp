@@ -766,97 +766,102 @@ void DGUSScreenHandler::ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr) 
   if (ramcopy.set_by_display_handler) ramcopy.set_by_display_handler(ramcopy, val_ptr);
 }
 
-void DGUSScreenHandler::HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr) {
-  HandleLiveAdjustZ(var, val_ptr);
-}
+#if HAS_BED_PROBE
 
-void DGUSScreenHandler::OnMeshLevelingStart() {
-  GotoScreen(DGUSLCD_SCREEN_LEVELING);
-  dgusdisplay.WriteVariable(VP_MESH_SCREEN_MESSAGE_ICON, static_cast<uint16_t>(MESH_SCREEN_MESSAGE_ICON_LEVELING));
-
-  ResetMeshValues();
-  SetSynchronousOperationStart();
-
-  MeshLevelIndex = 0;
-  MeshLevelIconIndex = 0;
-}
-
-void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, const float z) {
-  SERIAL_ECHOPAIR("X: ", x);
-  SERIAL_ECHOPAIR("; Y: ", y);
-  SERIAL_ECHOPAIR("; Index ", MeshLevelIndex);
-  SERIAL_ECHOLNPAIR("; Icon ", MeshLevelIconIndex);
-
-  UpdateMeshValue(x, y, z);
-
-  if (MeshLevelIndex < 0) {
-    // We're not leveling
-    return;
+  void DGUSScreenHandler::HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr) {
+    HandleLiveAdjustZ(var, val_ptr);
   }
 
-  MeshLevelIndex++;
-  MeshLevelIconIndex++;
+  void DGUSScreenHandler::OnMeshLevelingStart() {
+    GotoScreen(DGUSLCD_SCREEN_LEVELING);
+    dgusdisplay.WriteVariable(VP_MESH_SCREEN_MESSAGE_ICON, static_cast<uint16_t>(MESH_SCREEN_MESSAGE_ICON_LEVELING));
 
-  // Update icon
-  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(MeshLevelIconIndex + DGUS_GRID_VISUALIZATION_START_ID));
+    ResetMeshValues();
+    SetSynchronousOperationStart();
 
-  if (MeshLevelIndex == GRID_MAX_POINTS) {
-    // Done
-    MeshLevelIndex = -1;
+    MeshLevelIndex = 0;
+    MeshLevelIconIndex = 0;
+  }
 
-    RequestSaveSettings();
+  void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, const float z) {
+    SERIAL_ECHOPAIR("X: ", x);
+    SERIAL_ECHOPAIR("; Y: ", y);
+    SERIAL_ECHOPAIR("; Index ", MeshLevelIndex);
+    SERIAL_ECHOLNPAIR("; Icon ", MeshLevelIconIndex);
 
-    if (GetPreviousScreen() == DGUSLCD_SCREEN_ZOFFSET_LEVEL) {
-      // If the user is in the leveling workflow (not printing), get that hotend out of the way
-      char gcodeBuffer[50] = {0};
-      sprintf_P(gcodeBuffer, PSTR("G0 F3500 X%d\nG0 Y%d\nG0 Z%d\nM84"), (X_BED_SIZE / 2), (Y_BED_SIZE / 2), 35);
-      queue.inject(gcodeBuffer);
+    UpdateMeshValue(x, y, z);
 
-      // Change text at the top
-      ScreenHandler.SetViewMeshLevelState();
-    } else {
-      // When leveling from anywhere but the Z-offset/level screen, automatically pop back to the previous screen
-      PopToOldScreen();
+    if (MeshLevelIndex < 0) {
+      // We're not leveling
+      return;
     }
 
-    SetSynchronousOperationFinish();
-  } else {
-    // We've already updated the icon, so nothing left
+    MeshLevelIndex++;
+    MeshLevelIconIndex++;
+
+    // Update icon
+    dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(MeshLevelIconIndex + DGUS_GRID_VISUALIZATION_START_ID));
+
+    if (MeshLevelIndex == GRID_MAX_POINTS) {
+      // Done
+      MeshLevelIndex = -1;
+
+      RequestSaveSettings();
+
+      if (GetPreviousScreen() == DGUSLCD_SCREEN_ZOFFSET_LEVEL) {
+        // If the user is in the leveling workflow (not printing), get that hotend out of the way
+        char gcodeBuffer[50] = {0};
+        sprintf_P(gcodeBuffer, PSTR("G0 F3500 X%d\nG0 Y%d\nG0 Z%d\nM84"), (X_BED_SIZE / 2), (Y_BED_SIZE / 2), 35);
+        queue.inject(gcodeBuffer);
+
+        // Change text at the top
+        ScreenHandler.SetViewMeshLevelState();
+      } else {
+        // When leveling from anywhere but the Z-offset/level screen, automatically pop back to the previous screen
+        PopToOldScreen();
+      }
+
+      SetSynchronousOperationFinish();
+    } else {
+      // We've already updated the icon, so nothing left
+    }
   }
-}
 
-void DGUSScreenHandler::SetViewMeshLevelState() {
-  dgusdisplay.WriteVariable(VP_MESH_SCREEN_MESSAGE_ICON, static_cast<uint16_t>(MESH_SCREEN_MESSAGE_ICON_VIEWING));
-}
+  void DGUSScreenHandler::SetViewMeshLevelState() {
+    dgusdisplay.WriteVariable(VP_MESH_SCREEN_MESSAGE_ICON, static_cast<uint16_t>(MESH_SCREEN_MESSAGE_ICON_VIEWING));
+  }
 
-void DGUSScreenHandler::InitMeshValues() {
-  if (ExtUI::getMeshValid()) {
+  void DGUSScreenHandler::InitMeshValues() {
+    if (ExtUI::getMeshValid()) {
+      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+            float z = ExtUI::getMeshPoint({ x, y });
+            UpdateMeshValue(x, y, z);
+        }
+
+        safe_delay(100);
+      }
+
+      dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID + GRID_MAX_POINTS));
+    } else {
+      ResetMeshValues();
+    }
+  }
+
+  void DGUSScreenHandler::ResetMeshValues() {
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-          float z = ExtUI::getMeshPoint({ x, y });
-          UpdateMeshValue(x, y, z);
+          UpdateMeshValue(x, y, 0);
       }
 
       safe_delay(100);
     }
 
-    dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID + GRID_MAX_POINTS));
-  } else {
-    ResetMeshValues();
-  }
-}
-
-void DGUSScreenHandler::ResetMeshValues() {
-  for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
-    for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
-        UpdateMeshValue(x, y, 0);
-    }
-
-    safe_delay(100);
+    dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
   }
 
-  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
-}
+#endif
+
 
 uint16_t CreateRgb(double h, double s, double v) {
     struct {
@@ -927,97 +932,98 @@ uint16_t CreateRgb(double h, double s, double v) {
   return (((static_cast<uint8_t>(out.r * 255) & 0xf8)<<8) + ((static_cast<uint8_t>(out.g * 255) & 0xfc)<<3) + (static_cast<uint8_t>(out.b * 255)>>3));
 }
 
+#if HAS_BED_PROBE
+  void DGUSScreenHandler::UpdateMeshValue(const int8_t x, const int8_t y, const float z) {
+    SERIAL_ECHOPAIR("X", x);
+    SERIAL_ECHOPAIR(" Y", y);
+    SERIAL_ECHO(" Z");
+    SERIAL_ECHO_F(z, 4);
 
-void DGUSScreenHandler::UpdateMeshValue(const int8_t x, const int8_t y, const float z) {
-  SERIAL_ECHOPAIR("X", x);
-  SERIAL_ECHOPAIR(" Y", y);
-  SERIAL_ECHO(" Z");
-  SERIAL_ECHO_F(z, 4);
-
-  // Determine the screen X and Y value
-  if (x % SkipMeshPoint != 0 || y % SkipMeshPoint != 0) {
-    // Skip this point
-    SERIAL_ECHOLN("");
-    return;
-  }
-
-  const uint8_t scrX = x / SkipMeshPoint;
-  const uint8_t scrY = y / SkipMeshPoint;
-
-  // Each Y is a full edge of X values
-  const uint16_t vpAddr = VP_MESH_LEVEL_X0_Y0 + (scrY * MESH_LEVEL_VP_SIZE) + (scrX * MESH_LEVEL_VP_EDGE_SIZE);
-
-  // ... DWIN is inconsistently truncating floats. Examples: 0.1811 becomes 0.181, 0.1810 becomes 0.180. But 0.1800 is not 0.179
-  //     so we need to calculate a good number here that will not overflow
-  float displayZ = z;
-
-  {
-    constexpr float correctionFactor = 0.0001;
-
-    if (round(z * cpow(10,3)) == round((z + correctionFactor) * cpow(10,3))) {
-      // If we don't accidently overshoot to the next number, trick the display by upping the number 0.0001 💩
-      displayZ += correctionFactor;
-
-      SERIAL_ECHO(" displayZ: ");
-      SERIAL_ECHO_F(z, 4);
+    // Determine the screen X and Y value
+    if (x % SkipMeshPoint != 0 || y % SkipMeshPoint != 0) {
+      // Skip this point
+      SERIAL_ECHOLN("");
+      return;
     }
+
+    const uint8_t scrX = x / SkipMeshPoint;
+    const uint8_t scrY = y / SkipMeshPoint;
+
+    // Each Y is a full edge of X values
+    const uint16_t vpAddr = VP_MESH_LEVEL_X0_Y0 + (scrY * MESH_LEVEL_VP_SIZE) + (scrX * MESH_LEVEL_VP_EDGE_SIZE);
+
+    // ... DWIN is inconsistently truncating floats. Examples: 0.1811 becomes 0.181, 0.1810 becomes 0.180. But 0.1800 is not 0.179
+    //     so we need to calculate a good number here that will not overflow
+    float displayZ = z;
+
+    {
+      constexpr float correctionFactor = 0.0001;
+
+      if (round(z * cpow(10,3)) == round((z + correctionFactor) * cpow(10,3))) {
+        // If we don't accidently overshoot to the next number, trick the display by upping the number 0.0001 💩
+        displayZ += correctionFactor;
+
+        SERIAL_ECHO(" displayZ: ");
+        SERIAL_ECHO_F(z, 4);
+      }
+    }
+
+    SERIAL_ECHOLN("");
+
+    dgusdisplay.WriteVariable(vpAddr, displayZ);
+
+    // Set color
+    const uint16_t spAddr = SP_MESH_LEVEL_X0_Y0 + (scrY * MESH_LEVEL_SP_SIZE) + (scrX * MESH_LEVEL_SP_EDGE_SIZE);
+
+    uint16_t color = MESH_COLOR_NOT_MEASURED;
+
+    // ... Only calculate if set
+    if (abs(z) > MESH_UNSET_EPSILON) {
+      // Determine color scale
+      float clampedZ = max(min(z, 0.5f),-0.5f) * -1;
+      float h = (clampedZ + 0.5f) * 240;
+
+      // Convert to RGB
+      color = CreateRgb(h, 1, 0.75);
+    }
+
+    dgusdisplay.SetVariableDisplayColor(spAddr, color);
   }
 
-  SERIAL_ECHOLN("");
+  void DGUSScreenHandler::HandleMeshPoint(DGUS_VP_Variable &var, void *val_ptr) {
+    // Determine the X and Y for this mesh point
+    // We can do this because we assume MESH_INPUT_SUPPORTED_X_SIZE and MESH_INPUT_SUPPORTED_Y_SIZE with MESH_INPUT_DATA_SIZE.
+    // So each VP is MESH_INPUT_DATA_SIZE apart
 
-  dgusdisplay.WriteVariable(vpAddr, displayZ);
+    if (HasSynchronousOperation) {
+      setstatusmessagePGM(PSTR("Wait for leveling to complete"));
+      return;
+    }
 
-  // Set color
-  const uint16_t spAddr = SP_MESH_LEVEL_X0_Y0 + (scrY * MESH_LEVEL_SP_SIZE) + (scrX * MESH_LEVEL_SP_EDGE_SIZE);
+    const uint16_t probe_point = var.VP - VP_MESH_INPUT_X0_Y0;
+    constexpr uint16_t col_size = MESH_INPUT_SUPPORTED_Y_SIZE * MESH_INPUT_DATA_SIZE;
 
-  uint16_t color = MESH_COLOR_NOT_MEASURED;
+    const uint8_t x = probe_point / col_size; // Will be 0 to 3 inclusive
+    const uint8_t y = (probe_point - (x * col_size)) / MESH_INPUT_DATA_SIZE;
 
-  // ... Only calculate if set
-  if (abs(z) > MESH_UNSET_EPSILON) {
-    // Determine color scale
-    float clampedZ = max(min(z, 0.5f),-0.5f) * -1;
-    float h = (clampedZ + 0.5f) * 240;
+    int16_t rawZ = *(int16_t*)val_ptr;
+    float z = swap16(rawZ) * 0.001;
 
-    // Convert to RGB
-    color = CreateRgb(h, 1, 0.75);
+    SERIAL_ECHOPAIR("Overriding mesh value. X:", x);
+    SERIAL_ECHOPAIR(" Y:", y);
+    SERIAL_ECHO(" Z:");
+    SERIAL_ECHO_F(z, 4);
+    SERIAL_ECHOPAIR(" [raw: ", rawZ);
+    SERIAL_ECHOPAIR("] [point ", probe_point, "] ");
+    SERIAL_ECHOPAIR(" [VP: ", var.VP);
+    SERIAL_ECHOLN("]");
+
+    UpdateMeshValue(x, y, z);
+    ExtUI::setMeshPoint({ x, y }, z);
+
+    RequestSaveSettings();
   }
-
-  dgusdisplay.SetVariableDisplayColor(spAddr, color);
-}
-
-void DGUSScreenHandler::HandleMeshPoint(DGUS_VP_Variable &var, void *val_ptr) {
-  // Determine the X and Y for this mesh point
-  // We can do this because we assume MESH_INPUT_SUPPORTED_X_SIZE and MESH_INPUT_SUPPORTED_Y_SIZE with MESH_INPUT_DATA_SIZE.
-  // So each VP is MESH_INPUT_DATA_SIZE apart
-
-  if (HasSynchronousOperation) {
-    setstatusmessagePGM(PSTR("Wait for leveling to complete"));
-    return;
-  }
-
-  const uint16_t probe_point = var.VP - VP_MESH_INPUT_X0_Y0;
-  constexpr uint16_t col_size = MESH_INPUT_SUPPORTED_Y_SIZE * MESH_INPUT_DATA_SIZE;
-
-  const uint8_t x = probe_point / col_size; // Will be 0 to 3 inclusive
-  const uint8_t y = (probe_point - (x * col_size)) / MESH_INPUT_DATA_SIZE;
-
-  int16_t rawZ = *(int16_t*)val_ptr;
-  float z = swap16(rawZ) * 0.001;
-
-  SERIAL_ECHOPAIR("Overriding mesh value. X:", x);
-  SERIAL_ECHOPAIR(" Y:", y);
-  SERIAL_ECHO(" Z:");
-  SERIAL_ECHO_F(z, 4);
-  SERIAL_ECHOPAIR(" [raw: ", rawZ);
-  SERIAL_ECHOPAIR("] [point ", probe_point, "] ");
-  SERIAL_ECHOPAIR(" [VP: ", var.VP);
-  SERIAL_ECHOLN("]");
-
-  UpdateMeshValue(x, y, z);
-  ExtUI::setMeshPoint({ x, y }, z);
-
-  RequestSaveSettings();
-}
+#endif
 
 #if HAS_COLOR_LEDS
 void DGUSScreenHandler::HandleLED(DGUS_VP_Variable &var, void *val_ptr) {
@@ -1731,8 +1737,10 @@ bool DGUSScreenHandler::loop() {
       // Ensure to pick up the settings
       SetTouchScreenConfiguration();
 
-      // Set initial leveling status
-      InitMeshValues();
+      #if HAS_BED_PROBE
+        // Set initial leveling status
+        InitMeshValues();
+      #endif
 
       // No disabled back button
       ScreenHandler.SetSynchronousOperationFinish();

@@ -26,6 +26,8 @@
 
 #include "../../../inc/MarlinConfig.h"
 
+#include "../../../module/motion.h"
+
 #if HAS_COLOR_LEDS
   #include "../../../feature/leds/leds.h"
 
