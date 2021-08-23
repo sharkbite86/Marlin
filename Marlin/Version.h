@@ -112,7 +112,7 @@
 #define VerChar6 "N"
 #endif
 
-#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " TM3D " VerChar1 VerChar2 VerChar3 VerChar4 VerChar5 VerChar6
+#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " FL " VerChar1 VerChar2 VerChar3 VerChar4 VerChar5 VerChar6
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
@@ -124,48 +124,54 @@
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
+#if ENABLED(MACHINE_PRO)
+  #define MACHINEPRO " Pro"
+#else
+  #define MACHINEPRO ""
+#endif
+
 #if(ENABLED(MachineMini))
-  #define CUSTOM_MACHINE_NAME "Mini SuPeR"
+  #define CUSTOM_MACHINE_NAME "Mini"
 #elif(ENABLED(MachineEnder2))
-  #define CUSTOM_MACHINE_NAME "TM3D Ender2"
+  #define CUSTOM_MACHINE_NAME "Ender2"
 #elif(ENABLED(MachineEnder3))
-  #define CUSTOM_MACHINE_NAME "TM3D Ender3"
+  #define CUSTOM_MACHINE_NAME "Ender3" MACHINEPRO
 #elif(ENABLED(MachineEnder3Max))
-  #define CUSTOM_MACHINE_NAME "TM3D E3Max"
+  #define CUSTOM_MACHINE_NAME "E3Max"
 #elif(ENABLED(MachineEnder6))
-  #define CUSTOM_MACHINE_NAME "TM3D Ender6"
+  #define CUSTOM_MACHINE_NAME "Ender6"
 #elif(ENABLED(MachineEnder3V2))
-  #define CUSTOM_MACHINE_NAME "TM3D Ender3V2"
+  #define CUSTOM_MACHINE_NAME "Ender3V2"
 #elif(ENABLED(MachineEnder4))
-  #define CUSTOM_MACHINE_NAME "TM3D Ender4"
+  #define CUSTOM_MACHINE_NAME "Ender4"
 #elif(ENABLED(MachineEnder5))
-  #define CUSTOM_MACHINE_NAME "TM3D Ender5"
+  #define CUSTOM_MACHINE_NAME "Ender5" MACHINEPRO
 #elif(ENABLED(MachineEnder5Plus))
-  #define CUSTOM_MACHINE_NAME "TM3D E5 Plus"
+  #define CUSTOM_MACHINE_NAME "E5 Plus"
 #elif(ENABLED(MachineCR20))
-  #define CUSTOM_MACHINE_NAME "SuPeR CR-20"
+  #define CUSTOM_MACHINE_NAME "CR-20"
 #elif(ENABLED(MachineCR10Orig))
-  #define CUSTOM_MACHINE_NAME "SuPeR CR-10"
+  #define CUSTOM_MACHINE_NAME "CR-10"
 #elif(ENABLED(MachineCRX))
-  #define CUSTOM_MACHINE_NAME "TM3D CR-X"
+  #define CUSTOM_MACHINE_NAME "CR-X"
 #elif ENABLED(MachineCR10SProV2)
-  #define CUSTOM_MACHINE_NAME "TM3D 10SProV2"
+  #define CUSTOM_MACHINE_NAME "10SProV2"
 #elif(ENABLED(MachineCR10SPro))
-  #define CUSTOM_MACHINE_NAME "TM3D 10S Pro"
+  #define CUSTOM_MACHINE_NAME "10S Pro"
 #elif(ENABLED(MachineCR10Max))
-  #define CUSTOM_MACHINE_NAME "TM3D Max"
+  #define CUSTOM_MACHINE_NAME "CR10Max"
 #elif(ENABLED(MachineCR10SV3))
-  #define CUSTOM_MACHINE_NAME "TM3D CR10V3"
+  #define CUSTOM_MACHINE_NAME "CR10V3"
 #elif(ENABLED(MachineCR10SV2))
-  #define CUSTOM_MACHINE_NAME "TM3D CR10V2"
+  #define CUSTOM_MACHINE_NAME "CR10V2"
 #elif(ENABLED(MachineCR10Std))
-  #define CUSTOM_MACHINE_NAME "300 SuPeR"
+  #define CUSTOM_MACHINE_NAME "CR10300"
 #elif(ENABLED(MachineS4))
-  #define CUSTOM_MACHINE_NAME "400 SuPeR"
+  #define CUSTOM_MACHINE_NAME "CR10400"
 #elif(ENABLED(MachineS5))
-  #define CUSTOM_MACHINE_NAME "500 SuPeR"
+  #define CUSTOM_MACHINE_NAME "CR10500"
 #elif ENABLED(MachineCR2020)
-  #define CUSTOM_MACHINE_NAME "TM3D 2020"
+  #define CUSTOM_MACHINE_NAME "CR2020"
 #endif
 
 /**
