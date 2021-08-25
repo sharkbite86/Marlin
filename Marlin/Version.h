@@ -191,7 +191,7 @@
  * The WEBSITE_URL is the location where users can get more information such as
  * documentation about a specific Marlin release.
  */
-#define WEBSITE_URL "tinymachines3d.com"
+#define WEBSITE_URL "https://www.amazon.com/s?k=F1RST+LAYER"
 
 /**
  * Set the vendor info the serial USB interface, if changable
