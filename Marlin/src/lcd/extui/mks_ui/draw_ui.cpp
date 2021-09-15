@@ -186,10 +186,10 @@ void ui_cfg_init() {
   uiCfg.stepHeat            = 10;
   uiCfg.leveling_first_time = false;
   uiCfg.para_ui_page        = false;
-  uiCfg.extruStep           = 5;
-  uiCfg.extruSpeed          = 10;
+  uiCfg.extruStep           = uiCfg.eStepMed;
+  uiCfg.extruSpeed          = uiCfg.eSpeedN;
   uiCfg.move_dist           = 1;
-  uiCfg.moveSpeed           = 3000;
+  uiCfg.moveSpeed           = 1000;
   uiCfg.stepPrintSpeed      = 10;
   uiCfg.command_send        = false;
   uiCfg.dialogType          = 0;
@@ -237,7 +237,7 @@ void update_spi_flash() {
   uint8_t command_buf[512];
 
   W25QXX.init(SPI_QUARTER_SPEED);
-  //read back the gcode command befor erase spi flash
+  //read back the gcode command before erase spi flash
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
@@ -248,7 +248,7 @@ void update_gcode_command(int addr,uint8_t *s) {
   uint8_t command_buf[512];
 
   W25QXX.init(SPI_QUARTER_SPEED);
-  //read back the gcode command befor erase spi flash
+  //read back the gcode command before erase spi flash
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
@@ -347,13 +347,8 @@ void tft_style_init() {
   style_num_key_rel.body.grad_color = LV_COLOR_KEY_BACKGROUND;
   style_num_key_rel.text.color      = LV_COLOR_TEXT;
   style_num_key_rel.text.sel_color  = LV_COLOR_TEXT;
-  #if HAS_SPI_FLASH_FONT
-    style_num_key_pre.text.font = &gb2312_puhui32;
-    style_num_key_rel.text.font = &gb2312_puhui32;
-  #else
-    style_num_key_pre.text.font = LV_FONT_DEFAULT;
-    style_num_key_rel.text.font = LV_FONT_DEFAULT;
-  #endif
+  style_num_key_pre.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_num_key_rel.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
 
   style_num_key_pre.line.width        = 0;
   style_num_key_rel.line.width        = 0;
@@ -560,11 +555,11 @@ char *creat_title_text() {
 
 #if HAS_GCODE_PREVIEW
 
-  uint32_t gPicturePreviewStart = 0;
+  uintptr_t gPicturePreviewStart = 0;
 
   void preview_gcode_prehandle(char *path) {
     #if ENABLED(SDSUPPORT)
-      uint32_t pre_read_cnt = 0;
+      uintptr_t pre_read_cnt = 0;
       uint32_t *p1;
       char *cur_name;
 
@@ -575,7 +570,7 @@ char *creat_title_text() {
       p1 = (uint32_t *)strstr((char *)public_buf, ";simage:");
 
       if (p1) {
-        pre_read_cnt = (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
+        pre_read_cnt = (uintptr_t)p1 - (uintptr_t)((uint32_t *)(&public_buf[0]));
 
         To_pre_view              = pre_read_cnt;
         gcode_preview_over       = true;
@@ -606,12 +601,12 @@ char *creat_title_text() {
           uint32_t br  = card.read(public_buf, 400);
           uint32_t *p1 = (uint32_t *)strstr((char *)public_buf, ";gimage:");
           if (p1) {
-            gPicturePreviewStart += (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
+            gPicturePreviewStart += (uintptr_t)p1 - (uintptr_t)((uint32_t *)(&public_buf[0]));
             break;
           }
-          else {
+          else
             gPicturePreviewStart += br;
-          }
+
           if (br < 400) break;
         }
       }
@@ -623,11 +618,8 @@ char *creat_title_text() {
 
       while (1) {
         card.read(public_buf, 400);
-        for (i = 0; i < 400;) {
+        for (i = 0; i < 400; i += 2, j++)
           bmp_public_buf[j] = ascii2dec_test((char*)&public_buf[i]) << 4 | ascii2dec_test((char*)&public_buf[i + 1]);
-          i                += 2;
-          j++;
-        }
         if (j >= 400) break;
       }
       for (i = 0; i < 400; i += 2) {
