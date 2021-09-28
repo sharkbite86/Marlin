@@ -1,30 +1,13 @@
-﻿## Creality CR10S Pro, CR-X, CR10 Max and Ender 5 Plus Touch Screen supported firmware
+﻿## Creality 427 Board TFT and Touchscreen Firmware For F1rst Layer Kits
 
-This branch adds support for the Creality touchscreen machines and was split off from the standard Creality branches due to specific custom changes not found upstream. This includes extensions to the EXTui framework among other smaller tweaks that we have been working towards getting submitted upstream. Machines supported here are :
+This branch is specifically intended to support the kits sold by F1rst Layer including Creality 427 boards, touchscreens, and other upgrades.
 
-- [CR10S Pro](http://bit.ly/2rxZ6lP)
-- [CR10S Pro V2](http://bit.ly/2rxZ6lP)
-- [CR10 Max](http://bit.ly/2L6wZRy)
-- [Ender 5 Plus](https://bit.ly/2SriM5I)
-- [Ender 6](https://amzn.to/3wMaoj3)
-- [CR-X / Pro](https://bit.ly/33eZ5Ts)
-- [CR10 V2/V3 ](https://bit.ly/3nnhPcM)
-- [Ender 3 / Pro 4.2.2 and 4.2.7](https://bit.ly/3ncWu5I)
-- [Ender 3 V2](https://bit.ly/3xmx4XI)
-- [Ender 3 Max]()
-- [Ender 5 / Pro 4.2.2 and 4.2.7](https://amzn.to/3gMb2Yu)
-- [CR20 and Pro](http://bit.ly/2Oxxruk)
-- [CR10S](http://bit.ly/33AAaHv)
-- [CR10S4 400mm](http://bit.ly/2XXCBmq)
-- [CR10S5 500mm](http://bit.ly/35K4ZuR)
-- [CR6 / Max](https://bit.ly/2SdYijE)
-- CR10, CR10Mini, CR2020, Ender 4, Ender 2 - Legacy support
--- These configurations exist however due to age and product availability are no longer actively tested
+- [Dual Gear Extruders](https://amzn.to/3lZfg08)
+- [Creality 427 Board with Runout Sensor](https://amzn.to/2Y1jrke)
+- [Creality 427 Board and BLTouch](https://amzn.to/3CT57Jk)
+- [E3V2 Upgrade Kit (Screen, 427 board, bltouch, runout)](https://amzn.to/3EZnhec)
+- [Ender 3 100mm Z Extension Kit](https://amzn.to/2XWH78F)
 
-
-
-
-The CRX Has screen files with or without ABL. Ender 3V2 has a dedicated file set. All other machines should use the same generic set. V3 is the current screen file version.
 
 Screen files are archived with [7-Zip](https://www.7-zip.org/) simply because it came out 1/5 the file size of a zip file. That added up fast!
 
@@ -46,55 +29,19 @@ There is a limitation with Windows systems and path depth so the file names need
 
 ## Support
 
-This firmware is provided to the public as-is with no warranty or guarantee. It's based on a large open source project and there is no entitlement to support. That said, Tiny Machines 3D customers may obtain
-support through their normal support queue. I will provide support to Patreons as I am able. If you require more immediate support and are not a Tiny Machines 3D customer, you may contact them at
-support@tinymachines3d.com about purchasing support hours. Aside from this, we are active on many Facebook groups as well as several discord channels and typically help anyone we can when we come across them.
+This firmware is provided to the public as-is with no warranty or guarantee. It's based on a large open source project and there is no entitlement to support. If you are a F1rst Layer customer, you can contact them for support. I will provide support to Patreons as I am able. If you require more immediate support and are not a Tiny Machines 3D or F1rst Layer customer, you may contact Tiny Machines at support@tinymachines3d.com about purchasing support hours. Aside from this, we are active on many Facebook groups as well as several discord channels and typically help anyone we can when we come across them.
 
 3D Printing Discord - https://discord.gg/MZrsgVU
 Marlin Discord - https://discord.gg/n5NJ59y
 
 ## Primary Notes for DW7.4
-- Added Screen Calibration Options
--- Standby Brightness
--- Volume
--- Both now saved in EEPROM
--- Screen configuration code based loosely on the work from the CR6 community modified for this screen model
--- Automatic Screen rotation for the Ender 6 (Default is upside-down)
-- Manual Mesh Controls for no Probe machines
--- CRX and Ender 6 with no Probe can now use all mesh controls
--- All machines now use the same screen files except for Ender 3 V2 Rotary Dial machines and CR6
-- Home button added to 5 point adjustment screen
-- Tap mesh values to manually type in a new value - allows for manual adjustment of mesh values
-- Additional functions, messaging on pause / filament runout
--- No will no longer cancel print
--- Depending on state, if only option is continue (eg Reheat, Load filament) Any response continues
--- On final Confirm Continue, No will purge more filament and Yes will resume
-- Most places temperatures are shown, can now tap them to type in a value to set the temerature
-- Updated to Marlin 2.0.9 Base
-- CR6 Branches merged in
--- Support for this machine is primarily based on the fork by the [CR6 Community](https://github.com/CR6Community)
-
-## Primary notes for DW7.3
-- File browser rewritten to support paging as well as subdirectories
--- New file browser has a limit of a 66 character directory depth. This can be expanded at the cost of more RAM if users find this more limiting.
--- Due to the above, the current recommendation is to try and limit folder depth to 3 subdirectories and keep names short if possible.
-- Base bumped to Marlin Bugfix as of 20210418
-
-# Changes for DW7.3.1
-- Added SD file refresh button for users with damaged SD Detect Pins
-- Modified print finish button action to raise z by 5mm and disable steppers rather than rehome XY
-- Solve rounding issue with babystepping below step precision by forcing always round up caused by recent upstream change
-- Modified babystepping resolution for fine adjustment to .02mm from .01mm
-- Force file pages to reset paging value on entry to screen to prevent incorrect scrolling
-- Additional string length buffer safeties
-
-The default build button is now a batch Build All! If you want to build a custom stock 2560 environment, use the env:megaatmega2560 environment.
-For SKR 1.3/1.4 boards use the LPC1768/9 environments as usual. For SKR Mini or Creality STM32F1 boards use the standard STM32 environments per vendor.
+- Touch screen primarily based on the fork by the [CR6 Community](https://github.com/CR6Community)
+- E3V2 is currently using the modified Jyers UI as merged into Marlin upstream
 
 ## About Our Branches
 
-The firmware branches maintained here are made possible by the support of [Tiny Machines 3D](https://www.tinymachines3d.com/?rfsn=3419592.cc302fe) as well as our customer base through our 3D printing Services.
-Maintaining and developing these branches takes a significant investment, made up of time and machines. To support continued development, please consider your next 3D Printer related purchase from Tiny Machines 3D
+The firmware branches maintained here are made possible by the support of [F1rst Layer]() and [Tiny Machines 3D](https://www.tinymachines3d.com/?rfsn=3419592.cc302fe) as well as our customer base through our 3D printing Services.
+Maintaining and developing these branches takes a significant investment, made up of time and machines. To support continued development, please consider your next 3D Printer purchases from Tiny Machines 3D, F1rst Layer, Bondtech, or Slice Engineering and thank them for supporting open source!
 and thank them for supporting open source development. Or, consider us for printing services outside of your machine’s capabilities. Print service requests can be sent to d.menzel@insanityautomation.com and we will
 respond typically within 1 working day. If you do not need anything printed or a 3D Printer but still want to contribute, you can support us through [Patreon](https://www.patreon.com/InsanityAutomation).
 
@@ -103,19 +50,6 @@ respond typically within 1 working day. If you do not need anything printed or a
 All configuration options intended to be adjusted by end users have been placed in the top section of Configuration.h and have been documented there. There is typically a break line to segregate the standard
 configuration below. Anything aside from the upper options is intended for advanced users only.
 Please keep in mind when flashing the Creality 32 bit boards with the binary files (.bin) that occasionally they will not accept particular filenames. This is most common with reflashing after an aborted flash. The machine stores the filename it was last flashed with, so renaming the file to something such as firmware.bin or firmware1.bin (anything different than what it is now) will typically resolve any issue with file names.
-
-## Known Issues
- - While auto leveling (measuring) is in progress pressing other buttons on the screen can abort portions of the script depending where it is
- - - The process includes heating the bed before probing, probing then heating the nozzle before moving to Z0.
-  - Thanks to Jarrett Wendt for finding that if you are experiencing distorted sounds, and use a Mac, the default Archive Utility on MacOS has been found to be corrupting the files. If you're on a Mac, try unzipping with The Unarchiver or Keka instead.
-
-## Future Goals
-
-For this branch, we still have some active goals open that we plan to continue working on provided there is continued interest in the project.
-- Volume and leveling state EEPROM storage
-- Brightness control
-- Develop internal Marlin state structure for better reporting of pause / block conditions
-- CRX Non ABL Manual mesh interface to bring screens into parity with ABL versions
 
 
 ## Creality Firmware Branches
