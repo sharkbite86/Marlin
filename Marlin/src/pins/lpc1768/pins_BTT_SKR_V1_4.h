@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * BigTreeTech SKR 1.4 pin assignments
+ */
+
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
@@ -239,16 +243,15 @@
   #define TMC_BAUD_RATE                    19200
 #endif
 
-/**       ------                        ------
- *    NC | 1  2 | GND               5V | 1  2 | GND
- * RESET | 3  4 | 1.31            1.23 | 3  4 | 1.22
- *  0.18 | 5  6   3.25            1.21 | 5  6   1.20
- *  0.16 | 7  8 | 3.26            1.19 | 7  8 | 1.18
- *  0.15 | 9  10| 0.17            0.28 | 9  10| 1.30
- *        ------                        ------
- *         EXP2                          EXP1
+/**       ------                ------
+ *  1.30 |10  9 | 0.28    0.17 |10  9 | 0.15
+ *  1.18 | 8  7 | 1.19    3.26 | 8  7 | 0.16
+ *  1.20   6  5 | 1.21    3.25   6  5 | 0.18
+ *  1.22 | 4  3 | 1.23    1.31 | 4  3 | RESET
+ *   GND | 2  1 | 5V       GND | 2  1 | NC
+ *        ------                ------
+ *         EXP1                  EXP2
  */
-
 #define EXP1_03_PIN                        P1_23
 #define EXP1_04_PIN                        P1_22
 #define EXP1_05_PIN                        P1_21
@@ -258,7 +261,7 @@
 #define EXP1_09_PIN                        P0_28
 #define EXP1_10_PIN                        P1_30
 
-#define EXP2_03_PIN                        -1
+#define EXP2_03_PIN                        -1     // RESET
 #define EXP2_04_PIN                        P1_31
 #define EXP2_05_PIN                        P0_18
 #define EXP2_06_PIN                        P3_25
@@ -267,7 +270,7 @@
 #define EXP2_09_PIN                        P0_15
 #define EXP2_10_PIN                        P0_17
 
-#if EITHER(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
+#if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
 
   // RET6 DWIN ENCODER LCD
   #define BTN_ENC                    EXP1_06_PIN
@@ -318,7 +321,7 @@
    /**
     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
-    * 3. Rewire the CLK Signal (LCD Pin9) to LCD Pin7. (LCD Pin9 remains open because this pin is open drain.)
+    * 3. Rewire the CLK Signal (LCD Pin9) to LCD Pin7. (LCD Pin9 remains open because it is open drain.)
     * 4. A wire is needed to connect the Reset switch at J3 (LCD Pin7) to EXP2 (Pin3) on the board.
     *
     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
