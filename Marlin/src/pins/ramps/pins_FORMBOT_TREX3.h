@@ -100,9 +100,9 @@
   #define E1_CS_PIN                           44
 #endif
 
-#define E2_STEP_PIN                           42
-#define E2_DIR_PIN                            43
-#define E2_ENABLE_PIN                         44
+#define X2_STEP_PIN                           42
+#define X2_DIR_PIN                            43
+#define X2_ENABLE_PIN                         44
 
 //
 // Temperature Sensors
@@ -177,13 +177,13 @@
 
 #if HAS_MARLINUI_U8GLIB
   #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
+    #define BOARD_ST7920_DELAY_1 125
   #endif
   #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+    #define BOARD_ST7920_DELAY_2 125
   #endif
   #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
+    #define BOARD_ST7920_DELAY_3 125
   #endif
 #endif
 
