@@ -344,6 +344,10 @@
   #undef EnclosureLight
 #endif
 
+#if ENABLED(ABL_EZABL12MM)
+  #define ABL_EZABL
+#endif
+
 #if ENABLED(MachineCR10SV3)
   #define MachineCR10SV2
   #define CrealityTitan
@@ -385,10 +389,6 @@
 
 #if ENABLED(DDXExtruderKit)
   #define BondtechBMG
-#endif
-
-#if ENABLED(ABL_EZABL12MM)
-  #define ABL_EZABL
 #endif
 
 #if ENABLED(MachineCR10SProV2)
