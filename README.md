@@ -40,6 +40,16 @@ support@tinymachines3d.com about purchasing support hours. Aside from this, we a
 3D Printing Discord - https://discord.gg/MZrsgVU
 Marlin Discord - https://discord.gg/n5NJ59y
 
+## Primary Notes for DW7.4.3
+ - PID Messaging Fixed
+ - M600 / Advanced pause messaging improved
+ - Volume / Brightness numeric entry fixed
+ - Ender 5 Pro with 427 board reversed motors fixed
+ - Update base to 2.0.9.2
+ -- Includes improved UI for the E3V2 with expanded menus submitted by Jyers
+ - Add Gcode configuration to disable BLTouch High Speed Mode to allow runtime config to support CRTouch
+ -- This one is pending upstream https://github.com/MarlinFirmware/Marlin/pull/22916
+ - Add precompiled options for CR10S/4/5 and CR10V3
 
 ## Primary Notes for DW7.4
 - Added Screen Calibration Options
