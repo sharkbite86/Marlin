@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "2.0.9_DW7.4.2"
+#define SHORT_BUILD_VERSION "2.0.9_DW7.4.4"
 
 /**
  * Verbose version identifier which should contain a reference to the location
@@ -51,6 +51,10 @@
   #define VerChar1 "E5"
 #elif(ENABLED(MachineEnder6))
   #define VerChar1 "E6"
+#elif(ENABLED(MachineEnder7))
+  #define VerChar1 "E7"
+#elif(ENABLED(MachineSermoonD1))
+  #define VerChar1 "D1"
 #elif(ENABLED(MachineEnder5Plus))
   #define VerChar1 "E5P"
 #elif(ENABLED(MachineCR20))
@@ -71,6 +75,8 @@
   #define VerChar1 "5"
 #elif ENABLED(MachineCR2020)
   #define VerChar1 "20"
+#elif(ENABLED(MachineCR30))
+  #define VerChar1 "CR30"
 #endif
 
 #if(ENABLED(HotendStock))
@@ -119,7 +125,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "2021-09-14"
+#define STRING_DISTRIBUTION_DATE "2021-11-12"
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
@@ -140,6 +146,8 @@
   #define CUSTOM_MACHINE_NAME "E3Max"
 #elif(ENABLED(MachineEnder6))
   #define CUSTOM_MACHINE_NAME "Ender6"
+#elif(ENABLED(MachineEnder7))
+  #define CUSTOM_MACHINE_NAME "Ender7"
 #elif(ENABLED(MachineEnder3V2))
   #define CUSTOM_MACHINE_NAME "Ender3V2"
 #elif(ENABLED(MachineEnder4))
@@ -172,6 +180,10 @@
   #define CUSTOM_MACHINE_NAME "CR10500"
 #elif ENABLED(MachineCR2020)
   #define CUSTOM_MACHINE_NAME "CR2020"
+#elif ENABLED(MachineSermoonD1)
+  #define CUSTOM_MACHINE_NAME "SermoonD1"
+#elif ENABLED(MachineCR30)
+  #define CUSTOM_MACHINE_NAME "CR30 Printmill"
 #endif
 
 /**

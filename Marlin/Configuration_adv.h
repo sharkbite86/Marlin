@@ -30,7 +30,7 @@
  *
  * Basic settings can be found in Configuration.h
  */
-#define CONFIGURATION_ADV_H_VERSION 02000902
+#define CONFIGURATION_ADV_H_VERSION 02000903
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -437,7 +437,7 @@
   #define AUTOTEMP
 #endif
 #if ENABLED(AUTOTEMP)
-  #define AUTOTEMP_OLDWEIGHT    0.98
+  #define AUTOTEMP_OLDWEIGHT    0.98  // Factor used to weight previous readings (0.0 < value < 1.0)
   // Turn on AUTOTEMP on M104/M109 by default using proportions set here
   //#define AUTOTEMP_PROPORTIONAL
   #if ENABLED(AUTOTEMP_PROPORTIONAL)
@@ -825,9 +825,11 @@
 
 #define HOMING_BACKOFF_POST_MM { 8, 8, 2 }  // (mm) Backoff from endstops after homing
 
-#define QUICK_HOME                          // If G28 contains XY do a diagonal move first
-
-//#define HOME_Y_BEFORE_X                     // If G28 contains XY home Y before X
+#if DISABLED(MachineCR30)
+  #define QUICK_HOME                          // If G28 contains XY do a diagonal move first
+#else
+  #define HOME_Y_BEFORE_X                     // If G28 contains XY home Y before X
+#endif
 //#define HOME_Z_FIRST                        // Home Z first. Requires a Z-MIN endstop (not a probe).
 //#define CODEPENDENT_XY_HOMING               // If X/Y can't home without homing Y/X first
 
@@ -877,7 +879,7 @@
    * differs, a mode set eeprom write will be completed at initialization.
    * Use the option below to force an eeprom write to a V3.1 probe regardless.
    */
-  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2)
+  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, Creality422, Creality427, MachineEnder6, MachineEnder7, MachineSermoonD1, MachineCR30, MachineCR6, MachineCR6Max)
     #define BLTOUCH_SET_5V_MODE
   #endif
   /**
@@ -889,14 +891,14 @@
   //#define BLTOUCH_FORCE_MODE_SET
 
   /**
-   * Use "HIGH SPEED" mode for probing.
+   * Enable "HIGH SPEED" option for probing.
    * Danger: Disable if your probe sometimes fails. Only suitable for stable well-adjusted systems.
    * This feature was designed for Deltabots with very fast Z moves; however, higher speed Cartesians
    * might be able to use it. If the machine can't raise Z fast enough the BLTouch may go into ALARM.
+   *
+   * Set the default state here, change with 'M401 S' or UI, use M500 to save, M502 to reset.
    */
-  #if NONE(MachineCR10Orig, LowMemoryBoard, MachineCRXs)
-    #define BLTOUCH_HS_MODE
-  #endif
+  #define BLTOUCH_HS_MODE true
 
   // Safety: Enable voltage mode settings in the LCD menu.
   //#define BLTOUCH_LCD_VOLTAGE_MENU
@@ -1030,7 +1032,7 @@
 // If the Nozzle or Bed falls when the Z stepper is disabled, set its resting position here.
 //#define Z_AFTER_DEACTIVATE Z_HOME_POS
 
-#if ANY(MachineEnder5, MachineEnder5Plus, MachineEnder6)
+#if ANY(MachineEnder5, MachineEnder5Plus, MachineEnder6, MachineCR30)
   #define HOME_AFTER_DEACTIVATE  // Require rehoming after steppers are deactivated
 #endif
 
@@ -1045,8 +1047,8 @@
 // Increase the slowdown divisor for larger buffer sizes.
 #define SLOWDOWN
 #if ENABLED(SLOWDOWN)
-  #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, MachineEnder3V2, Creality422, Creality427)
-    #define SLOWDOWN_DIVISOR 4
+  #if ENABLED(MachineLargeROM)
+    #define SLOWDOWN_DIVISOR 8
   #else
     #define SLOWDOWN_DIVISOR 2
   #endif
@@ -1175,7 +1177,7 @@
  * vibration and surface artifacts. The algorithm adapts to provide the best possible step smoothing at the
  * lowest stepping frequencies.
  */
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineEnder3V2, Creality422, Creality427, MachineCR6, MachineCR6Max, MachineEnder6)
+#if ENABLED(MachineLargeROM)
   #define ADAPTIVE_STEP_SMOOTHING
 #endif
 
@@ -1338,7 +1340,7 @@
 
 #endif // HAS_LCD_MENU
 
-#if HAS_DISPLAY
+#if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
   // The timeout (in ms) to return to the status screen from sub-menus
   #define LCD_TIMEOUT_TO_STATUS 15000
 
@@ -1366,7 +1368,7 @@
 
 // LCD Print Progress options
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
-  #if ANY(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI, HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL, IS_DWIN_MARLINUI)
+  #if CAN_SHOW_REMAINING_TIME
     #define SHOW_REMAINING_TIME         // Display estimated time to completion
     #if ENABLED(SHOW_REMAINING_TIME)
       #define USE_M73_REMAINING_TIME    // Use remaining time from M73 command instead of estimation
@@ -1411,7 +1413,9 @@
   //#define SD_IGNORE_AT_STARTUP            // Don't mount the SD card when starting up
   //#define SDCARD_READONLY                 // Read-only SD card (to save over 2K of flash)
 
-  //#define GCODE_REPEAT_MARKERS            // Enable G-code M808 to set repeat markers and do looping
+  #if ENABLED(MachineCR30)
+    #define GCODE_REPEAT_MARKERS            // Enable G-code M808 to set repeat markers and do looping
+  #endif
 
   #define SD_PROCEDURE_DEPTH 1              // Increase if you need more nested M32 calls
 
@@ -1680,7 +1684,7 @@
    * Set STATUS_EXPIRE_SECONDS to zero to never clear the status.
    * This will prevent position updates from being displayed.
    */
-  #if ENABLED(U8GLIB_ST7920)
+  #if IS_U8GLIB_ST7920
     // Enable this option and reduce the value to optimize screen updates.
     // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
     //#define DOGM_SPI_DELAY_US 5
@@ -1714,14 +1718,14 @@
   //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
   //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
   //#define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
-  #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11)
+  #if ENABLED(MachineLargeROM)
     #define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
   #else
     #define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
   #endif
   //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 
-  #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11)
+  #if ENABLED(MachineLargeROM)
     // Frivolous Game Options
     #define MARLIN_BRICKOUT
     #define MARLIN_INVADERS
@@ -1743,9 +1747,11 @@
 //
 // Additional options for DGUS / DWIN displays
 //
-#if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
-  #define LCD_SERIAL_PORT 3
-  #define LCD_BAUDRATE 115200
+#if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH) || ENABLED(FORCE10SPRODISPLAY)
+  #ifndef LCD_SERIAL_PORT
+    #define LCD_SERIAL_PORT 3
+    #define LCD_BAUDRATE 115200
+  #endif
 
   #define DGUS_RX_BUFFER_SIZE 128
   #define DGUS_TX_BUFFER_SIZE 48
@@ -1975,7 +1981,7 @@
   #endif
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
-    #if NONE(MachineCR10Orig, LowMemoryBoard, EXTENSIBLE_UI, SKRMiniE3V2, MachineEnder3V2, MachineCR6, MachineCR6Max) && (DISABLED(MachineEnder4) || ENABLED(GraphicLCD))
+    #if NONE(MachineCR10Orig, LowMemoryBoard, EXTENSIBLE_UI, SKRMiniE3V2, MachineEnder3V2, MachineCR6, MachineCR6Max, FORCEV2DISPLAY) && (DISABLED(MachineEnder4) || ENABLED(GraphicLCD))
       #define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
     #endif
   #endif
@@ -2006,6 +2012,7 @@
   #define LIN_ADVANCE_K 0.0    // Unit: mm compression per 1mm/s extruder speed
   //#define LA_DEBUG            // If enabled, this will generate debug information output over USB.
   #define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
+  #define ALLOW_LOW_EJERK     // Allow a DEFAULT_EJERK value of <10. Recommended for direct drive hotends.
 #endif
 
 // @section leveling
@@ -2065,7 +2072,7 @@
  * Repeatedly attempt G29 leveling until it succeeds.
  * Stop after G29_MAX_RETRIES attempts.
  */
-#if ENABLED(ABL_BI) && NONE(MachineCR10Orig, LowMemoryBoard, SKRMiniE3V2)
+#if ENABLED(ABL_BI) && NONE(MachineCR10Orig, LowMemoryBoard, SKRMiniE3V2, MachineCR30)
   #define G29_RETRY_AND_RECOVER
 #endif
 #if ENABLED(G29_RETRY_AND_RECOVER)
@@ -2083,59 +2090,69 @@
 
 /**
  * Thermal Probe Compensation
- * Probe measurements are adjusted to compensate for temperature distortion.
- * Use G76 to calibrate this feature. Use M871 to set values manually.
- * For a more detailed explanation of the process see G76_M871.cpp.
+ *
+ * Adjust probe measurements to compensate for distortion associated with the temperature
+ * of the probe, bed, and/or hotend.
+ * Use G76 to automatically calibrate this feature for probe and bed temperatures.
+ * (Extruder temperature/offset values must be calibrated manually.)
+ * Use M871 to set temperature/offset values manually.
+ * For more details see https://marlinfw.org/docs/features/probe_temp_compensation.html
  */
-#if HAS_BED_PROBE && TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
-  // Enable thermal first layer compensation using bed and probe temperatures
-  #define PROBE_TEMP_COMPENSATION
+//#define PTC_PROBE    // Compensate based on probe temperature
+//#define PTC_BED      // Compensate based on bed temperature
+//#define PTC_HOTEND   // Compensate based on hotend temperature
 
-  // Add additional compensation depending on hotend temperature
-  // Note: this values cannot be calibrated and have to be set manually
-  #if ENABLED(PROBE_TEMP_COMPENSATION)
+#if ANY(PTC_PROBE, PTC_BED, PTC_HOTEND)
+  /**
+   * If the probe is outside the defined range, use linear extrapolation with the closest
+   * point and the point with index PTC_LINEAR_EXTRAPOLATION. e.g., If set to 4 it will use the
+   * linear extrapolation between data[0] and data[4] for values below PTC_PROBE_START.
+   */
+  //#define PTC_LINEAR_EXTRAPOLATION 4
+
+  #if ENABLED(PTC_PROBE)
+    // Probe temperature calibration generates a table of values starting at PTC_PROBE_START
+    // (e.g., 30), in steps of PTC_PROBE_RES (e.g., 5) with PTC_PROBE_COUNT (e.g., 10) samples.
+    #define PTC_PROBE_START   30    // (°C)
+    #define PTC_PROBE_RES      5    // (°C)
+    #define PTC_PROBE_COUNT   10
+    #define PTC_PROBE_ZOFFS   { 0 } // (µm) Z adjustments per sample
+  #endif
+
+  #if ENABLED(PTC_BED)
+    // Bed temperature calibration builds a similar table.
+    #define PTC_BED_START     60    // (°C)
+    #define PTC_BED_RES        5    // (°C)
+    #define PTC_BED_COUNT     10
+    #define PTC_BED_ZOFFS     { 0 } // (µm) Z adjustments per sample
+  #endif
+
+  #if ENABLED(PTC_HOTEND)
+    // Note: There is no automatic calibration for the hotend. Use M871.
+    #define PTC_HOTEND_START 180    // (°C)
+    #define PTC_HOTEND_RES     5    // (°C)
+    #define PTC_HOTEND_COUNT  20
+    #define PTC_HOTEND_ZOFFS  { 0 } // (µm) Z adjustments per sample
+  #endif
+
+  // G76 options
+  #if BOTH(PTC_PROBE, PTC_BED)
     // Park position to wait for probe cooldown
     #define PTC_PARK_POS   { 0, 0, 100 }
 
     // Probe position to probe and wait for probe to reach target temperature
+    //#define PTC_PROBE_POS  { 12.0f, 7.3f } // Example: MK52 magnetic heatbed
     #define PTC_PROBE_POS  { 90, 100 }
 
-    // Enable additional compensation using hotend temperature
-    // Note: this values cannot be calibrated automatically but have to be set manually
-    //#define USE_TEMP_EXT_COMPENSATION
-
-    // Probe temperature calibration generates a table of values starting at PTC_SAMPLE_START
-    // (e.g., 30), in steps of PTC_SAMPLE_RES (e.g., 5) with PTC_SAMPLE_COUNT (e.g., 10) samples.
-
-    //#define PTC_SAMPLE_START  30  // (°C)
-    //#define PTC_SAMPLE_RES     5  // (°C)
-    //#define PTC_SAMPLE_COUNT  10
-
-    // Bed temperature calibration builds a similar table.
-
-    //#define BTC_SAMPLE_START  60  // (°C)
-    //#define BTC_SAMPLE_RES     5  // (°C)
-    //#define BTC_SAMPLE_COUNT  10
-
-    // The temperature the probe should be at while taking measurements during bed temperature
-    // calibration.
-    //#define BTC_PROBE_TEMP    30  // (°C)
+    // The temperature the probe should be at while taking measurements during
+    // bed temperature calibration.
+    #define PTC_PROBE_TEMP    30  // (°C)
 
     // Height above Z=0.0 to raise the nozzle. Lowering this can help the probe to heat faster.
-    // Note: the Z=0.0 offset is determined by the probe offset which can be set using M851.
-    //#define PTC_PROBE_HEATING_OFFSET 0.5
-
-    // Height to raise the Z-probe between heating and taking the next measurement. Some probes
-    // may fail to untrigger if they have been triggered for a long time, which can be solved by
-    // increasing the height the probe is raised to.
-    //#define PTC_PROBE_RAISE 15
-
-    // If the probe is outside of the defined range, use linear extrapolation using the closest
-    // point and the PTC_LINEAR_EXTRAPOLATION'th next point. E.g. if set to 4 it will use data[0]
-    // and data[4] to perform linear extrapolation for values below PTC_SAMPLE_START.
-    //#define PTC_LINEAR_EXTRAPOLATION 4
+    // Note: The Z=0.0 offset is determined by the probe Z offset (e.g., as set with M851 Z).
+    #define PTC_PROBE_HEATING_OFFSET 0.5
   #endif
-#endif
+#endif // PTC_PROBE || PTC_BED || PTC_HOTEND
 
 // @section extras
 
@@ -2206,9 +2223,12 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-//#define MINIMUM_STEPPER_POST_DIR_DELAY 650
-//#define MINIMUM_STEPPER_PRE_DIR_DELAY 650
-
+#if ENABLED(MachineEnder7)
+  #define MINIMUM_STEPPER_POST_DIR_DELAY 10
+  #define MINIMUM_STEPPER_PRE_DIR_DELAY 10
+  #define MINIMUM_STEPPER_PULSE 0
+  #define MAXIMUM_STEPPER_RATE 5000000
+#endif
 /**
  * Minimum stepper driver pulse width (in µs)
  *   0 : Smallest possible width the MCU can produce, compatible with TMC2xxx drivers
@@ -2249,8 +2269,8 @@
 
 // The number of linear moves that can be in the planner at once.
 // The value of BLOCK_BUFFER_SIZE must be a power of 2 (e.g. 8, 16, 32)
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, MachineEnder3V2, Creality422, Creality427) || DISABLED(EXTENSIBLE_UI)
-  #define BLOCK_BUFFER_SIZE 16
+#if ENABLED(MachineLargeROM) || DISABLED(EXTENSIBLE_UI)
+  #define BLOCK_BUFFER_SIZE 32
 #else
   #define BLOCK_BUFFER_SIZE 8
 #endif
@@ -2259,10 +2279,8 @@
 
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
-#if ANY(MachineCR10Orig, SKRMiniE3V2, MachineEnder3V2, Creality422, Creality427) //melzi has more ram than a 2560
+#if ANY(MachineCR10Orig, SKRMiniE3V2, MachineLargeROM) //melzi has more ram than a 2560
   #define BUFSIZE 16
-#elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11)
-  #define BUFSIZE 8
 #else
   #define BUFSIZE 4
 #endif
@@ -2386,7 +2404,7 @@
  *
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  */
- #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineEnder3V2, Creality422, Creality427, MachineCR6, MachineCR6Max, MachineEnder6)
+ #if ENABLED(MachineLargeROM)
   #define FWRETRACT
 #endif
 #if ENABLED(FWRETRACT)
@@ -2429,6 +2447,7 @@
    */
   //#define EVENT_GCODE_TOOLCHANGE_T0 "G28 A\nG1 A0" // Extra G-code to run while executing tool-change command T0
   //#define EVENT_GCODE_TOOLCHANGE_T1 "G1 A10"       // Extra G-code to run while executing tool-change command T1
+  //#define EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN        // Always execute above G-code sequences. Use with caution!
 
   /**
    * Tool Sensors detect when tools have been picked up or dropped.
@@ -2558,8 +2577,8 @@
   #define PAUSE_PARK_NOZZLE_TIMEOUT           45  // (seconds) Time limit before the nozzle is turned off for safety.
   #define FILAMENT_CHANGE_ALERT_BEEPS          2  // Number of alert beeps to play when a response is needed.
   #define PAUSE_PARK_NO_STEPPER_TIMEOUT           // Enable for XYZ steppers to stay powered on during filament change.
-  #define FILAMENT_CHANGE_RESUME_ON_INSERT      // Automatically continue / load filament when runout sensor is made again
-  #define FILAMENT_CHANGE_FAST_RESUME            // Reduce number of waits by not prompting again post timeout before continuing
+  #define FILAMENT_CHANGE_RESUME_ON_INSERT        // Automatically continue / load filament when runout sensor is made again
+  #define PAUSE_REHEAT_FAST_RESUME                // Reduce number of waits by not prompting again post timeout before continuing
 
   #define PARK_HEAD_ON_PAUSE                      // Park the nozzle during pause and filament change.
   //#define HOME_BEFORE_FILAMENT_CHANGE             // Ensure homing has been completed prior to parking for filament change
@@ -4006,11 +4025,12 @@
  */
 #define HOST_ACTION_COMMANDS
 #if ENABLED(HOST_ACTION_COMMANDS)
+  //#define HOST_PAUSE_M76
   #if DISABLED(MachineCR10Orig) || ENABLED(MelziHostOnly)
-    //#define HOST_PAUSE_M76
     #define HOST_PROMPT_SUPPORT
-    #define HOST_START_MENU_ITEM  // Add a menu item that tells the host to start
   #endif
+  #define HOST_START_MENU_ITEM      // Add a menu item that tells the host to start
+  //#define HOST_SHUTDOWN_MENU_ITEM   // Add a menu item that tells the host to shut down
 #endif
 
 /**
@@ -4352,16 +4372,15 @@
 // M100 Free Memory Watcher to debug memory usage
 //
 //#define M100_FREE_MEMORY_WATCHER
+#if ENABLED(MachineLargeROM)
+  //
+  // M42 - Set pin states
+  //
+  #define DIRECT_PIN_CONTROL
 
-//
-// M42 - Set pin states
-//
-//#define DIRECT_PIN_CONTROL
-
-//
-// M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
-//
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineEnder3V2, Creality422, Creality427, MachineCR6, MachineCR6Max, MachineEnder6)
+  //
+  // M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
+  //
   #define PINS_DEBUGGING
 #endif
 
@@ -4388,3 +4407,6 @@
  */
 //#define SOFT_RESET_VIA_SERIAL         // 'KILL' and '^X' commands will soft-reset the controller
 //#define SOFT_RESET_ON_KILL            // Use a digital button to soft-reset the controller after KILL
+
+// Report uncleaned reset reason from register r2 instead of MCUSR. Supported by Optiboot on AVR.
+//#define OPTIBOOT_RESET_REASON

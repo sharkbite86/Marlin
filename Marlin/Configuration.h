@@ -19,7 +19,8 @@
 
 // Touchscreens in development, not tested
 //#define MachineCR5
-//#define MachineEnder3Touchscreen
+//#define MachineSermoonD1
+//#define MachineEnder7
 
 // Standard Display Atmega2560 machines (No bootloader required)
 //#define MachineEnder4
@@ -31,6 +32,9 @@
 //#define MachineS4
 //#define MachineS5
 //#define MachineCR2020 // Industrial Series 2020
+
+// Belt Printer
+//#define MachineCR30
 
 // Atmega1284P machines Needs a bootloader flashed before installation
 // See video here : https://www.youtube.com/watch?v=fIl5X2ffdyo
@@ -128,6 +132,13 @@
 //#define OrigLCD // Upgraded mainboard with single cable Ender LCD
 //#define GraphicLCD // 12864 Full graphics LCD for Ender 4, CR-X, Ender 5 Plus, CR10SPro, or CR10Max
 //#define Big_UI // Lightweight status screen, saves CPU cycles
+
+// CR-6 or Ender touchscreen kit
+//#define MachineEnder3Touchscreen
+
+// Ender 3 V2 rotary Dial LCD
+//#define FORCEV2DISPLAY
+
 
 // Touchscreen options - only 32 bit boards have the open serial ports to use with graphics displays above
 //#define FORCE10SPRODISPLAY
@@ -282,7 +293,7 @@
  *
  * Advanced settings can be found in Configuration_adv.h
  */
-#define CONFIGURATION_H_VERSION 02000902
+#define CONFIGURATION_H_VERSION 02000903
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -490,10 +501,20 @@
   #endif
 #endif
 
-#if ANY(MachineCRX, MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max, MachineEnder6)
+#if ANY(MachineCRX, MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max, MachineEnder6, MachineSermoonD1, MachineEnder7)
   #if NONE(GraphicLCD, OrigLCD, FORCE10SPRODISPLAY)
     #define FORCE10SPRODISPLAY
   #endif
+#endif
+
+#if ANY(MachineEnder7, MachineSermoonD1)
+  #define DWINOS_4
+#endif
+
+#if ENABLED(MachineCR30)
+  #define OrigLCD
+  #define RET6_12864_LCD
+  #define BedDC
 #endif
 
 #if ENABLED(MachineCRX)
@@ -504,7 +525,7 @@
   #endif
 #endif
 
-#if ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder3Max, MachineEnder6)
+#if ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder3Max, MachineEnder6, MachineEnder7, MachineSermoonD1)
   #define POWER_LOSS_RECOVERY //Screen will not compile without PLR
   #if NONE(BedAC, BedDC)
     #define BedDC
@@ -534,8 +555,16 @@
 #endif
 
 #if (EITHER(Creality422, Creality427) && DISABLED(MachineEnder3V2)) || BOTH(OrigLCD, MachineEnder6)
-  #undef FORCE10SPRODISPLAY
-  #define RET6_12864_LCD
+  #ifndef FORCE10SPRODISPLAY
+    #ifndef MachineEnder3Touchscreen
+      #ifndef FORCEV2DISPLAY
+        #define RET6_12864_LCD
+        #ifndef OrigLCD
+          #define OrigLCD
+        #endif
+      #endif
+    #endif
+  #endif
 #endif
 
 #if NONE(HotendStock, HotendE3D)
@@ -593,11 +622,21 @@
   #define POWER_LOSS_RECOVERY
 #endif
 
+#if ENABLED(MachineSermoonD1)
+  #ifndef Creality422
+    #define Creality422
+  #endif
+#endif
+
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo, MachineEnder3V2, Creality422, Creality427, MachineEnder6, MachineSermoonD1, MachineCR30, MachineCR6, MachineCR6Max, MachineEnder7)
+  #define MachineLargeROM
+#endif
+
 #if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus, SKRMiniE3V2, FORCE10SPRODISPLAY) || ENABLED(GraphicLCD)
   #define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
-  #if DISABLED(MachineEnder3V2, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen)
+  #if DISABLED(MachineEnder3V2, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen, FORCEV2DISPLAY)
     //#define SHOW_CUSTOM_BOOTSCREEN
     // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
     //#define CUSTOM_STATUS_SCREEN_IMAGE
@@ -614,7 +653,7 @@
  */
 #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, SKRE3Turbo, SKR_CR6)
   #define SERIAL_PORT -1
- #elif ANY(MachineEnder3V2, MachineEnder3Max, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder6, MachineCR6, MachineCR6Max)
+ #elif ANY(MachineEnder3V2, MachineEnder3Max, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder6, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineCR30, MachineEnder7)
   #define SERIAL_PORT 1
 #else
   #define SERIAL_PORT 0
@@ -629,28 +668,28 @@
   #define LCD_SERIAL_PORT 0
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL -1
-#elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && DISABLED(MachineEnder3V2, MachineEnder3Touchscreen)
+#elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && NONE(MachineEnder3V2, MachineEnder3Touchscreen, FORCEV2DISPLAY)
   #define SERIAL_PORT_2 0
 #elif ENABLED(SKRMiniE3V2)
   #define SERIAL_PORT_2 2
-#elif BOTH(MachineEnder3V2, SKRE3Turbo)
+#elif ENABLED(MachineEnder3V2) && ANY(FORCEV2DISPLAY, SKRE3Turbo)
   #define LCD_SERIAL_PORT 1
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL -1
-#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && NONE(GraphicLCD, OrigLCD, MachineEnder3V2, Creality422, Creality427, MachineEnder6)
+#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && NONE(GraphicLCD, OrigLCD, MachineEnder3V2, Creality422, Creality427, MachineEnder6, FORCEV2DISPLAY)
   #define LCD_SERIAL_PORT 2
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 0
-#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6) && NONE(GraphicLCD, OrigLCD)
+#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, Creality422, Creality427, MachineSermoonD1, MachineEnder3Touchscreen, MachineCR6, MachineCR6Max, FORCEV2DISPLAY) && NONE(GraphicLCD, OrigLCD)
   #define LCD_SERIAL_PORT 3
+  #define LCD_BAUDRATE 115200
+  #define SERIAL_CATCHALL 1
+#elif ENABLED(MachineEnder7)
+  #define LCD_SERIAL_PORT 2
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 1
 #elif ANY(Creality422, Creality427) && NONE(MachineEnder3V2, FORCE10SPRODISPLAY, MachineEnder3Touchscreen)
   #define SERIAL_PORT_2 3
-#elif ANY(Creality422, Creality427) && ENABLED(FORCE10SPRODISPLAY)
-  #define LCD_SERIAL_PORT 3
-  #define LCD_BAUDRATE 115200
-  #define SERIAL_CATCHALL 1
 #endif
 
 /**
@@ -664,7 +703,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#if ANY(MachineEnder3V2, CrealityViewerKit, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen)
+#if ANY(MachineEnder3V2, CrealityViewerKit, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen, FORCEV2DISPLAY)
   #define BAUDRATE 115200
 #else
   #define BAUDRATE 250000
@@ -707,6 +746,8 @@
     #define MOTHERBOARD BOARD_BTT_SKR_E3_TURBO
   #elif ENABLED(MachineEnder6)
     #define MOTHERBOARD BOARD_CREALITY_V431
+  #elif ENABLED(MachineEnder7)
+    #define MOTHERBOARD BOARD_CREALITY_V24S1
   #elif ENABLED(Creality427)
     #define MOTHERBOARD BOARD_CREALITY_V427
   #elif ENABLED(Creality422)
@@ -717,6 +758,8 @@
     #define MOTHERBOARD BOARD_BTT_SKR_CR6
   #elif ENABLED(CR6_452)
     #define MOTHERBOARD BOARD_CREALITY_V452
+  #elif ENABLED(MachineCR30)
+    #define MOTHERBOARD BOARD_CREALITY_V4210
   #elif ANY(MachineCR6, MachineCR6Max)
     #define MOTHERBOARD BOARD_CREALITY_V453
   #else
@@ -847,7 +890,6 @@
 
   #define PARKING_EXTRUDER_PARKING_X { -78, 184 }     // X positions for parking the extruders
   #define PARKING_EXTRUDER_GRAB_DISTANCE 1            // (mm) Distance to move beyond the parking point to grab the extruder
-  //#define MANUAL_SOLENOID_CONTROL                   // Manual control of docking solenoids with M380 S / M381
 
   #if ENABLED(PARKING_EXTRUDER)
 
@@ -1459,7 +1501,7 @@
 
 // Enable one of the options below for CoreXY, CoreXZ, or CoreYZ kinematics,
 // either in the usual order or reversed
-#if ANY(MachineEnder4, MachineEnder6)
+#if ANY(MachineEnder4, MachineEnder6, MachineEnder7, MachineCR30)
   #define COREXY
 #endif
 //#define COREXZ
@@ -1470,7 +1512,16 @@
 //#define MARKFORGED_XY  // MarkForged. See https://reprap.org/forum/read.php?152,504042
 
 // Enable for a belt style printer with endless "Z" motion
-//#define BELTPRINTER
+#if ENABLED(MachineCR30)
+  #define BELTPRINTER
+#endif
+
+// Enable for Polargraph Kinematics
+//#define POLARGRAPH
+#if ENABLED(POLARGRAPH)
+  #define POLARGRAPH_MAX_BELT_LEN 1035.0
+  #define POLAR_SEGMENTS_PER_SECOND 5
+#endif
 
 //===========================================================================
 //============================== Endstop Settings ===========================
@@ -1487,7 +1538,11 @@
   #define USE_YMAX_PLUG
 #else
   #define USE_XMIN_PLUG
-  #define USE_YMIN_PLUG
+  #if ENABLED(MachineEnder7)
+    #define USE_YMAX_PLUG
+  #else
+    #define USE_YMIN_PLUG
+  #endif
   #define USE_ZMIN_PLUG
 #endif
 //#define USE_IMIN_PLUG
@@ -1504,18 +1559,18 @@
 #define ENDSTOPPULLUPS
 #if DISABLED(ENDSTOPPULLUPS)
   // Disable ENDSTOPPULLUPS to set pullups individually
-  //#define ENDSTOPPULLUP_XMAX
-  //#define ENDSTOPPULLUP_YMAX
-  //#define ENDSTOPPULLUP_ZMAX
-  //#define ENDSTOPPULLUP_IMAX
-  //#define ENDSTOPPULLUP_JMAX
-  //#define ENDSTOPPULLUP_KMAX
   //#define ENDSTOPPULLUP_XMIN
   //#define ENDSTOPPULLUP_YMIN
   //#define ENDSTOPPULLUP_ZMIN
   //#define ENDSTOPPULLUP_IMIN
   //#define ENDSTOPPULLUP_JMIN
   //#define ENDSTOPPULLUP_KMIN
+  //#define ENDSTOPPULLUP_XMAX
+  //#define ENDSTOPPULLUP_YMAX
+  //#define ENDSTOPPULLUP_ZMAX
+  //#define ENDSTOPPULLUP_IMAX
+  //#define ENDSTOPPULLUP_JMAX
+  //#define ENDSTOPPULLUP_KMAX
   //#define ENDSTOPPULLUP_ZMIN_PROBE
 #endif
 
@@ -1523,28 +1578,28 @@
 //#define ENDSTOPPULLDOWNS
 #if DISABLED(ENDSTOPPULLDOWNS)
   // Disable ENDSTOPPULLDOWNS to set pulldowns individually
-  //#define ENDSTOPPULLDOWN_XMAX
-  //#define ENDSTOPPULLDOWN_YMAX
-  //#define ENDSTOPPULLDOWN_ZMAX
-  //#define ENDSTOPPULLDOWN_IMAX
-  //#define ENDSTOPPULLDOWN_JMAX
-  //#define ENDSTOPPULLDOWN_KMAX
   //#define ENDSTOPPULLDOWN_XMIN
   //#define ENDSTOPPULLDOWN_YMIN
   //#define ENDSTOPPULLDOWN_ZMIN
   //#define ENDSTOPPULLDOWN_IMIN
   //#define ENDSTOPPULLDOWN_JMIN
   //#define ENDSTOPPULLDOWN_KMIN
+  //#define ENDSTOPPULLDOWN_XMAX
+  //#define ENDSTOPPULLDOWN_YMAX
+  //#define ENDSTOPPULLDOWN_ZMAX
+  //#define ENDSTOPPULLDOWN_IMAX
+  //#define ENDSTOPPULLDOWN_JMAX
+  //#define ENDSTOPPULLDOWN_KMAX
   //#define ENDSTOPPULLDOWN_ZMIN_PROBE
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#if ANY(MachineEnder4, MachineCR2020)
+#if ANY(MachineEnder4, MachineCR2020, MachineCR30)
   #define X_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #else
   #define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #endif
-#if ENABLED(MachineCR2020)
+#if ANY(MachineCR2020, MachineCR30)
   #define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #else
   #define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
@@ -1585,7 +1640,7 @@
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
 
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineCR10SV2, CrealitySilentBoard, MachineCR10SPro, MachineCR10SProV2, MachineCR10Max, SKRMiniE3V2, MachineCR6, MachineCR6Max) && DISABLED(SKR_UART)
+#if (ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, CrealitySilentBoard) || ANY(MachineCR10SV2, MachineCR10SPro, MachineCR10SProV2, MachineCR10Max, SKRMiniE3V2, MachineCR6, MachineCR6Max, MachineEnder6, MachineEnder7, MachineSermoonD1, MachineCR30)) && DISABLED(SKR_UART)
   #if ENABLED(SKR_2209)
     #define X_DRIVER_TYPE  TMC2209_STANDALONE
     #define Y_DRIVER_TYPE  TMC2209_STANDALONE
@@ -1739,7 +1794,7 @@
   #define EStepsmm 409
 #elif ANY(EZRstruder, MachineCR10SV2)
   #define EStepsmm 93
-#elif ANY(MachineCR10SPro, MachineCR10Max, MachineCRXPro, MachineEnder6)
+#elif ANY(MachineCR10SPro, MachineCR10Max, MachineCRXPro, MachineEnder6, MachineEnder7, MachineCR30)
   #define EStepsmm 140
 #elif ENABLED(MachineCR2020)
   #define EStepsmm 113
@@ -1749,6 +1804,8 @@
 
 #if ENABLED(MachineEnder5Plus)
   #define ZStepsmm 800
+#elif ENABLED(MachineCR30)
+  #define ZStepsmm 1152.95
 #else
   #define ZStepsmm 400
 #endif
@@ -1759,7 +1816,13 @@
   #define EstepMultiplier 1
 #endif
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, ZStepsmm, (EStepsmm*EstepMultiplier) }
+#if ENABLED(MachineEnder7)
+  #define XYStepsmm 200
+#else
+  #define XYStepsmm 80
+#endif
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { XYStepsmm, XYStepsmm, ZStepsmm, (EStepsmm*EstepMultiplier) }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1772,13 +1835,13 @@
   #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
-#elif ANY(MachineMini, MachineCR20, MachineEnder2, MachineEnder3, MachineEnder3Max, MachineEnder3V2, MachineEnder4, MachineEnder5, MachineEnder5Plus)
+#elif ANY(MachineMini, MachineCR20, MachineEnder2, MachineEnder3, MachineEnder3Max, MachineEnder3V2, MachineEnder4, MachineEnder5, MachineEnder5Plus, MachineSermoonD1)
   #define DEFAULT_MAX_FEEDRATE          { 750, 750, 10, 75 }
   #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 75 }
   #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
-#elif (ANY(MachineCR10SPro, MachineCR6, MachineCR6Max))
+#elif (ANY(MachineCR10SPro, MachineCR6, MachineCR6Max, MachineCR30))
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 70 }
   #define DEFAULT_MAX_ACCELERATION      { 750, 750, 100, 60 }
   #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
@@ -1808,6 +1871,12 @@
   #define DEFAULT_ACCELERATION          2000    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
+#elif ENABLED(MachineEnder7)
+  #define DEFAULT_MAX_FEEDRATE          { 750, 750, 10, 75 }
+  #define DEFAULT_MAX_ACCELERATION      { 35000, 35000, 100, 75 }
+  #define DEFAULT_ACCELERATION          10000    // X, Y, Z and E acceleration for printing moves
+  #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
+  #define DEFAULT_TRAVEL_ACCELERATION   10000    // X, Y, Z acceleration for travel (non printing) moves
 #endif
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
@@ -1846,8 +1915,16 @@
  */
 #define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 10.0
-  #define DEFAULT_YJERK 5.0
+  #if ANY(MachineEnder6, MachineEnder5, MachineEnder5Plus, MachineSermoonD1)
+    #define DEFAULT_XJERK 20.0
+    #define DEFAULT_YJERK 20.0
+  #elif ENABLED(MachineEnder7)
+    #define DEFAULT_XJERK 30.0
+    #define DEFAULT_YJERK 30.0
+  #else
+    #define DEFAULT_XJERK 10.0
+    #define DEFAULT_YJERK 5.0
+  #endif
   #define DEFAULT_ZJERK  0.3
   //#define DEFAULT_IJERK  0.3
   //#define DEFAULT_JJERK  0.3
@@ -2090,7 +2167,7 @@
       #define NOZZLE_TO_PROBE_OFFSET { -27.625, 0.0, 0 }
     #endif
   #endif
-#elif ENABLED(MachineCRXPro, HotendStock, ABL_BLTOUCH)
+#elif ANY(MachineCRXPro, MachineEnder3Max, MachineSermoonD1, MachineEnder7) && ALL(HotendStock, ABL_BLTOUCH)
   #define NOZZLE_TO_PROBE_OFFSET { 48, 3, 0 }
 #elif ANY(MachineCR6, MachineCR6Max)
   #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0.2 }
@@ -2179,6 +2256,15 @@
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
     //#define PROBE_TARE_ONLY_WHILE_INACTIVE  // Fail to tare/probe if PROBE_ACTIVATION_SWITCH is active
   #endif
+#endif
+
+/**
+ * Probe Enable / Disable
+ * The probe only provides a triggered signal when enabled.
+ */
+//#define PROBE_ENABLE_DISABLE
+#if ENABLED(PROBE_ENABLE_DISABLE)
+  //#define PROBE_ENABLE_PIN -1   // Override the default pin here
 #endif
 
 /**
@@ -2302,7 +2388,18 @@
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 
 
-#if(ANY(MachineEnder4, MachineEnder5))
+#if(ANY(MachineEnder4, MachineEnder5) && ANY(Creality422, Creality427))
+  #define INVERT_X_DIR false
+  #define INVERT_Y_DIR false
+  #define INVERT_Z_DIR false
+  #if(ENABLED(E3DTitan))
+    #define INVERT_E0_DIR true
+    #define INVERT_E1_DIR false
+  #else
+    #define INVERT_E0_DIR false
+    #define INVERT_E1_DIR true
+  #endif
+#elif(ANY(MachineEnder4, MachineEnder5, MachineCR30) && NONE(Creality422, Creality427))
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR true
@@ -2339,19 +2436,23 @@
     #define INVERT_X_DIR true
     #define INVERT_Y_DIR false
   #else
-    #define INVERT_X_DIR false
-    #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max, MachineCR2020, MachineEnder6)
+    #if ENABLED(MachineSermoonD1)
+      #define INVERT_X_DIR true
+    #else
+      #define INVERT_X_DIR false
+    #endif
+    #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max, MachineCR2020, MachineEnder6, MachineEnder7)
       #define INVERT_Y_DIR true
     #else
       #define INVERT_Y_DIR false
     #endif
   #endif
-  #if ANY(MachineEnder5Plus, MachineCR2020, MachineEnder6)
+  #if ANY(MachineEnder5Plus, MachineCR2020, MachineEnder6, MachineSermoonD1, MachineEnder7)
     #define INVERT_Z_DIR false
   #else
     #define INVERT_Z_DIR true
   #endif
-  #if ANY(E3DTitan, MachineCR2020, MachineEnder6)
+  #if ANY(E3DTitan, MachineCR2020, MachineEnder6, MachineEnder7)
     #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
   #else
@@ -2404,7 +2505,11 @@
   #define Z_HOME_DIR -1
 #else
   #define X_HOME_DIR -1
-  #define Y_HOME_DIR -1
+  #if ENABLED(MachineEnder7)
+    #define Y_HOME_DIR 1
+  #else
+    #define Y_HOME_DIR -1
+  #endif
   #define Z_HOME_DIR -1
 #endif
 //#define I_HOME_DIR -1
@@ -2458,7 +2563,7 @@
     #else
       #define Z_MAX_POS 250
     #endif
-    #define X_MAX_POS 250
+    #define X_MAX_POS 245
     #define Y_MAX_POS 250
     #define ClipClearance 15
   #elif(ANY(MachineEnder4, MachineEnder5))
@@ -2487,6 +2592,27 @@
     #define X_MAX_POS 260
     #define Y_MAX_POS 260
     #define ClipClearance 10
+  #elif ENABLED(MachineSermoonD1)
+    #define X_BED_SIZE 290
+    #define Y_BED_SIZE 270
+    #define Z_MAX_POS 320
+    #define X_MAX_POS 290
+    #define Y_MAX_POS 270
+    #define ClipClearance 10
+  #elif ENABLED(MachineEnder7)
+    #define X_BED_SIZE 250
+    #define Y_BED_SIZE 250
+    #define Z_MAX_POS 350
+    #define X_MAX_POS 255
+    #define Y_MAX_POS 255
+    #define ClipClearance 10
+  #elif ENABLED(MachineCR30)
+    #define X_BED_SIZE 220
+    #define Y_BED_SIZE 250
+    #define Z_MAX_POS 20000000
+    #define X_MAX_POS X_BED_SIZE
+    #define Y_MAX_POS Y_BED_SIZE
+    #define ClipClearance 2
   #elif ENABLED(MachineCR20)
     #define X_BED_SIZE 230
     #define Y_BED_SIZE 230
@@ -2570,6 +2696,9 @@
 #elif ENABLED(MachineCR6Max)
   #define X_MIN_POS -10
   #define Y_MIN_POS -3
+#elif ENABLED(MachineCR30)
+  #define X_MIN_POS 0
+  #define Y_MIN_POS -5
 #else
   #define X_MIN_POS 0
   #define Y_MIN_POS 0
@@ -2763,7 +2892,7 @@
     #define AUTO_BED_LEVELING_UBL
   #elif BOTH(PROBE_MANUALLY, FORCE10SPRODISPLAY)
     #define MESH_BED_LEVELING
-  #elif !BOTH(OrigLA, MachineCR10Orig)
+  #elif !BOTH(OrigLA, MachineCR10Orig) && DISABLED(MachineCR30)
     #define AUTO_BED_LEVELING_BILINEAR
   #endif
 /**
@@ -2788,7 +2917,7 @@
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of PROGMEM!
  */
-#if ANY(MachineCR6, MachineCR6Max, MachineEnder6, Creality422, Creality427, SKR13, SKR14, SKR14Turbo, SKRE3Turbo, SKRPRO11)
+#if ENABLED(MachineLargeROM)
   #define DEBUG_LEVELING_FEATURE
 #endif
 
@@ -2837,7 +2966,7 @@
 #if ENABLED(MeshFast)
   #define GRID_MAX_POINTS_X 3
 #elif ENABLED(MeshStd)
-  #if ENABLED(MachineCR6)
+  #if ANY(MachineCR6, MachineEnder3Touchscreen)
      #define GRID_MAX_POINTS_X 4
   #elif ENABLED(MachineCR6Max)
     #define GRID_MAX_POINTS_X 7
@@ -2925,7 +3054,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen) && (DISABLED(MachineCRX) || ANY(GraphicLCD, OrigLCD))
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineEnder7, MachineCR30, FORCEV2DISPLAY) && (DISABLED(MachineCRX) || ANY(GraphicLCD, OrigLCD))
   #define LCD_BED_LEVELING
 #endif
 
@@ -3362,10 +3491,10 @@
  *
  * Select the language to display on the LCD. These languages are available:
  *
- *   en, an, bg, ca, cz, da, de, el, el_gr, es, eu, fi, fr, gl, hr, hu, it,
+ *   en, an, bg, ca, cz, da, de, el, el_CY, es, eu, fi, fr, gl, hr, hu, it,
  *   jp_kana, ko_KR, nl, pl, pt, pt_br, ro, ru, sk, sv, tr, uk, vi, zh_CN, zh_TW
  *
- * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'hu':'Hungarian', 'it':'Italian', 'jp_kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt_br':'Portuguese (Brazilian)', 'ro':'Romanian', 'ru':'Russian', 'sk':'Slovak', 'sv':'Swedish', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)' }
+ * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek (Greece)', 'el_CY':'Greek (Cyprus)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'hu':'Hungarian', 'it':'Italian', 'jp_kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt_br':'Portuguese (Brazilian)', 'ro':'Romanian', 'ru':'Russian', 'sk':'Slovak', 'sv':'Swedish', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)' }
  */
 #define LCD_LANGUAGE en
 
@@ -3591,9 +3720,9 @@
   #define ENDER2_STOCKDISPLAY
 #elif ANY(MachineCR20, MachineCR2020)
   #define MKS_MINI_12864
-#elif ENABLED(MachineEnder3V2)
+#elif ANY(MachineEnder3V2, FORCEV2DISPLAY)
   #define DWIN_CREALITY_LCD_JYERSUI
-#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && DISABLED(GraphicLCD, MachineEnder3Touchscreen, FORCE10SPRODISPLAY)
+#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && NONE(GraphicLCD, MachineEnder3Touchscreen, FORCE10SPRODISPLAY)
   #define CR10_STOCKDISPLAY
 #elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
@@ -3706,6 +3835,11 @@
 //
 //#define VIKI2
 //#define miniVIKI
+
+//
+// Alfawise Ex8 printer LCD marked as WYH L12864 COG
+//
+//#define WYH_L12864
 
 //
 // MakerLab Mini Panel with graphic
@@ -3959,7 +4093,7 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
 //
-#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6) && (NONE(GraphicLCD, SKRMiniE3V2, OrigLCD) || ENABLED(FORCE10SPRODISPLAY))
+#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, MachineEnder7, MachineSermoonD1) && (NONE(GraphicLCD, SKRMiniE3V2, OrigLCD) || ENABLED(FORCE10SPRODISPLAY))
   #ifndef FORCE10SPRODISPLAY
     #define FORCE10SPRODISPLAY
   #endif
@@ -3980,32 +4114,32 @@
  */
 
 //
-// 480x320, 3.5", SPI Display From MKS
-// Normally used in MKS Robin Nano V2
+// 480x320, 3.5", SPI Display with Rotary Encoder from MKS
+// Usually paired with MKS Robin Nano V2 & V3
 //
 //#define MKS_TS35_V2_0
 
 //
 // 320x240, 2.4", FSMC Display From MKS
-// Normally used in MKS Robin Nano V1.2
+// Usually paired with MKS Robin Nano V1.2
 //
 //#define MKS_ROBIN_TFT24
 
 //
 // 320x240, 2.8", FSMC Display From MKS
-// Normally used in MKS Robin Nano V1.2
+// Usually paired with MKS Robin Nano V1.2
 //
 //#define MKS_ROBIN_TFT28
 
 //
 // 320x240, 3.2", FSMC Display From MKS
-// Normally used in MKS Robin Nano V1.2
+// Usually paired with MKS Robin Nano V1.2
 //
 //#define MKS_ROBIN_TFT32
 
 //
 // 480x320, 3.5", FSMC Display From MKS
-// Normally used in MKS Robin Nano V1.2
+// Usually paired with MKS Robin Nano V1.2
 //
 //#define MKS_ROBIN_TFT35
 
@@ -4016,7 +4150,7 @@
 
 //
 // 320x240, 3.2", FSMC Display From MKS
-// Normally used in MKS Robin
+// Usually paired with MKS Robin
 //
 //#define MKS_ROBIN_TFT_V1_1R
 
@@ -4046,9 +4180,14 @@
 //#define ANET_ET5_TFT35
 
 //
-// 1024x600, 7", RGB Stock Display from BIQU-BX
+// 1024x600, 7", RGB Stock Display with Rotary Encoder from BIQU-BX
 //
 //#define BIQU_BX_TFT70
+
+//
+// 480x320, 3.5", SPI Stock Display with Rotary Encoder from BIQU B1 SE Series
+//
+//#define BTT_TFT35_SPI_V1_0
 
 //
 // Generic TFT with detailed options
@@ -4104,23 +4243,11 @@
 //
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
 //
-//#define DWIN_CREALITY_LCD
-
-//
-// Ender-3 v2 OEM display, enhanced.
-//
-//#define DWIN_CREALITY_LCD_ENHANCED
-
-//
-// Ender-3 v2 OEM display with enhancements by Jacob Myers
-//
-//#define DWIN_CREALITY_LCD_JYERSUI
-
-//
-// MarlinUI for Creality's DWIN display (and others)
-//
-//#define DWIN_MARLINUI_PORTRAIT
-//#define DWIN_MARLINUI_LANDSCAPE
+//#define DWIN_CREALITY_LCD           // Creality UI
+//#define DWIN_CREALITY_LCD_ENHANCED  // Enhanced UI
+//#define DWIN_CREALITY_LCD_JYERSUI   // Jyers UI by Jacob Myers
+//#define DWIN_MARLINUI_PORTRAIT      // MarlinUI (portrait orientation)
+//#define DWIN_MARLINUI_LANDSCAPE     // MarlinUI (landscape orientation)
 
 //
 // Touch Screen Settings
@@ -4286,9 +4413,9 @@
  * Set this manually if there are extra servos needing manual control.
  * Set to 0 to turn off servo support.
  */
-//#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
+//#define NUM_SERVOS 3 // Note: Servo index starts with 0 for M280-M282 commands
 
-// (ms) Delay  before the next move will start, to give the servo time to reach its target angle.
+// (ms) Delay before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
 #define SERVO_DELAY { 300 }
@@ -4298,3 +4425,6 @@
 
 // Edit servo angles with M281 and save to EEPROM with M500
 //#define EDITABLE_SERVO_ANGLES
+
+// Disable servo with M282 to reduce power consumption, noise, and heat when not in use
+//#define SERVO_DETACH_GCODE
