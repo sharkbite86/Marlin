@@ -748,7 +748,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_DEVELOPMENT_HELPER_BUTTON, nullptr, ScreenHandler.HandleDevelopmentTestButton, nullptr),
 
   // Mesh override input
-#if MESH_INPUT_SUPPORTED_SIZE == GRID_MAX_POINTS
+#if MESH_INPUT_SUPPORTED_SIZE == GRID_MAX_POINTS && HAS_MESH
   //#define _VPHELPER_GP(N) VPHELPER((VP_MESH_INPUT_X0_Y0 + ( ##N## * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
   //REPEAT(MESH_INPUT_SUPPORTED_SIZE, _VPHELPER_GP)
 

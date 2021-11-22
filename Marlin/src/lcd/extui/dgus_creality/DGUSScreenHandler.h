@@ -141,7 +141,7 @@ public:
     // Hook for PID autotune
     static void HandlePIDAutotune(DGUS_VP_Variable &var, void *val_ptr);
   #endif
-  #if HAS_BED_PROBE
+  #if HAS_MESH
     // Hook for "Change probe offset z"
     static void HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr);
 
