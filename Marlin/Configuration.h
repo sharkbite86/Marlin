@@ -16,11 +16,17 @@
 //#define MachineCR6
 //#define MachineCR6Max
 //#define MachineEnder6
+//#define MachineSermoonD1
+//#define MachineEnder7
 
 // Touchscreens in development, not tested
 //#define MachineCR5
-//#define MachineSermoonD1
-//#define MachineEnder7
+#define MachineCR10Smart
+
+/*
+20:41:31.558 > PIN: PB12        M42 P28          <unused/unknown> // Pi Netowork Reset Output
+20:41:46.759 > PIN: PA15        M42 P15          <unused/unknown> Spare Pin1
+*/
 
 // Standard Display Atmega2560 machines (No bootloader required)
 //#define MachineEnder4
@@ -445,7 +451,7 @@
   #endif
 #endif
 
-#if ENABLED(MachineCR10SV2)
+#if ANY(MachineCR10SV2, MachineCR10Smart)
   #define lerdgeFilSensor
   #if NONE(BedAC, BedDC)
     #define BedDC
@@ -460,7 +466,7 @@
   #define MachineCR10Orig
 #endif
 
-#if ANY(MachineCR10, MachineCR10S, MachineCR10SV2)
+#if ANY(MachineCR10, MachineCR10S, MachineCR10SV2, MachineCR10Smart)
   #define MachineCR10Std
 #endif
 
@@ -501,13 +507,13 @@
   #endif
 #endif
 
-#if ANY(MachineCRX, MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max, MachineEnder6, MachineSermoonD1, MachineEnder7)
+#if ANY(MachineCRX, MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max, MachineEnder6, MachineSermoonD1, MachineEnder7, MachineCR10Smart)
   #if NONE(GraphicLCD, OrigLCD, FORCE10SPRODISPLAY)
     #define FORCE10SPRODISPLAY
   #endif
 #endif
 
-#if ANY(MachineEnder7, MachineSermoonD1)
+#if ANY(MachineEnder7, MachineSermoonD1, MachineCR10Smart)
   #define DWINOS_4
 #endif
 
@@ -628,7 +634,7 @@
   #endif
 #endif
 
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo, MachineEnder3V2, Creality422, Creality427, MachineEnder6, MachineSermoonD1, MachineCR30, MachineCR6, MachineCR6Max, MachineEnder7)
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo, MachineEnder3V2, Creality422, Creality427, MachineEnder6, MachineSermoonD1, MachineCR30, MachineCR6, MachineCR6Max, MachineEnder7, MachineCR10Smart)
   #define MachineLargeROM
 #endif
 
@@ -653,7 +659,9 @@
  */
 #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, SKRE3Turbo, SKR_CR6)
   #define SERIAL_PORT -1
- #elif ANY(MachineEnder3V2, MachineEnder3Max, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder6, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineCR30, MachineEnder7)
+#elif ENABLED(MachineCR10Smart)
+  #define SERIAL_PORT 1
+#elif ANY(MachineEnder3V2, MachineEnder3Max, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder6, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineCR30, MachineEnder7)
   #define SERIAL_PORT 1
 #else
   #define SERIAL_PORT 0
@@ -684,6 +692,10 @@
   #define LCD_SERIAL_PORT 3
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 1
+#elif ANY(MachineCR10Smart)
+  #define LCD_SERIAL_PORT 3
+  #define LCD_BAUDRATE 115200
+  #define SERIAL_CATCHALL 1
 #elif ENABLED(MachineEnder7)
   #define LCD_SERIAL_PORT 2
   #define LCD_BAUDRATE 115200
@@ -703,7 +715,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#if ANY(MachineEnder3V2, CrealityViewerKit, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen, FORCEV2DISPLAY)
+#if ANY(MachineEnder3V2, CrealityViewerKit, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen, MachineCR10Smart, FORCEV2DISPLAY)
   #define BAUDRATE 115200
 #else
   #define BAUDRATE 250000
@@ -760,7 +772,7 @@
     #define MOTHERBOARD BOARD_CREALITY_V452
   #elif ENABLED(MachineCR30)
     #define MOTHERBOARD BOARD_CREALITY_V4210
-  #elif ANY(MachineCR6, MachineCR6Max)
+  #elif ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
     #define MOTHERBOARD BOARD_CREALITY_V453
   #else
     #define MOTHERBOARD BOARD_RAMPS_CREALITY
@@ -994,7 +1006,7 @@
  * Enable and connect the power supply to the PS_ON_PIN.
  * Specify whether the power supply is active HIGH or active LOW.
  */
-#if EITHER(MachineCR2020, PowerShutoffKit)
+#if ANY(MachineCR2020, PowerShutoffKit, MachineCR10Smart)
   #define PSU_CONTROL
 #endif
 //#define PSU_NAME "Power Supply"
@@ -1006,6 +1018,9 @@
   #if ENABLED(PowerShutoffKit)
     #define PS_ON_PIN 12
     #define PSU_ACTIVE_STATE HIGH
+  #elif ENABLED(MachineCR10Smart)
+    #define PS_ON_PIN PA0
+    #define PSU_ACTIVE_STATE HIGH
   #else
     #define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
   #endif
@@ -1016,7 +1031,7 @@
   //#define PSU_POWERUP_GCODE  "M355 S1"  // G-code to run after power-on (e.g., case light on)
   //#define PSU_POWEROFF_GCODE "M355 S0"  // G-code to run before power-off (e.g., case light off)
 
-  #define AUTO_POWER_CONTROL      // Enable automatic control of the PS_ON pin
+  //#define AUTO_POWER_CONTROL      // Enable automatic control of the PS_ON pin
   #if ENABLED(AUTO_POWER_CONTROL)
     #define AUTO_POWER_FANS         // Turn on PSU if fans need power
     #define AUTO_POWER_E_FANS
@@ -1314,7 +1329,7 @@
         #define DEFAULT_Kp 28.72
         #define DEFAULT_Ki 2.62
         #define DEFAULT_Kd 78.81
-      #elif ANY(MachineCR6, MachineCR6Max)
+      #elif ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
        #define DEFAULT_Kp  14.32
        #define DEFAULT_Ki   0.81
         #define DEFAULT_Kd 63.12
@@ -1640,7 +1655,7 @@
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
 
-#if (ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, CrealitySilentBoard) || ANY(MachineCR10SV2, MachineCR10SPro, MachineCR10SProV2, MachineCR10Max, SKRMiniE3V2, MachineCR6, MachineCR6Max, MachineEnder6, MachineEnder7, MachineSermoonD1, MachineCR30)) && DISABLED(SKR_UART)
+#if (ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, CrealitySilentBoard) || ANY(MachineCR10SV2, MachineCR10SPro, MachineCR10SProV2, MachineCR10Max, SKRMiniE3V2, MachineCR6, MachineCR6Max, MachineEnder6, MachineEnder7, MachineSermoonD1, MachineCR30, MachineCR10Smart)) && DISABLED(SKR_UART)
   #if ENABLED(SKR_2209)
     #define X_DRIVER_TYPE  TMC2209_STANDALONE
     #define Y_DRIVER_TYPE  TMC2209_STANDALONE
@@ -1749,7 +1764,7 @@
  *
  * :[2,3,4,5,6,7]
  */
-#if ANY(MachineEnder5Plus, CableExtensionNoiseFilter, MachineCR6, MachineCR6Max, MachineEnder6)
+#if ANY(MachineEnder5Plus, CableExtensionNoiseFilter, MachineCR6, MachineCR6Max, MachineEnder6, MachineCR10Smart)
   #define ENDSTOP_NOISE_THRESHOLD 2
 #endif
 
@@ -1961,7 +1976,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-#if NONE(MachineCR10Orig, SKRMiniE3V2, MachineCR6, MachineCR6Max) || ENABLED(MelziHostOnly)
+#if NONE(MachineCR10Orig, SKRMiniE3V2, MachineCR6, MachineCR6Max, MachineCR10Smart) || ENABLED(MelziHostOnly)
   #define S_CURVE_ACCELERATION
 #endif
 
@@ -2014,7 +2029,7 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, MachineCR6, MachineCR6Max)
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define PROBE_MANUALLY
   #define MANUAL_PROBE_START_Z 0.2
 #endif
@@ -2031,7 +2046,7 @@
  * Use the nozzle as the probe, as with a conductive
  * nozzle system or a piezo-electric smart effector.
  */
-#if ANY(MachineCR6, MachineCR6Max)
+#if ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define NOZZLE_AS_PROBE
 #endif
 
@@ -2169,7 +2184,7 @@
   #endif
 #elif ANY(MachineCRXPro, MachineEnder3Max, MachineSermoonD1, MachineEnder7) && ALL(HotendStock, ABL_BLTOUCH)
   #define NOZZLE_TO_PROBE_OFFSET { 48, 3, 0 }
-#elif ANY(MachineCR6, MachineCR6Max)
+#elif ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0.2 }
 #elif ENABLED(MachineCRX, HotendStock)
    #if ENABLED(ABL_BLTOUCH)
@@ -2232,7 +2247,7 @@
  * A switch indicating proper deployment, or an optical
  * switch triggered when the carriage is near the bed.
  */
-#if ANY(MachineCR6, MachineCR6Max)
+#if ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define PROBE_ACTIVATION_SWITCH
 #endif
 #if ENABLED(PROBE_ACTIVATION_SWITCH)
@@ -2245,7 +2260,7 @@
  * Useful for a strain gauge or piezo sensor that needs to factor out
  * elements such as cables pulling on the carriage.
  */
-#if ANY(MachineCR6, MachineCR6Max)
+#if ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define PROBE_TARE
 #endif
 #if ENABLED(PROBE_TARE)
@@ -2300,7 +2315,7 @@
 #else
   #define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
 #endif
-#if ANY(MachineCR6, MachineCR6Max)
+#if ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define Z_CLEARANCE_BETWEEN_PROBES  3 // Z Clearance between probe points
   #define Z_CLEARANCE_MULTI_PROBE     3 // Z Clearance between multiple probes
 #else
@@ -2318,7 +2333,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 9
 
 // Enable the M48 repeatability test to test probe accuracy
-#if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW, ABL_TOUCH_MI, MachineCR6, MachineCR6Max) && NONE(MachineCR10Orig, SKRMiniE3V2, SKRE3Turbo)
+#if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW, ABL_TOUCH_MI, MachineCR6, MachineCR6Max, MachineCR10Smart) && NONE(MachineCR10Orig, SKRMiniE3V2, SKRE3Turbo)
   #define Z_MIN_PROBE_REPEATABILITY_TEST
 #endif
 
@@ -2348,7 +2363,7 @@
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
 // Require minimum nozzle and/or bed temperature for probing
-#if ANY(MachineCR6, MachineCR6Max)
+#if ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define PREHEAT_BEFORE_PROBING
 #endif
 #if ENABLED(PREHEAT_BEFORE_PROBING)
@@ -2410,7 +2425,7 @@
     #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
   #endif
-#elif ANY(MachineCR6, MachineCR6Max)
+#elif ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR false
   #define INVERT_Z_DIR true
@@ -2690,7 +2705,7 @@
 #elif ENABLED(TOUCH_MI_PROBE)
   #define X_MIN_POS -4
   #define Y_MIN_POS -10
-#elif ENABLED(MachineCR6)
+#elif ENABLED(MachineCR6, MachineCR10Smart)
   #define X_MIN_POS -5
   #define Y_MIN_POS -2
 #elif ENABLED(MachineCR6Max)
@@ -3054,7 +3069,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineEnder7, MachineCR30, FORCEV2DISPLAY, MachineEnder3Touchscreen) && (DISABLED(MachineCRX) || ANY(GraphicLCD, OrigLCD))
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineEnder7, MachineCR30, FORCEV2DISPLAY, MachineCR10Smart, MachineEnder3Touchscreen) && (DISABLED(MachineCRX) || ANY(GraphicLCD, OrigLCD))
   #define LCD_BED_LEVELING
 #endif
 
@@ -3724,7 +3739,7 @@
   #define DWIN_CREALITY_LCD_JYERSUI
 #elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && NONE(GraphicLCD, MachineEnder3Touchscreen, FORCE10SPRODISPLAY)
   #define CR10_STOCKDISPLAY
-#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen) || ENABLED(GraphicLCD)
+#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineCR10Smart, MachineEnder3Touchscreen) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #endif
 //
