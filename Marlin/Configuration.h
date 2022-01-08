@@ -626,6 +626,10 @@
   #endif
 #endif
 
+#if NONE(BedDC, BedExternal, BedAC)
+  #define BedDC
+#endif
+
 #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo, MachineEnder3V2, Creality422, Creality427, MachineEnder6, MachineSermoonD1, MachineCR30, MachineCR6, MachineCR6Max, MachineEnder7)
   #define MachineLargeROM
 #endif
