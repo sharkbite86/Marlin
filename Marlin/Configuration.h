@@ -21,7 +21,7 @@
 
 // Touchscreens in development, not tested
 //#define MachineCR5
-#define MachineCR10Smart
+//#define MachineCR10Smart
 
 /*
 20:41:31.558 > PIN: PB12        M42 P28          <unused/unknown> // Pi Netowork Reset Output
