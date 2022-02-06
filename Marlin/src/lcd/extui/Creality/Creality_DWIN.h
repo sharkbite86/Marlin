@@ -79,6 +79,10 @@ namespace ExtUI {
 #define	FanKeyIcon			0x101E
 #define Flowrate        0x1300
 
+#define RunoutToggle    0x1018
+#define PowerLossToggle 0x101A
+#define LedToggle       0x101C
+
 #define StepMM_X      0x1242
 #define StepMM_Y      0x1246
 #define StepMM_Z      0x124A
