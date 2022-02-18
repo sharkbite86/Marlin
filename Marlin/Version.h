@@ -137,7 +137,9 @@
 #endif
 
 #if(ENABLED(MachineMini))
-  #define CUSTOM_MACHINE_NAME "Mini"
+  #define CUSTOM_MACHINE_NAME "Mini SuPeR"
+#elif(ENABLED(MachineCR10Smart))
+  #define CUSTOM_MACHINE_NAME "CR10Smart"
 #elif(ENABLED(MachineEnder2))
   #define CUSTOM_MACHINE_NAME "Ender2"
 #elif(ENABLED(MachineEnder3))

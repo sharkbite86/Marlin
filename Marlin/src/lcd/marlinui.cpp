@@ -1694,7 +1694,7 @@ void MarlinUI::init() {
       }
     }
 
-    #if PIN_EXISTS(SD_DETECT) && DISABLED(NO_LCD_REINIT)
+    #if PIN_EXISTS(SD_DETECT) && DISABLED(NO_LCD_REINIT) && DISABLED(EXTENSIBLE_UI)
       init_lcd(); // Revive a noisy shared SPI LCD
     #endif
 

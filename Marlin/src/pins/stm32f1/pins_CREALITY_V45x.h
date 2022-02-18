@@ -112,4 +112,5 @@
 // Misc. Functions
 //
 #define CASE_LIGHT_PIN                      PA6
+
 #define LED_PIN                             PA6
