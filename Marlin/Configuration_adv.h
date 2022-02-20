@@ -2157,7 +2157,7 @@
  * Stop after G29_MAX_RETRIES attempts.
  */
 #if ENABLED(ABL_BI) && NONE(MachineCR10Orig, LowMemoryBoard, SKRMiniE3V2, MachineCR30)
-  #define G29_RETRY_AND_RECOVER
+  //#define G29_RETRY_AND_RECOVER
 #endif
 #if ENABLED(G29_RETRY_AND_RECOVER)
   #define G29_MAX_RETRIES 3
@@ -2353,8 +2353,10 @@
 
 // The number of linear moves that can be in the planner at once.
 // The value of BLOCK_BUFFER_SIZE must be a power of 2 (e.g. 8, 16, 32)
-#if ENABLED(MachineLargeROM) || DISABLED(EXTENSIBLE_UI)
+#if ENABLED(MachineLargeROM)
   #define BLOCK_BUFFER_SIZE 32
+#elif DISABLED(EXTENSIBLE_UI)
+  #define BLOCK_BUFFER_SIZE 16
 #else
   #define BLOCK_BUFFER_SIZE 8
 #endif

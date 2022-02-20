@@ -3640,7 +3640,7 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-#if NONE(MachineCR10Orig, SKRMiniE3V2)
+#if ANY(MachineCR6, MachineCR6Max)
   #define SPEAKER
 #endif
 

@@ -2,12 +2,42 @@
 
 This branch is specifically intended to support the kits sold by F1rst Layer including Creality 427 boards, touchscreens, and other upgrades.
 
+
 - [Dual Gear Extruders](https://amzn.to/3lZfg08)
 - [Creality 427 Board with Runout Sensor](https://amzn.to/2Y1jrke)
 - [Creality 427 Board and BLTouch](https://amzn.to/3CT57Jk)
 - [E3V2 Upgrade Kit (Screen, 427 board, bltouch, runout)](https://amzn.to/3EZnhec)
 - [Ender 3 100mm Z Extension Kit](https://amzn.to/2XWH78F)
 
+- [CR10S Pro](http://bit.ly/2rxZ6lP)
+- [CR10S Pro V2](http://bit.ly/2rxZ6lP)
+- [CR10 Max](http://bit.ly/2L6wZRy)
+- [Ender 5 Plus](https://bit.ly/2SriM5I)
+- [Ender 6](https://amzn.to/3wMaoj3)
+- [CR-X / Pro](https://bit.ly/33eZ5Ts)
+- [CR10 V2/V3 ](https://bit.ly/3nnhPcM)
+- [Ender 3 / Pro 4.2.2 and 4.2.7](https://bit.ly/3ncWu5I)
+- [Ender 3 V2](https://bit.ly/3xmx4XI)
+- [Ender 3 Max]()
+- [Ender 5 / Pro 4.2.2 and 4.2.7](https://amzn.to/3gMb2Yu)
+- [CR20 and Pro](http://bit.ly/2Oxxruk)
+- [CR10S](http://bit.ly/33AAaHv)
+- [CR10S4 400mm](http://bit.ly/2XXCBmq)
+- [CR10S5 500mm](http://bit.ly/35K4ZuR)
+- [CR6 / Max](https://bit.ly/2SdYijE)
+- [CR10 Smart](https://bit.ly/3JFVWzi)
+- [Ender 7](https://bit.ly/3rZOCZi)
+- [CR30](https://bit.ly/3rZOMQo)
+- [Sermoon D1](https://amzn.to/3LXfZeD)
+- CR10, CR10Mini, CR2020, Ender 4, Ender 2 - Legacy support
+-- These configurations exist however due to age and product availability are no longer actively tested
+--Coming Soon
+- [Ender 3 S1](https://bit.ly/35cUGo4)
+- [CR10 Smart Pro](https://bit.ly/3Hg8ewN)
+- [Ender 2 Pro](https://bit.ly/3oZPtHE)
+- [CR5 / Pro HT](https://amzn.to/3gWvpBt)
+
+Ender 3V2 has a dedicated file set. CR10 Smart has a dedicated high resolution screen set. Portrait displays use the CR6/E3 Touch variant and landscape use the combined set.
 
 Screen files are archived with [7-Zip](https://www.7-zip.org/) simply because it came out 1/5 the file size of a zip file. That added up fast!
 
@@ -31,8 +61,19 @@ There is a limitation with Windows systems and path depth so the file names need
 
 This firmware is provided to the public as-is with no warranty or guarantee. It's based on a large open source project and there is no entitlement to support. If you are a F1rst Layer customer, you can contact them for support. I will provide support to Patreons as I am able. If you require more immediate support and are not a Tiny Machines 3D or F1rst Layer customer, you may contact Tiny Machines at support@tinymachines3d.com about purchasing support hours. Aside from this, we are active on many Facebook groups as well as several discord channels and typically help anyone we can when we come across them.
 
-3D Printing Discord - https://discord.gg/MZrsgVU
-Marlin Discord - https://discord.gg/n5NJ59y
+We have now created a dedicated Discord server to handle support and archive relevant guides and instructions. Patreon supporters will get priority assistance.
+
+Insanity Automation Discord - https://discord.gg/TKmJ85PyG4
+Marlin Firmware Discord - https://discord.gg/n5NJ59y
+
+## Primary Notes for DW7.4.5
+  - Added support for CR10 Smart - Thanks to Tinymachines for providing the machine
+  - Revised file size issues causing corrupted screens on DWINOS3/4 displays (Sermoon, E6/7 etc)
+  - Added support for enabling / disabling filament runout and power loss recovery on the touchscreen
+  - Added LED control for equiped machines
+  - Resolved issue redirecting some users to chinese language displays instead of manual move screens
+  - Update to upstream current as of 2022-02-04
+  - CR6 / E3 Portrait Touchscreen files have an added NextGen dwin set. This supports the new DWIN OS 4 screens that began shipping in december. There are a few cosmetic issues left to resolve, but we decided to add them now anyway so that users who haver that hardware and will require it are not stuck.
 
 ## Primary Notes for DW7.4.4
   - Added Feedrate / Accel / Jerk Screens
@@ -74,6 +115,21 @@ respond typically within 1 working day. If you do not need anything printed or a
 All configuration options intended to be adjusted by end users have been placed in the top section of Configuration.h and have been documented there. There is typically a break line to segregate the standard
 configuration below. Anything aside from the upper options is intended for advanced users only.
 Please keep in mind when flashing the Creality 32 bit boards with the binary files (.bin) that occasionally they will not accept particular filenames. This is most common with reflashing after an aborted flash. The machine stores the filename it was last flashed with, so renaming the file to something such as firmware.bin or firmware1.bin (anything different than what it is now) will typically resolve any issue with file names.
+
+## Known Issues
+ - While auto leveling (measuring) is in progress pressing other buttons on the screen can abort portions of the script depending where it is
+ - - The process includes heating the bed before probing, probing then heating the nozzle before moving to Z0.
+  - Thanks to Jarrett Wendt for finding that if you are experiencing distorted sounds, and use a Mac, the default Archive Utility on MacOS has been found to be corrupting the files. If you're on a Mac, try unzipping with The Unarchiver or Keka instead.
+
+## Future Goals
+
+For this branch, we still have some active goals open that we plan to continue working on provided there is continued interest in the project.
+- CR10 Smart Power controls and network reset pin output to web interface device
+- Add temp reporting to leveling screens so preheat is less of a mystery
+- Revise aux leveling to use probe and deviation reporting when present
+- Determine cause of clicking on Sermoon (need to get hands on a machine)
+- Add CR5 Support
+- Add Ender 3 S1 support
 
 
 ## Creality Firmware Branches
