@@ -244,7 +244,7 @@ void PrintRunningMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) 
         break;
 
         case VP_BUTTON_PAUSEPRINTKEY:
-          if (!ScreenHandler.HandlePendingUserConfirmation()) {
+          if (!ScreenHandler.HandlePendingUserConfirmation() && ExtUI::isPrintingPaused()) {
             ExtUI::resumePrint();
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
           } else

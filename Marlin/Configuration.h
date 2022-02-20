@@ -16,11 +16,17 @@
 //#define MachineCR6
 //#define MachineCR6Max
 //#define MachineEnder6
+//#define MachineSermoonD1
+//#define MachineEnder7
 
 // Touchscreens in development, not tested
 //#define MachineCR5
-//#define MachineSermoonD1
-//#define MachineEnder7
+//#define MachineCR10Smart
+
+/*
+20:41:31.558 > PIN: PB12        M42 P28          <unused/unknown> // Pi Netowork Reset Output
+20:41:46.759 > PIN: PA15        M42 P15          <unused/unknown> Spare Pin1
+*/
 
 // Standard Display Atmega2560 machines (No bootloader required)
 //#define MachineEnder4
@@ -377,7 +383,6 @@
   #if NONE(ABL_UBL, ABL_BI)
     #define ABL_BI
   #endif
-  #define BedDC
 #endif
 
 #if ENABLED(OriginalCrealitySquareBoard)
@@ -408,9 +413,6 @@
     #define ABL_BI
   #endif
   #define lerdgeFilSensor
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
 #endif
 
 #if ENABLED(MachineCR10Max)
@@ -421,9 +423,6 @@
     #define ABL_BI
   #endif
   #define lerdgeFilSensor
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
 #endif
 
 #if ENABLED(MachineEnder5Plus)
@@ -438,16 +437,10 @@
   #if DISABLED(ABL_UBL)
     #define ABL_BI
   #endif
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
 #endif
 
-#if ENABLED(MachineCR10SV2)
+#if ANY(MachineCR10SV2)
   #define lerdgeFilSensor
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
 #endif
 
 #if ANY(MachineCR10SV2, MachineCR10Max, MachineCR10SProV2) && ANY(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI) && NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11)
@@ -458,7 +451,7 @@
   #define MachineCR10Orig
 #endif
 
-#if ANY(MachineCR10, MachineCR10S, MachineCR10SV2)
+#if ANY(MachineCR10, MachineCR10S, MachineCR10SV2, MachineCR10Smart)
   #define MachineCR10Std
 #endif
 
@@ -499,13 +492,13 @@
   #endif
 #endif
 
-#if ANY(MachineCRX, MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max, MachineEnder6, MachineSermoonD1, MachineEnder7)
+#if ANY(MachineCRX, MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max, MachineEnder6, MachineSermoonD1, MachineEnder7, MachineCR10Smart)
   #if NONE(GraphicLCD, OrigLCD, FORCE10SPRODISPLAY)
     #define FORCE10SPRODISPLAY
   #endif
 #endif
 
-#if ANY(MachineEnder7, MachineSermoonD1)
+#if ANY(MachineEnder7, MachineSermoonD1, MachineCR10Smart)
   #define DWINOS_4
 #endif
 
@@ -518,16 +511,10 @@
 #if ENABLED(MachineCRX)
   #define MachineCR10Std
   #define Dual_BowdenSplitterY
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
 #endif
 
 #if ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder3Max, MachineEnder6, MachineEnder7, MachineSermoonD1)
   #define POWER_LOSS_RECOVERY //Screen will not compile without PLR
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
   #define CrealitySilentBoard
 #endif
 
@@ -592,9 +579,7 @@
     #define ABL_BI
   #endif
   #define SolidBedMounts
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
+
 #endif
 
 #if ENABLED(SKRPRO11)
@@ -626,7 +611,11 @@
   #endif
 #endif
 
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo, MachineEnder3V2, Creality422, Creality427, MachineEnder6, MachineSermoonD1, MachineCR30, MachineCR6, MachineCR6Max, MachineEnder7)
+#if NONE(BedDC, BedExternal, BedAC)
+  #define BedDC
+#endif
+
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo, MachineEnder3V2, Creality422, Creality427, MachineEnder6, MachineSermoonD1, MachineCR30, MachineCR6, MachineCR6Max, MachineEnder7, MachineCR10Smart)
   #define MachineLargeROM
 #endif
 
@@ -651,7 +640,9 @@
  */
 #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, SKRE3Turbo, SKR_CR6)
   #define SERIAL_PORT -1
- #elif ANY(MachineEnder3V2, MachineEnder3Max, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder6, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineCR30, MachineEnder7)
+#elif ENABLED(MachineCR10Smart)
+  #define SERIAL_PORT 1
+#elif ANY(MachineEnder3V2, MachineEnder3Max, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder6, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineCR30, MachineEnder7)
   #define SERIAL_PORT 1
 #else
   #define SERIAL_PORT 0
@@ -682,6 +673,10 @@
   #define LCD_SERIAL_PORT 3
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 1
+#elif ANY(MachineCR10Smart)
+  #define LCD_SERIAL_PORT 3
+  #define LCD_BAUDRATE 115200
+  #define SERIAL_CATCHALL 1
 #elif ENABLED(MachineEnder7)
   #define LCD_SERIAL_PORT 2
   #define LCD_BAUDRATE 115200
@@ -701,7 +696,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#if ANY(MachineEnder3V2, CrealityViewerKit, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen, FORCEV2DISPLAY)
+#if ANY(MachineEnder3V2, CrealityViewerKit, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen, MachineCR10Smart, FORCEV2DISPLAY)
   #define BAUDRATE 115200
 #else
   #define BAUDRATE 250000
@@ -758,7 +753,7 @@
     #define MOTHERBOARD BOARD_CREALITY_V452
   #elif ENABLED(MachineCR30)
     #define MOTHERBOARD BOARD_CREALITY_V4210
-  #elif ANY(MachineCR6, MachineCR6Max)
+  #elif ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
     #define MOTHERBOARD BOARD_CREALITY_V453
   #else
     #define MOTHERBOARD BOARD_RAMPS_CREALITY
@@ -992,7 +987,7 @@
  * Enable and connect the power supply to the PS_ON_PIN.
  * Specify whether the power supply is active HIGH or active LOW.
  */
-#if EITHER(MachineCR2020, PowerShutoffKit)
+#if ANY(MachineCR2020, PowerShutoffKit, MachineCR10Smart)
   #define PSU_CONTROL
 #endif
 //#define PSU_NAME "Power Supply"
@@ -1004,28 +999,37 @@
   #if ENABLED(PowerShutoffKit)
     #define PS_ON_PIN 12
     #define PSU_ACTIVE_STATE HIGH
+  #elif ENABLED(MachineCR10Smart)
+    #define PS_ON_PIN PA0
+    #define PSU_ACTIVE_STATE HIGH
   #else
     #define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
   #endif
 
-  //#define PSU_DEFAULT_OFF         // Keep power off until enabled directly with M80
-  //#define PSU_POWERUP_DELAY 250   // (ms) Delay for the PSU to warm up to full power
+  //#define PSU_DEFAULT_OFF               // Keep power off until enabled directly with M80
+  //#define PSU_POWERUP_DELAY      250    // (ms) Delay for the PSU to warm up to full power
+  //#define LED_POWEROFF_TIMEOUT 10000    // (ms) Turn off LEDs after power-off, with this amount of delay
+
+  //#define POWER_OFF_TIMER               // Enable M81 D<seconds> to power off after a delay
+  //#define POWER_OFF_WAIT_FOR_COOLDOWN   // Enable M81 S to power off only after cooldown
 
   //#define PSU_POWERUP_GCODE  "M355 S1"  // G-code to run after power-on (e.g., case light on)
   //#define PSU_POWEROFF_GCODE "M355 S0"  // G-code to run before power-off (e.g., case light off)
 
-  #define AUTO_POWER_CONTROL      // Enable automatic control of the PS_ON pin
+  //#define AUTO_POWER_CONTROL      // Enable automatic control of the PS_ON pin
   #if ENABLED(AUTO_POWER_CONTROL)
     #define AUTO_POWER_FANS         // Turn on PSU if fans need power
     #define AUTO_POWER_E_FANS
     #define AUTO_POWER_CONTROLLERFAN
     #define AUTO_POWER_CHAMBER_FAN
     #define AUTO_POWER_COOLER_FAN
-    //#define AUTO_POWER_E_TEMP        50 // (°C) Turn on PSU if any extruder is over this temperature
-    //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) Turn on PSU if the chamber is over this temperature
-    //#define AUTO_POWER_COOLER_TEMP   26 // (°C) Turn on PSU if the cooler is over this temperature
     #define POWER_TIMEOUT              30 // (s) Turn off power if the machine is idle for this duration
     //#define POWER_OFF_DELAY          60 // (s) Delay of poweroff after M81 command. Useful to let fans run for extra time.
+  #endif
+  #if EITHER(AUTO_POWER_CONTROL, POWER_OFF_WAIT_FOR_COOLDOWN)
+    //#define AUTO_POWER_E_TEMP        50 // (°C) PSU on if any extruder is over this temperature
+    //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) PSU on if the chamber is over this temperature
+    //#define AUTO_POWER_COOLER_TEMP   26 // (°C) PSU on if the cooler is over this temperature
   #endif
 #endif
 
@@ -1068,6 +1072,9 @@
  *     5 : 100kΩ  ATC Semitec 104GT-2/104NT-4-R025H42G - Used in ParCan, J-Head, and E3D, SliceEngineering 300°C
  *   501 : 100kΩ  Zonestar - Tronxy X3A
  *   502 : 100kΩ  Zonestar - used by hot bed in Zonestar Průša P802M
+ *   503 : 100kΩ  Zonestar (Z8XM2) Heated Bed thermistor
+ *   504 : 100kΩ  Zonestar P802QR2 (Part# QWG-104F-B3950) Hotend Thermistor
+ *   505 : 100kΩ  Zonestar P802QR2 (Part# QWG-104F-3950) Bed Thermistor
  *   512 : 100kΩ  RPW-Ultra hotend
  *     6 : 100kΩ  EPCOS - Not as accurate as table #1 (created using a fluke thermocouple)
  *     7 : 100kΩ  Honeywell 135-104LAG-J01
@@ -1312,7 +1319,7 @@
         #define DEFAULT_Kp 28.72
         #define DEFAULT_Ki 2.62
         #define DEFAULT_Kd 78.81
-      #elif ANY(MachineCR6, MachineCR6Max)
+      #elif ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
        #define DEFAULT_Kp  14.32
        #define DEFAULT_Ki   0.81
         #define DEFAULT_Kd 63.12
@@ -1508,6 +1515,7 @@
 //#define COREZX
 //#define COREZY
 //#define MARKFORGED_XY  // MarkForged. See https://reprap.org/forum/read.php?152,504042
+//#define MARKFORGED_YX
 
 // Enable for a belt style printer with endless "Z" motion
 #if ENABLED(MachineCR30)
@@ -1638,7 +1646,7 @@
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
 
-#if (ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, CrealitySilentBoard) || ANY(MachineCR10SV2, MachineCR10SPro, MachineCR10SProV2, MachineCR10Max, SKRMiniE3V2, MachineCR6, MachineCR6Max, MachineEnder6, MachineEnder7, MachineSermoonD1, MachineCR30)) && DISABLED(SKR_UART)
+#if (ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, CrealitySilentBoard) || ANY(MachineCR10SV2, MachineCR10SPro, MachineCR10SProV2, MachineCR10Max, SKRMiniE3V2, MachineCR6, MachineCR6Max, MachineEnder6, MachineEnder7, MachineSermoonD1, MachineCR30, MachineCR10Smart)) && DISABLED(SKR_UART)
   #if ENABLED(SKR_2209)
     #define X_DRIVER_TYPE  TMC2209_STANDALONE
     #define Y_DRIVER_TYPE  TMC2209_STANDALONE
@@ -1747,7 +1755,7 @@
  *
  * :[2,3,4,5,6,7]
  */
-#if ANY(MachineEnder5Plus, CableExtensionNoiseFilter, MachineCR6, MachineCR6Max, MachineEnder6)
+#if ANY(MachineEnder5Plus, CableExtensionNoiseFilter, MachineCR6, MachineCR6Max, MachineEnder6, MachineCR10Smart)
   #define ENDSTOP_NOISE_THRESHOLD 2
 #endif
 
@@ -1959,7 +1967,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-#if NONE(MachineCR10Orig, SKRMiniE3V2, MachineCR6, MachineCR6Max) || ENABLED(MelziHostOnly)
+#if NONE(MachineCR10Orig, SKRMiniE3V2, MachineCR6, MachineCR6Max, MachineCR10Smart) || ENABLED(MelziHostOnly)
   #define S_CURVE_ACCELERATION
 #endif
 
@@ -1977,7 +1985,7 @@
  * The probe replaces the Z-MIN endstop and is used for Z homing.
  * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
-#if NONE(Creality422, Creality427, MachineEnder6) && DISABLED(Creality42XUseZMin) || DISABLED(ABL_BLTOUCH)
+#if NONE(Creality422, Creality427, MachineEnder6, MachineEnder7) && DISABLED(Creality42XUseZMin) || DISABLED(ABL_BLTOUCH)
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
 // Force the use of the probe for Z-axis homing
@@ -2012,7 +2020,7 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, MachineCR6, MachineCR6Max)
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define PROBE_MANUALLY
   #define MANUAL_PROBE_START_Z 0.2
 #endif
@@ -2029,7 +2037,7 @@
  * Use the nozzle as the probe, as with a conductive
  * nozzle system or a piezo-electric smart effector.
  */
-#if ANY(MachineCR6, MachineCR6Max)
+#if ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define NOZZLE_AS_PROBE
 #endif
 
@@ -2044,6 +2052,17 @@
  */
 #if ENABLED(ABL_BLTOUCH)
   #define BLTOUCH
+#endif
+
+/**
+ * MagLev V4 probe by MDD
+ *
+ * This probe is deployed and activated by powering a built-in electromagnet.
+ */
+//#define MAGLEV4
+#if ENABLED(MAGLEV4)
+  //#define MAGLEV_TRIGGER_PIN 11     // Set to the connected digital output
+  #define MAGLEV_TRIGGER_DELAY 15     // Changing this risks overheating the coil
 #endif
 
 /**
@@ -2167,7 +2186,7 @@
   #endif
 #elif ANY(MachineCRXPro, MachineEnder3Max, MachineSermoonD1, MachineEnder7) && ALL(HotendStock, ABL_BLTOUCH)
   #define NOZZLE_TO_PROBE_OFFSET { 48, 3, 0 }
-#elif ANY(MachineCR6, MachineCR6Max)
+#elif ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0.2 }
 #elif ENABLED(MachineCRX, HotendStock)
    #if ENABLED(ABL_BLTOUCH)
@@ -2230,7 +2249,7 @@
  * A switch indicating proper deployment, or an optical
  * switch triggered when the carriage is near the bed.
  */
-#if ANY(MachineCR6, MachineCR6Max)
+#if ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define PROBE_ACTIVATION_SWITCH
 #endif
 #if ENABLED(PROBE_ACTIVATION_SWITCH)
@@ -2243,7 +2262,7 @@
  * Useful for a strain gauge or piezo sensor that needs to factor out
  * elements such as cables pulling on the carriage.
  */
-#if ANY(MachineCR6, MachineCR6Max)
+#if ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define PROBE_TARE
 #endif
 #if ENABLED(PROBE_TARE)
@@ -2298,7 +2317,7 @@
 #else
   #define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
 #endif
-#if ANY(MachineCR6, MachineCR6Max)
+#if ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define Z_CLEARANCE_BETWEEN_PROBES  3 // Z Clearance between probe points
   #define Z_CLEARANCE_MULTI_PROBE     3 // Z Clearance between multiple probes
 #else
@@ -2316,7 +2335,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 9
 
 // Enable the M48 repeatability test to test probe accuracy
-#if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW, ABL_TOUCH_MI, MachineCR6, MachineCR6Max) && NONE(MachineCR10Orig, SKRMiniE3V2, SKRE3Turbo)
+#if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW, ABL_TOUCH_MI, MachineCR6, MachineCR6Max, MachineCR10Smart) && NONE(MachineCR10Orig, SKRMiniE3V2, SKRE3Turbo)
   #define Z_MIN_PROBE_REPEATABILITY_TEST
 #endif
 
@@ -2346,7 +2365,7 @@
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
 // Require minimum nozzle and/or bed temperature for probing
-#if ANY(MachineCR6, MachineCR6Max)
+#if ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define PREHEAT_BEFORE_PROBING
 #endif
 #if ENABLED(PREHEAT_BEFORE_PROBING)
@@ -2408,7 +2427,7 @@
     #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
   #endif
-#elif ANY(MachineCR6, MachineCR6Max)
+#elif ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR false
   #define INVERT_Z_DIR true
@@ -2557,7 +2576,7 @@
     #define X_BED_SIZE 230
     #define Y_BED_SIZE 230
     #define Z_MAX_POS 250
-    #define X_MAX_POS 250
+    #define X_MAX_POS 245
     #define Y_MAX_POS 250
     #define ClipClearance 15
   #elif(ANY(MachineEnder4, MachineEnder5))
@@ -2684,7 +2703,7 @@
 #elif ENABLED(TOUCH_MI_PROBE)
   #define X_MIN_POS -4
   #define Y_MIN_POS -10
-#elif ENABLED(MachineCR6)
+#elif ENABLED(MachineCR6, MachineCR10Smart)
   #define X_MIN_POS -5
   #define Y_MIN_POS -2
 #elif ENABLED(MachineCR6Max)
@@ -3048,7 +3067,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineEnder7, MachineCR30, FORCEV2DISPLAY) && (DISABLED(MachineCRX) || ANY(GraphicLCD, OrigLCD))
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineEnder7, MachineCR30, MachineCR10Smart, FORCEV2DISPLAY) && (DISABLED(MachineCRX) || ANY(GraphicLCD, OrigLCD))
   #define LCD_BED_LEVELING
 #endif
 
@@ -3060,7 +3079,7 @@
   #endif
 #endif
 
-#if NONE(SolidBedMounts, SKRMiniE3V2, MachineCR10Orig)
+#if NONE(SolidBedMounts, SKRMiniE3V2, MachineCR10Orig, MachineCR30)
 // Add a menu item to move between bed corners for manual bed adjustment
   #define LEVEL_BED_CORNERS
 #endif
@@ -3219,6 +3238,7 @@
 #define EEPROM_BOOT_SILENT    // Keep M503 quiet and only give errors during first load
 #if ENABLED(EEPROM_SETTINGS)
   #define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.
+  //#define EEPROM_INIT_NOW   // Init EEPROM on first boot after a new build.
 #endif
 
 //
@@ -3614,7 +3634,7 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-#if NONE(MachineCR10Orig, SKRMiniE3V2)
+#if ANY(MachineCR6, MachineCR6Max)
   #define SPEAKER
 #endif
 
@@ -3718,7 +3738,7 @@
   #define DWIN_CREALITY_LCD_JYERSUI
 #elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && NONE(GraphicLCD, MachineEnder3Touchscreen, FORCE10SPRODISPLAY)
   #define CR10_STOCKDISPLAY
-#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen) || ENABLED(GraphicLCD)
+#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineCR10Smart, MachineEnder3Touchscreen) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #endif
 //
@@ -3905,6 +3925,11 @@
 //#define FYSETC_GENERIC_12864_1_1 // Larger display with basic ON/OFF backlight.
 
 //
+// BigTreeTech Mini 12864 V1.0 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
+//
+//#define BTT_MINI_12864_V1
+
+//
 // Factory display for Creality CR-10
 // https://www.aliexpress.com/item/32833148327.html
 //
@@ -4087,7 +4112,7 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
 //
-#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, MachineEnder7, MachineSermoonD1) && (NONE(GraphicLCD, SKRMiniE3V2, OrigLCD) || ENABLED(FORCE10SPRODISPLAY))
+#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, MachineEnder7, MachineSermoonD1, MachineCR10Smart) && (NONE(GraphicLCD, SKRMiniE3V2, OrigLCD) || ENABLED(FORCE10SPRODISPLAY))
   #ifndef FORCE10SPRODISPLAY
     #define FORCE10SPRODISPLAY
   #endif
@@ -4277,6 +4302,11 @@
 //#define REPRAPWORLD_KEYPAD
 //#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distance to move per key-press
 
+//
+// EasyThreeD ET-4000+ with button input and status LED
+//
+//#define EASYTHREED_UI
+
 //=============================================================================
 //=============================== Extra Features ==============================
 //=============================================================================
@@ -4287,14 +4317,12 @@
 // :[1,2,3,4,5,6,7,8]
 //#define NUM_M106_FANS 1
 
-// Increase the FAN PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
-//#define FAST_PWM_FAN
-
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
-
+#if ANY(SKRPRO11, SKRMiniE3V2, MachineEnder6, MachineEnder7, Creality427, Creality422, SKR_CR6, CR6_452, MachineCR30, MachineCR6, MachineCR6Max, MachineCR10Smart)
+  #define FAN_SOFT_PWM
+#endif
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
 // However, control resolution will be halved for each increment;

@@ -79,6 +79,10 @@ namespace ExtUI {
 #define	FanKeyIcon			0x101E
 #define Flowrate        0x1300
 
+#define RunoutToggle    0x1018
+#define PowerLossToggle 0x101A
+#define LedToggle       0x101C
+
 #define StepMM_X      0x1242
 #define StepMM_Y      0x1246
 #define StepMM_Z      0x124A
@@ -267,6 +271,16 @@ void RTSInit();
 
 }
 #ifndef MAIN_MENU_ITEM_1_GCODE
-  #define MAIN_MENU_ITEM_1_GCODE "G28"
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #define MEASURING_GCODE "M190S55\nG28O\nG34\nG29\nM400\nM104S215\nG28\nM109S215\nM420S1\nG1X100Y100F5000\nG1Z0\nM500\nM117 Set Z Offset"
+  #elif ENABLED(AUTO_BED_LEVELING_UBL)
+    #define MEASURING_GCODE "M190S55\nG28O\nG34\nG29P1\nG29P3\nG29S1\nG29S0\nG29F0.0\nG29A\nM104S215\nG28\nM109S215\nG1X150Y150F5000\nG1Z0\nM500\nM400\nM117 Set Z Offset"
+  #else
+    #define MEASURING_GCODE "G28"
+  #endif
+#else
+  #define MEASURING_GCODE MAIN_MENU_ITEM_1_GCODE
 #endif
+
+
 #endif

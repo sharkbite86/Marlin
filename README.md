@@ -13,6 +13,27 @@ preconfigured Bondtech DDX configurations for the most common Creality machines 
 - [Ender 5 / Pro 4.2.2 and 4.2.7](https://amzn.to/3gMb2Yu)
 - [Ender 6](https://amzn.to/3wMaoj3)
 
+- [CR20 and Pro](http://bit.ly/2Oxxruk)
+- [CR10S](http://bit.ly/33AAaHv)
+- [CR10S4 400mm](http://bit.ly/2XXCBmq)
+- [CR10S5 500mm](http://bit.ly/35K4ZuR)
+- [CR6 / Max](https://bit.ly/2SdYijE)
+- [CR10 Smart](https://bit.ly/3JFVWzi)
+- [Ender 7](https://bit.ly/3rZOCZi)
+- [CR30](https://bit.ly/3rZOMQo)
+- [Sermoon D1](https://amzn.to/3LXfZeD)
+- CR10, CR10Mini, CR2020, Ender 4, Ender 2 - Legacy support
+-- These configurations exist however due to age and product availability are no longer actively tested
+--Coming Soon
+- [Ender 3 S1](https://bit.ly/35cUGo4)
+- [CR10 Smart Pro](https://bit.ly/3Hg8ewN)
+- [Ender 2 Pro](https://bit.ly/3oZPtHE)
+- [CR5 / Pro HT](https://amzn.to/3gWvpBt)
+
+
+
+
+Ender 3V2 has a dedicated file set. CR10 Smart has a dedicated high resolution screen set. Portrait displays use the CR6/E3 Touch variant and landscape use the combined set.
 
 Screen files are archived with [7-Zip](https://www.7-zip.org/) simply because it came out 1/5 the file size of a zip file. That added up fast!
 
@@ -37,8 +58,29 @@ This firmware is provided to the public as-is with no warranty or guarantee. It'
 support through their normal support queue. I will provide support to Patreons as I am able. If you require more immediate support and are not a Tiny Machines 3D customer, you may contact them at
 support@tinymachines3d.com about purchasing support hours. Aside from this, we are active on many Facebook groups as well as several discord channels and typically help anyone we can when we come across them.
 
-3D Printing Discord - https://discord.gg/MZrsgVU
-Marlin Discord - https://discord.gg/n5NJ59y
+We have now created a dedicated Discord server to handle support and archive relevant guides and instructions. Patreon supporters will get priority assistance.
+
+Insanity Automation Discord - https://discord.gg/TKmJ85PyG4
+Marlin Firmware Discord - https://discord.gg/n5NJ59y
+
+## Primary Notes for DW7.4.5
+  - Added support for CR10 Smart - Thanks to Tinymachines for providing the machine
+  - Revised file size issues causing corrupted screens on DWINOS3/4 displays (Sermoon, E6/7 etc)
+  - Added support for enabling / disabling filament runout and power loss recovery on the touchscreen
+  - Added LED control for equiped machines
+  - Resolved issue redirecting some users to chinese language displays instead of manual move screens
+  - Update to upstream current as of 2022-02-04
+  - CR6 / E3 Portrait Touchscreen files have an added NextGen dwin set. This supports the new DWIN OS 4 screens that began shipping in december. There are a few cosmetic issues left to resolve, but we decided to add them now anyway so that users who haver that hardware and will require it are not stuck.
+
+## Primary Notes for DW7.4.4
+  - Added Feedrate / Accel / Jerk Screens
+  - Touchscreen DGUS tools bumped to 8.2
+  -- All Portrait displays operate with the same build
+  -- Older screens (10S Pro) audio file selection is a bit off, havnt found a way to properly enforce wav file used yet
+  - Ender 7 support
+  - Sermoon D1 Support
+  -- Some users have reported Z clicking that the scripts run in the Leveling screen resolves, so if you hear clicking from the Z stepper when printing, run measuring from the leveling screen after powerup before printing.
+  - E3V2 Screens Icon issue fixed thanks to note from Jyers on icon file size limit
 
 
 ## Primary Notes for DW7.4.4
@@ -113,11 +155,12 @@ Please keep in mind when flashing the Creality 32 bit boards with the binary fil
 ## Future Goals
 
 For this branch, we still have some active goals open that we plan to continue working on provided there is continued interest in the project.
-- Volume and leveling state EEPROM storage
-- Brightness control
-- Develop internal Marlin state structure for better reporting of pause / block conditions
-- Add PID tune status screens as upstream blocks UI updates while processing
-- CRX Non ABL Manual mesh interface to bring screens into parity with ABL versions
+- CR10 Smart Power controls and network reset pin output to web interface device
+- Add temp reporting to leveling screens so preheat is less of a mystery
+- Revise aux leveling to use probe and deviation reporting when present
+- Determine cause of clicking on Sermoon (need to get hands on a machine)
+- Add CR5 Support
+- Add Ender 3 S1 support
 
 
 ## Creality Firmware Branches
