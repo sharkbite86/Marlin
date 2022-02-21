@@ -383,7 +383,6 @@
   #if NONE(ABL_UBL, ABL_BI)
     #define ABL_BI
   #endif
-  #define BedDC
 #endif
 
 #if ENABLED(OriginalCrealitySquareBoard)
@@ -414,9 +413,6 @@
     #define ABL_BI
   #endif
   #define lerdgeFilSensor
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
 #endif
 
 #if ENABLED(MachineCR10Max)
@@ -427,9 +423,6 @@
     #define ABL_BI
   #endif
   #define lerdgeFilSensor
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
 #endif
 
 #if ENABLED(MachineEnder5Plus)
@@ -444,16 +437,10 @@
   #if DISABLED(ABL_UBL)
     #define ABL_BI
   #endif
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
 #endif
 
-#if ANY(MachineCR10SV2, MachineCR10Smart)
+#if ANY(MachineCR10SV2)
   #define lerdgeFilSensor
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
 #endif
 
 #if ANY(MachineCR10SV2, MachineCR10Max, MachineCR10SProV2) && ANY(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI) && NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11)
@@ -524,16 +511,10 @@
 #if ENABLED(MachineCRX)
   #define MachineCR10Std
   #define Dual_BowdenSplitterY
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
 #endif
 
 #if ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder3Max, MachineEnder6, MachineEnder7, MachineSermoonD1)
   #define POWER_LOSS_RECOVERY //Screen will not compile without PLR
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
   #define CrealitySilentBoard
 #endif
 
@@ -598,9 +579,7 @@
     #define ABL_BI
   #endif
   #define SolidBedMounts
-  #if NONE(BedAC, BedDC)
-    #define BedDC
-  #endif
+
 #endif
 
 #if ENABLED(SKRPRO11)
@@ -1027,8 +1006,12 @@
     #define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
   #endif
 
-  //#define PSU_DEFAULT_OFF         // Keep power off until enabled directly with M80
-  //#define PSU_POWERUP_DELAY 250   // (ms) Delay for the PSU to warm up to full power
+  //#define PSU_DEFAULT_OFF               // Keep power off until enabled directly with M80
+  //#define PSU_POWERUP_DELAY      250    // (ms) Delay for the PSU to warm up to full power
+  //#define LED_POWEROFF_TIMEOUT 10000    // (ms) Turn off LEDs after power-off, with this amount of delay
+
+  //#define POWER_OFF_TIMER               // Enable M81 D<seconds> to power off after a delay
+  //#define POWER_OFF_WAIT_FOR_COOLDOWN   // Enable M81 S to power off only after cooldown
 
   //#define PSU_POWERUP_GCODE  "M355 S1"  // G-code to run after power-on (e.g., case light on)
   //#define PSU_POWEROFF_GCODE "M355 S0"  // G-code to run before power-off (e.g., case light off)
@@ -1040,11 +1023,13 @@
     #define AUTO_POWER_CONTROLLERFAN
     #define AUTO_POWER_CHAMBER_FAN
     #define AUTO_POWER_COOLER_FAN
-    //#define AUTO_POWER_E_TEMP        50 // (°C) Turn on PSU if any extruder is over this temperature
-    //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) Turn on PSU if the chamber is over this temperature
-    //#define AUTO_POWER_COOLER_TEMP   26 // (°C) Turn on PSU if the cooler is over this temperature
     #define POWER_TIMEOUT              30 // (s) Turn off power if the machine is idle for this duration
     //#define POWER_OFF_DELAY          60 // (s) Delay of poweroff after M81 command. Useful to let fans run for extra time.
+  #endif
+  #if EITHER(AUTO_POWER_CONTROL, POWER_OFF_WAIT_FOR_COOLDOWN)
+    //#define AUTO_POWER_E_TEMP        50 // (°C) PSU on if any extruder is over this temperature
+    //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) PSU on if the chamber is over this temperature
+    //#define AUTO_POWER_COOLER_TEMP   26 // (°C) PSU on if the cooler is over this temperature
   #endif
 #endif
 
@@ -1087,6 +1072,9 @@
  *     5 : 100kΩ  ATC Semitec 104GT-2/104NT-4-R025H42G - Used in ParCan, J-Head, and E3D, SliceEngineering 300°C
  *   501 : 100kΩ  Zonestar - Tronxy X3A
  *   502 : 100kΩ  Zonestar - used by hot bed in Zonestar Průša P802M
+ *   503 : 100kΩ  Zonestar (Z8XM2) Heated Bed thermistor
+ *   504 : 100kΩ  Zonestar P802QR2 (Part# QWG-104F-B3950) Hotend Thermistor
+ *   505 : 100kΩ  Zonestar P802QR2 (Part# QWG-104F-3950) Bed Thermistor
  *   512 : 100kΩ  RPW-Ultra hotend
  *     6 : 100kΩ  EPCOS - Not as accurate as table #1 (created using a fluke thermocouple)
  *     7 : 100kΩ  Honeywell 135-104LAG-J01
@@ -1527,6 +1515,7 @@
 //#define COREZX
 //#define COREZY
 //#define MARKFORGED_XY  // MarkForged. See https://reprap.org/forum/read.php?152,504042
+//#define MARKFORGED_YX
 
 // Enable for a belt style printer with endless "Z" motion
 #if ENABLED(MachineCR30)
@@ -1996,7 +1985,7 @@
  * The probe replaces the Z-MIN endstop and is used for Z homing.
  * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
-#if NONE(Creality422, Creality427, MachineEnder6) && DISABLED(Creality42XUseZMin) || DISABLED(ABL_BLTOUCH)
+#if NONE(Creality422, Creality427, MachineEnder6, MachineEnder7) && DISABLED(Creality42XUseZMin) || DISABLED(ABL_BLTOUCH)
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
 // Force the use of the probe for Z-axis homing
@@ -2063,6 +2052,17 @@
  */
 #if ENABLED(ABL_BLTOUCH)
   #define BLTOUCH
+#endif
+
+/**
+ * MagLev V4 probe by MDD
+ *
+ * This probe is deployed and activated by powering a built-in electromagnet.
+ */
+//#define MAGLEV4
+#if ENABLED(MAGLEV4)
+  //#define MAGLEV_TRIGGER_PIN 11     // Set to the connected digital output
+  #define MAGLEV_TRIGGER_DELAY 15     // Changing this risks overheating the coil
 #endif
 
 /**
@@ -2576,7 +2576,7 @@
     #define X_BED_SIZE 230
     #define Y_BED_SIZE 230
     #define Z_MAX_POS 250
-    #define X_MAX_POS 250
+    #define X_MAX_POS 245
     #define Y_MAX_POS 250
     #define ClipClearance 15
   #elif(ANY(MachineEnder4, MachineEnder5))
@@ -3079,7 +3079,7 @@
   #endif
 #endif
 
-#if NONE(SolidBedMounts, SKRMiniE3V2, MachineCR10Orig)
+#if NONE(SolidBedMounts, SKRMiniE3V2, MachineCR10Orig, MachineCR30)
 // Add a menu item to move between bed corners for manual bed adjustment
   #define LEVEL_BED_CORNERS
 #endif
@@ -3238,6 +3238,7 @@
 #define EEPROM_BOOT_SILENT    // Keep M503 quiet and only give errors during first load
 #if ENABLED(EEPROM_SETTINGS)
   #define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.
+  //#define EEPROM_INIT_NOW   // Init EEPROM on first boot after a new build.
 #endif
 
 //
@@ -3633,7 +3634,7 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-#if NONE(MachineCR10Orig, SKRMiniE3V2)
+#if ANY(MachineCR6, MachineCR6Max)
   #define SPEAKER
 #endif
 
@@ -3924,6 +3925,11 @@
 //#define FYSETC_GENERIC_12864_1_1 // Larger display with basic ON/OFF backlight.
 
 //
+// BigTreeTech Mini 12864 V1.0 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
+//
+//#define BTT_MINI_12864_V1
+
+//
 // Factory display for Creality CR-10
 // https://www.aliexpress.com/item/32833148327.html
 //
@@ -4106,7 +4112,7 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
 //
-#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, MachineEnder7, MachineSermoonD1) && (NONE(GraphicLCD, SKRMiniE3V2, OrigLCD) || ENABLED(FORCE10SPRODISPLAY))
+#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, MachineEnder7, MachineSermoonD1, MachineCR10Smart) && (NONE(GraphicLCD, SKRMiniE3V2, OrigLCD) || ENABLED(FORCE10SPRODISPLAY))
   #ifndef FORCE10SPRODISPLAY
     #define FORCE10SPRODISPLAY
   #endif
@@ -4296,6 +4302,11 @@
 //#define REPRAPWORLD_KEYPAD
 //#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distance to move per key-press
 
+//
+// EasyThreeD ET-4000+ with button input and status LED
+//
+//#define EASYTHREED_UI
+
 //=============================================================================
 //=============================== Extra Features ==============================
 //=============================================================================
@@ -4306,14 +4317,12 @@
 // :[1,2,3,4,5,6,7,8]
 //#define NUM_M106_FANS 1
 
-// Increase the FAN PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
-//#define FAST_PWM_FAN
-
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
-
+#if ANY(SKRPRO11, SKRMiniE3V2, MachineEnder6, MachineEnder7, Creality427, Creality422, SKR_CR6, CR6_452, MachineCR30, MachineCR6, MachineCR6Max, MachineCR10Smart)
+  #define FAN_SOFT_PWM
+#endif
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
 // However, control resolution will be halved for each increment;

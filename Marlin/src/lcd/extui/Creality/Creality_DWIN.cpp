@@ -239,7 +239,7 @@ void onIdle()
 			if (AutohomeKey && isPositionKnown() && !commandsInQueue())
 			{ //Manual Move Home Done
         SERIAL_ECHOLNPGM_P(PSTR("==waitway 4=="));
-				//rtscheck.RTS_SndData(ExchangePageBase + 21 + AxisPagenum, ExchangepageAddr);
+				//rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
 				AutohomeKey = false;
 				waitway = 0;
 			}
@@ -272,6 +272,28 @@ void onIdle()
     else
       rtscheck.RTS_SndData(2, AutoLevelIcon); /*Off*/
   #endif
+
+  #if HAS_FILAMENT_SENSOR
+    if(getFilamentRunoutEnabled())
+      rtscheck.RTS_SndData(3, RunoutToggle); /*On*/
+    else
+      rtscheck.RTS_SndData(2, RunoutToggle); /*Off*/
+  #endif
+
+  #if ENABLED(CASE_LIGHT_ENABLE)
+    if(getCaseLightState())
+      rtscheck.RTS_SndData(3, LedToggle); /*On*/
+    else
+      rtscheck.RTS_SndData(2, LedToggle); /*Off*/
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if(getPowerLossRecoveryEnabled())
+      rtscheck.RTS_SndData(3, PowerLossToggle); /*On*/
+    else
+      rtscheck.RTS_SndData(2, PowerLossToggle); /*Off*/
+  #endif
+
 
   if (startprogress == 0)
   {
@@ -787,6 +809,9 @@ void RTSSHOW::RTS_HandleData()
     case Jerk_Y:
     case Jerk_Z:
     case Jerk_E:
+    case RunoutToggle:
+    case PowerLossToggle:
+    case LedToggle:
       Checkkey = ManualSetTemp;
     break;
   }
@@ -1190,6 +1215,36 @@ void RTSSHOW::RTS_HandleData()
           }
         #endif
 
+        #if HAS_FILAMENT_SENSOR
+          else if(recdat.addr == RunoutToggle){
+            if(getFilamentRunoutEnabled())
+              setFilamentRunoutEnabled(false);
+            else
+              setFilamentRunoutEnabled(true);
+          }
+        #endif
+
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          else if(recdat.addr == PowerLossToggle){
+            if(getPowerLossRecoveryEnabled())
+              setPowerLossRecoveryEnabled(false);
+            else
+              setPowerLossRecoveryEnabled(true);
+          }
+        #endif
+
+        #if ENABLED(CASE_LIGHT_ENABLE)
+          else if(recdat.addr == LedToggle){
+            if(getCaseLightState())
+              setCaseLightState(false);
+            else
+              setCaseLightState(true);
+          }
+        #endif
+
+
+
+
         #if HAS_PID_HEATING
           else if (recdat.addr == HotendPID_P) {
             setPIDValues(tmp_float_handling*10, getPIDValues_Ki(getActiveTool()), getPIDValues_Kd(getActiveTool()), getActiveTool());
@@ -1271,7 +1326,7 @@ void RTSSHOW::RTS_HandleData()
       else if (recdat.data[0] == 3) //Move
       {
         AxisPagenum = 0;
-        RTS_SndData(ExchangePageBase + 21, ExchangepageAddr);
+        RTS_SndData(ExchangePageBase + 71, ExchangepageAddr);
       }
       else if (recdat.data[0] == 4) //Language
       {
@@ -1370,8 +1425,8 @@ void RTSSHOW::RTS_HandleData()
               rtscheck.RTS_SndData(0, AutolevelVal + abl_probe_index * 2);
               ++abl_probe_index;
             }
-            RTS_SndData(ExchangePageBase + 85, ExchangepageAddr);
-            injectCommands_P(PSTR(MAIN_MENU_ITEM_1_GCODE));
+            RTS_SndData(ExchangePageBase + 64, ExchangepageAddr);
+            injectCommands_P(PSTR(MEASURING_GCODE));
           #endif
           break;
         }
@@ -1552,7 +1607,6 @@ void RTSSHOW::RTS_HandleData()
           injectCommands_P((PSTR("G28\nG1 F1000 Z10")));
           InforShowStatus = AutohomeKey = true;
           AutoHomeIconNum = 0;
-          //RTS_SndData(ExchangePageBase + 74, ExchangepageAddr);
           RTS_SndData(10, FilenameIcon);
         }
         else
@@ -2018,7 +2072,9 @@ void SetTouchScreenConfiguration() {
   if (Settings.display_sound) cfg_bits |= 1UL << 3; // 3: audio
   if (Settings.display_standby) cfg_bits |= 1UL << 2; // 2: backlight on standby
   if(Settings.screen_rotation==10) cfg_bits |= 1UL << 1; // 1 & 0: Inversion
-  //cfg_bits |= 1UL << 0; // Portrait Mode
+  #if ENABLED(MachineCR10Smart)
+    cfg_bits |= 1UL << 0; // Portrait Mode or 800x480 display has 0 point rotated 90deg from 480x272 display
+  #endif
 
 
   #if ENABLED(DWINOS_4)
@@ -2062,9 +2118,6 @@ void SetTouchScreenConfiguration() {
 
 void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
   SERIAL_ECHOLNPGM_P(PSTR("***kill***"));
-  //First we send screen available on old versions of software
-	rtscheck.RTS_SndData(ExchangePageBase + 15, ExchangepageAddr);
-  //Then we send the new one Creality added in 1.70.1
 	rtscheck.RTS_SndData(ExchangePageBase + 88, ExchangepageAddr);
   int j = 0;
   char outmsg[40];
@@ -2169,7 +2222,8 @@ void onPrintTimerStarted()
 void onPrintTimerPaused()
 {
 	SERIAL_ECHOLNPGM_P(PSTR("==onPrintTimerPaused=="));
-	rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr); //Display Pause Screen
+	rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); //Display Pause Screen
+  onStatusChanged("Pausing...");
 }
 void onPrintTimerStopped()
 {
@@ -2259,29 +2313,29 @@ void onUserConfirmRequired(const char *const msg)
 
     case PAUSE_MESSAGE_PARKING:
     {
-      rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
+      rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
       onStatusChanged("Parking...");
       break;
     }
     case PAUSE_MESSAGE_CHANGING:{
-      rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
+      rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
       onStatusChanged("Beginning Filament Change");
       break;
     }
     case PAUSE_MESSAGE_UNLOAD:{
-      rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
+      rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
       onStatusChanged("Unloading...");
       break;
     }
     case PAUSE_MESSAGE_LOAD:{
-      rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
+      rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
       onStatusChanged("Reloading...");
       break;
     }
     case PAUSE_MESSAGE_RESUME:
     #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
       case PAUSE_MESSAGE_PURGE:{
-        rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
+        rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
         onStatusChanged("Press Yes to Stop Purge");
         break;
       }
