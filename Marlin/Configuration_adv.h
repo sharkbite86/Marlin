@@ -698,12 +698,14 @@
 /**
  * M355 Case Light on-off / brightness
  */
-#if ANY(EnclosureLight, MachineCR6, MachineCR6Max, MachineCR10Smart)
+#if ANY(EnclosureLight, MachineCR6, MachineCR6Max, MachineCR10Smart, MachineCR5)
   #define CASE_LIGHT_ENABLE
 #endif
 #if ENABLED(CASE_LIGHT_ENABLE)
   #if ENABLED(MachineCR2020)
     #define CASE_LIGHT_PIN 65                  // Override the default pin if needed
+  #elif ENABLED(MachineCR5)
+    #define CASE_LIGHT_PIN 7
   #elif NONE(MachineCR6, MachineCR6Max, MachineCR10Smart)
     #define CASE_LIGHT_PIN 12                  // Override the default pin if needed
   #endif
@@ -2088,7 +2090,7 @@
  *
  * See https://marlinfw.org/docs/features/lin_advance.html for full instructions.
  */
-#if NONE(MachineCR10Orig, SKRMiniE3V2, LowMemoryBoard, MachineCR10SPro, MachineCR10Max, SKR13, SKR14, SKR14Turbo, MachineCR10SV2, CrealitySilentBoard) || ENABLED(OrigLA) || (ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11) && ENABLED(SKR_UART))
+#if NONE(MachineCR10Orig, SKRMiniE3V2, LowMemoryBoard, MachineCR10SPro, MachineCR10Max, SKR13, SKR14, SKR14Turbo, MachineCR10SV2, CrealitySilentBoard, MachineCR5) || ENABLED(OrigLA) || (ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11) && ENABLED(SKR_UART))
   #define LIN_ADVANCE
 #endif
 #if ENABLED(LIN_ADVANCE)
@@ -4486,7 +4488,7 @@
 // M100 Free Memory Watcher to debug memory usage
 //
 //#define M100_FREE_MEMORY_WATCHER
-#if ENABLED(MachineLargeROM)
+//#if ENABLED(MachineLargeROM)
   //
   // M42 - Set pin states
   //
@@ -4496,7 +4498,7 @@
   // M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
   //
   #define PINS_DEBUGGING
-#endif
+//#endif
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE

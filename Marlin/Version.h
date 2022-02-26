@@ -67,6 +67,8 @@
   #define VerChar1 "X"
 #elif(ENABLED(MachineCR6))
   #define VerChar1 "CR6"
+#elif(ENABLED(MachineCR5))
+  #define VerChar1 "CR5"
 #elif(ENABLED(MachineCR6Max))
   #define VerChar1 "CR6M"
 #elif(ENABLED(MachineS4))
@@ -178,6 +180,8 @@
   #define CUSTOM_MACHINE_NAME "TM3D 2020"
 #elif ENABLED(MachineSermoonD1)
   #define CUSTOM_MACHINE_NAME "SermoonD1"
+#elif ENABLED(MachineCR5)
+  #define CUSTOM_MACHINE_NAME "CR5 Pro"
 #elif ENABLED(MachineCR30)
   #define CUSTOM_MACHINE_NAME "CR30 Printmill"
 #endif
