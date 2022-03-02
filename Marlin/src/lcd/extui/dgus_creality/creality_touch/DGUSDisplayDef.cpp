@@ -483,6 +483,8 @@ const struct VPMapping VPMap[] PROGMEM = {
 #define VPHELPER_STR(VPADR, VPADRVAR, STRLEN, RXFPTR, TXFPTR ) { .VP=VPADR, .memadr=VPADRVAR, .size=STRLEN, \
   .set_by_display_handler = RXFPTR, .send_to_display_handler = TXFPTR }
 
+float tmp_z_offset = getZOffset_mm();
+
 const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // Back button state
   VPHELPER(VP_BACK_BUTTON_STATE, nullptr, nullptr, ScreenHandler.SendBusyState),
@@ -619,9 +621,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(SP_Y_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Y_AXIS>),
   VPHELPER(SP_Z_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Z_AXIS>),
 
-  #if HAS_BED_PROBE
-    VPHELPER(VP_Z_OFFSET, &probe.offset.z, ScreenHandler.HandleZoffsetChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
-  #endif
+  VPHELPER(VP_Z_OFFSET, &tmp_z_offset, ScreenHandler.HandleZoffsetChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
 
   VPHELPER(VP_FAN_TOGGLE, &thermalManager.fan_speed[0], nullptr, ScreenHandler.DGUSLCD_SendFanStatusToDisplay),
   VPHELPER(VP_Fan0_Percentage, &thermalManager.fan_speed[0], ScreenHandler.HandleFanSpeedChanged, ScreenHandler.DGUSLCD_SendFanSpeedToDisplay),
@@ -748,7 +748,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_DEVELOPMENT_HELPER_BUTTON, nullptr, ScreenHandler.HandleDevelopmentTestButton, nullptr),
 
   // Mesh override input
-#if MESH_INPUT_SUPPORTED_SIZE == GRID_MAX_POINTS && HAS_MESH
+#if MESH_INPUT_SUPPORTED_SIZE == GRID_MAX_POINTS
   //#define _VPHELPER_GP(N) VPHELPER((VP_MESH_INPUT_X0_Y0 + ( ##N## * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
   //REPEAT(MESH_INPUT_SUPPORTED_SIZE, _VPHELPER_GP)
 

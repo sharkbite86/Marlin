@@ -9,33 +9,42 @@ This branch is specifically intended to support the kits sold by F1rst Layer inc
 - [E3V2 Upgrade Kit (Screen, 427 board, bltouch, runout)](https://amzn.to/3EZnhec)
 - [Ender 3 100mm Z Extension Kit](https://amzn.to/2XWH78F)
 
-- [CR10S Pro](http://bit.ly/2rxZ6lP)
-- [CR10S Pro V2](http://bit.ly/2rxZ6lP)
-- [CR10 Max](http://bit.ly/2L6wZRy)
-- [Ender 5 Plus](https://bit.ly/2SriM5I)
-- [Ender 6](https://amzn.to/3wMaoj3)
-- [CR-X / Pro](https://bit.ly/33eZ5Ts)
-- [CR10 V2/V3 ](https://bit.ly/3nnhPcM)
-- [Ender 3 / Pro 4.2.2 and 4.2.7](https://bit.ly/3ncWu5I)
-- [Ender 3 V2](https://bit.ly/3xmx4XI)
-- [Ender 3 Max]()
+- [CR10S Pro / V2](https://www.tinymachines3d.com/products/cr-10s-pro-v2-3d-printer?rfsn=3419592.cc302fe)
+- [CR10 Max](https://www.tinymachines3d.com/products/creality-cr-10-max-3d-printer?rfsn=3419592.cc302fe)
+- [Ender 5 Plus](https://www.tinymachines3d.com/products/ender-5-plus-silent-board-custom-dual-z-3d-printer?rfsn=3419592.cc302fe)
+- [Ender 6](https://amzn.to/3JRyOhi)
+- [CR-X / Pro](https://www.tinymachines3d.com/products/creality-cr-x-pro-3d-printer-with-dual-extruder-and-bl-touch?rfsn=3419592.cc302fe)
+- [CR10 V2 ](https://www.tinymachines3d.com/products/creality-cr-10-v2-3d-printer?rfsn=3419592.cc302fe)
+- [CR10 V3 ](https://www.tinymachines3d.com/products/creality-cr-10-v3-plus-3d-printer-with-genuine-e3d-direct-drive-extruder-and-bl-touch?rfsn=3419592.cc302fe)
+- [Ender 3 / Pro 4.2.2 and 4.2.7](https://amzn.to/3BRHlxY)
+- [Ender 3 V2](https://www.tinymachines3d.com/products/ender-3-v2?rfsn=3419592.cc302fe)
+- [Ender 3 Max](https://www.tinymachines3d.com/products/ender-3-max-3d-printer?rfsn=3419592.cc302fe)
 - [Ender 5 / Pro 4.2.2 and 4.2.7](https://amzn.to/3gMb2Yu)
-- [CR20 and Pro](http://bit.ly/2Oxxruk)
-- [CR10S](http://bit.ly/33AAaHv)
-- [CR10S4 400mm](http://bit.ly/2XXCBmq)
-- [CR10S5 500mm](http://bit.ly/35K4ZuR)
-- [CR6 / Max](https://bit.ly/2SdYijE)
-- [CR10 Smart](https://bit.ly/3JFVWzi)
-- [Ender 7](https://bit.ly/3rZOCZi)
-- [CR30](https://bit.ly/3rZOMQo)
+- [CR10S5 500mm](https://www.tinymachines3d.com/products/creality-cr-10-s5-3d-printer?rfsn=3419592.cc302fe)
+- [CR6 SE](https://www.tinymachines3d.com/products/creality-cr-6-se-3d-printer?rfsn=3419592.cc302fe)
+- [CR6 Max](https://www.tinymachines3d.com/products/creality-cr-6-max-3d-printer?rfsn=3419592.cc302fe)
+- [CR10 Smart](https://www.tinymachines3d.com/products/creality-cr-10-smart-3d-printer?rfsn=3419592.cc302fe)
+- [Ender 7](https://www.tinymachines3d.com/products/ender-7-3d-printer?rfsn=3419592.cc302fe)
+- [CR30](https://www.tinymachines3d.com/products/cr-30-infinite-z-belt-3d-printer?rfsn=3419592.cc302fe)
 - [Sermoon D1](https://amzn.to/3LXfZeD)
-- CR10, CR10Mini, CR2020, Ender 4, Ender 2 - Legacy support
--- These configurations exist however due to age and product availability are no longer actively tested
---Coming Soon
-- [Ender 3 S1](https://bit.ly/35cUGo4)
-- [CR10 Smart Pro](https://bit.ly/3Hg8ewN)
-- [Ender 2 Pro](https://bit.ly/3oZPtHE)
 - [CR5 / Pro HT](https://amzn.to/3gWvpBt)
+
+- CR10S, CR10S4, CR20 and Pro, CR10, CR10Mini, CR2020, Ender 4, Ender 2 - Legacy support
+- These configurations exist however due to age and product availability are no longer actively tested
+
+## Coming Soon
+- [Ender 3 S1](https://www.tinymachines3d.com/products/ender-3-s1-3d-printer?rfsn=3419592.cc302fe)
+- [CR10 Smart Pro](https://www.tinymachines3d.com/products/cr-10-smart-pro-3d-printer?rfsn=3419592.cc302fe)
+- [Ender 2 Pro](https://www.tinymachines3d.com/products/ender-2-pro-3d-printer?rfsn=3419592.cc302fe)
+- [CR200B]()
+
+## Resin machines below from Tiny Machines are listed simply as an additional way to help support the project. If youre considering buying one, please do so through the following links :
+ - [Halot One CL-60](https://www.tinymachines3d.com/products/halot-one-cl-60-resin-3d-printer?rfsn=3419592.cc302fe)
+ - [LD-002R](https://www.tinymachines3d.com/products/ld-002r-resin-printer?rfsn=3419592.cc302fe)
+ - [LD-002H](https://www.tinymachines3d.com/products/ld-002h-resin-3d-printer?rfsn=3419592.cc302fe)
+ - [LD-006](https://www.tinymachines3d.com/products/ld-006-resin-3d-printer?rfsn=3419592.cc302fe)
+ - [UW-02 Washer](https://www.tinymachines3d.com/products/uw-02-washing-curing-machine?rfsn=3419592.cc302fe)
+
 
 Ender 3V2 has a dedicated file set. CR10 Smart has a dedicated high resolution screen set. Portrait displays use the CR6/E3 Touch variant and landscape use the combined set.
 

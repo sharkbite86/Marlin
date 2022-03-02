@@ -43,6 +43,8 @@
   #define VerChar1 "E3"
 #elif ENABLED(MachineEnder3V2)
   #define VerChar1 "E3V2"
+#elif ENABLED(MachineEnder3S1)
+  #define VerChar1 "E3S1"
 #elif ENABLED(MachineEnder3Max)
   #define VerChar1 "E3M"
 #elif(ENABLED(MachineEnder4))
@@ -154,6 +156,8 @@
   #define CUSTOM_MACHINE_NAME "Ender7"
 #elif(ENABLED(MachineEnder3V2))
   #define CUSTOM_MACHINE_NAME "Ender3V2"
+#elif(ENABLED(MachineEnder3S1))
+  #define CUSTOM_MACHINE_NAME "Ender3S1"
 #elif(ENABLED(MachineEnder4))
   #define CUSTOM_MACHINE_NAME "Ender4"
 #elif(ENABLED(MachineEnder5))
