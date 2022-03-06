@@ -40,6 +40,9 @@
 #include "../../../../module/planner.h"
 
 #include "../../../../feature/caselight.h"
+#if ENABLED(BABYSTEPPING)
+  #include "../../../../feature/babystep.h"
+#endif
 
 #if ENABLED(FWRETRACT)
   #include "../../../../feature/fwretract.h"
@@ -83,9 +86,9 @@ const char MarlinVersion[] PROGMEM = SHORT_BUILD_VERSION;
 #define VPList_HeatBed
 #endif
 
-#define VPList_Common VP_BACK_BUTTON_STATE
+#define VPList_Common VP_BACK_BUTTON_STATE, VP_Z_OFFSET
 #define VPList_CommonWithStatus VPList_HeatHotend VPList_HeatBed VP_Z_OFFSET, VP_Feedrate_Percentage, VP_BACK_BUTTON_STATE
-#define VPList_CommonWithHeatOnly VPList_HeatHotend VPList_HeatBed VP_BACK_BUTTON_STATE
+#define VPList_CommonWithHeatOnly VPList_HeatHotend VPList_HeatBed VP_BACK_BUTTON_STATE, VP_Z_OFFSET
 
 // ----- Which variables to auto-update on which screens
 const uint16_t VPList_None[] PROGMEM = {
@@ -483,7 +486,6 @@ const struct VPMapping VPMap[] PROGMEM = {
 #define VPHELPER_STR(VPADR, VPADRVAR, STRLEN, RXFPTR, TXFPTR ) { .VP=VPADR, .memadr=VPADRVAR, .size=STRLEN, \
   .set_by_display_handler = RXFPTR, .send_to_display_handler = TXFPTR }
 
-float tmp_z_offset = getZOffset_mm();
 
 const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // Back button state
@@ -621,7 +623,12 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(SP_Y_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Y_AXIS>),
   VPHELPER(SP_Z_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Z_AXIS>),
 
-  VPHELPER(VP_Z_OFFSET, &tmp_z_offset, ScreenHandler.HandleZoffsetChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
+  #if HAS_BED_PROBE
+    VPHELPER(VP_Z_OFFSET, &probe.offset.z, ScreenHandler.HandleZoffsetChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
+  #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
+    VPHELPER(VP_Z_OFFSET, nullptr, ScreenHandler.HandleZoffsetChange, nullptr),
+  #endif
+      
 
   VPHELPER(VP_FAN_TOGGLE, &thermalManager.fan_speed[0], nullptr, ScreenHandler.DGUSLCD_SendFanStatusToDisplay),
   VPHELPER(VP_Fan0_Percentage, &thermalManager.fan_speed[0], ScreenHandler.HandleFanSpeedChanged, ScreenHandler.DGUSLCD_SendFanSpeedToDisplay),
