@@ -3106,7 +3106,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineEnder7, MachineCR30, MachineCR10Smart, FORCEV2DISPLAY) && (DISABLED(MachineCRX) || ANY(GraphicLCD, OrigLCD))
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineEnder7, MachineCR30, MachineCR10Smart, FORCEV2DISPLAY) && (NONE(MachineCRX, MachineEnder3Touchscreen) || ANY(GraphicLCD, OrigLCD))
   #define LCD_BED_LEVELING
 #endif
 
@@ -3673,7 +3673,7 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-#if ANY(MachineCR6, MachineCR6Max)
+#if ANY(MachineCR6, MachineCR6Max, MachineEnder3Touchscreen)
   #define SPEAKER
 #endif
 
