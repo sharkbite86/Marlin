@@ -1675,7 +1675,7 @@
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
- #if ANY(FilamentSensor, filamentEncoder, lerdgeFilSensor)
+#if ANY(FilamentSensor, filamentEncoder, lerdgeFilSensor)
   #define FILAMENT_RUNOUT_SENSOR
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
