@@ -30,7 +30,7 @@
 #include "../../MarlinCore.h" // for startOrResumeJob
 
 #if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "../../lcd/e3v2/enhanced/dwin.h"
+  #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
 /**
@@ -49,7 +49,7 @@ void GcodeSuite::M75() {
  */
 void GcodeSuite::M76() {
   print_job_timer.pause();
-  TERN_(HOST_PAUSE_M76, host_action_pause());
+  TERN_(HOST_PAUSE_M76, hostui.pause());
 }
 
 /**

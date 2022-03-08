@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, ASSISTED_TRAMMING_WIZARD)
+#if BOTH(HAS_MARLINUI_MENU, ASSISTED_TRAMMING_WIZARD)
 
 #include "menu_item.h"
 
@@ -55,7 +55,7 @@ static int8_t reference_index; // = 0
 static bool probe_single_point() {
   do_blocking_move_to_z(TERN(BLTOUCH, Z_CLEARANCE_DEPLOY_PROBE, Z_CLEARANCE_BETWEEN_PROBES));
   // Stow after each point with BLTouch "HIGH SPEED" mode for push-pin safety
-  const float z_probed_height = probe.probe_at_point(tramming_points[tram_index], TERN(BLTOUCH, bltouch.high_speed_mode ? PROBE_PT_STOW : PROBE_PT_RAISE, PROBE_PT_RAISE), 0, true);
+  const float z_probed_height = probe.probe_at_point(tramming_points[tram_index], TERN0(BLTOUCH, bltouch.high_speed_mode) ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true);
   z_measured[tram_index] = z_probed_height;
   if (reference_index < 0) reference_index = tram_index;
   move_to_tramming_wait_pos();
@@ -70,7 +70,7 @@ static void _menu_single_probe() {
   STATIC_ITEM(MSG_BED_TRAMMING, SS_LEFT);
   STATIC_ITEM(MSG_LAST_VALUE_SP, SS_LEFT, z_isvalid[tram_index] ? ftostr42_52(z_measured[reference_index] - z_measured[tram_index]) : "---");
   ACTION_ITEM(MSG_UBL_BC_INSERT2, []{ if (probe_single_point()) ui.refresh(); });
-  ACTION_ITEM(MSG_BUTTON_DONE, []{ ui.goto_previous_screen(); });
+  ACTION_ITEM(MSG_BUTTON_DONE, ui.goto_previous_screen);
   END_MENU();
 }
 
@@ -109,4 +109,4 @@ void goto_tramming_wizard() {
   });
 }
 
-#endif // HAS_LCD_MENU && ASSISTED_TRAMMING_WIZARD
+#endif // HAS_MARLINUI_MENU && ASSISTED_TRAMMING_WIZARD

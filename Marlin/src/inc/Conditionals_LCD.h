@@ -31,8 +31,8 @@
   #define MKS_MINI_12864
 #endif
 
-// MKS_MINI_12864_V3 is simply identical to FYSETC_MINI_12864_2_1
-#if ENABLED(MKS_MINI_12864_V3)
+// MKS_MINI_12864_V3 and BTT_MINI_12864_V1 are identical to FYSETC_MINI_12864_2_1
+#if EITHER(MKS_MINI_12864_V3, BTT_MINI_12864_V1)
   #define FYSETC_MINI_12864_2_1
 #endif
 
@@ -78,8 +78,8 @@
 
   // This helps to implement HAS_ADC_BUTTONS menus
   #define REVERSE_MENU_DIRECTION
-  #define ENCODER_PULSES_PER_STEP 1
-  #define ENCODER_STEPS_PER_MENU_ITEM 1
+  #define STD_ENCODER_PULSES_PER_STEP 1
+  #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
   #define ENCODER_FEEDRATE_DEADZONE 2
 
 #elif ENABLED(ZONESTAR_12864LCD)
@@ -97,7 +97,7 @@
 
 #elif ENABLED(RADDS_DISPLAY)
   #define IS_ULTIPANEL 1
-  #define ENCODER_PULSES_PER_STEP 2
+  #define STD_ENCODER_PULSES_PER_STEP 2
 
 #elif ANY(miniVIKI, VIKI2, WYH_L12864, ELB_FULL_GRAPHIC_CONTROLLER, AZSMZ_12864)
 
@@ -158,20 +158,8 @@
   #define IS_RRD_SC 1
   #define U8GLIB_SH1106
 
-  #define LED_CONTROL_MENU
-  #define NEOPIXEL_LED
-  #undef NEOPIXEL_TYPE
-  #define NEOPIXEL_TYPE       NEO_RGB
-  #if NEOPIXEL_PIXELS < 3
-    #undef NEOPIXELS_PIXELS
-    #define NEOPIXEL_PIXELS     3
-  #endif
   #ifndef NEOPIXEL_BRIGHTNESS
     #define NEOPIXEL_BRIGHTNESS 127
-  #endif
-
-  #if ENABLED(PSU_CONTROL)
-    #define LED_BACKLIGHT_TIMEOUT 10000
   #endif
 
 #elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_GENERIC_12864_1_1)
@@ -180,22 +168,9 @@
   #define DOGLCD
   #define IS_ULTIPANEL 1
   #define LED_COLORS_REDUCE_GREEN
-  #if ENABLED(PSU_CONTROL) && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
-    #define LED_BACKLIGHT_TIMEOUT 10000
-  #endif
 
   // Require LED backlighting enabled
-  #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-    #define RGB_LED
-  #elif ENABLED(FYSETC_MINI_12864_2_1)
-    #define LED_CONTROL_MENU
-    #define NEOPIXEL_LED
-    #undef NEOPIXEL_TYPE
-    #define NEOPIXEL_TYPE       NEO_RGB
-    #if NEOPIXEL_PIXELS < 3
-      #undef NEOPIXELS_PIXELS
-      #define NEOPIXEL_PIXELS     3
-    #endif
+  #if ENABLED(FYSETC_MINI_12864_2_1)
     #ifndef NEOPIXEL_BRIGHTNESS
       #define NEOPIXEL_BRIGHTNESS 127
     #endif
@@ -207,8 +182,11 @@
   #define IS_ULTIPANEL 1
   #define U8GLIB_SSD1309
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
-  #define ENCODER_PULSES_PER_STEP 2
-  #define ENCODER_STEPS_PER_MENU_ITEM 2
+  #define STD_ENCODER_PULSES_PER_STEP 4
+  #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
+  #ifndef PCA9632
+    #define PCA9632
+  #endif
 
 #elif ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602)
 
@@ -234,7 +212,7 @@
   #define LCD_HEIGHT                  10    // Character lines
   #define LCD_CONTRAST_MIN            127
   #define LCD_CONTRAST_MAX            255
-  #define DEFAULT_LCD_CONTRAST        250
+  #define LCD_CONTRAST_DEFAULT        250
   #define CONVERT_TO_EXT_ASCII        // Use extended 128-255 symbols from ASCII table.
                                       // At this time present conversion only for cyrillic - bg, ru and uk languages.
                                       // First 7 ASCII symbols in panel font must be replaced with Marlin's special symbols.
@@ -302,8 +280,8 @@
   #define PCA9632_BUZZER
   #define PCA9632_BUZZER_DATA { 0x09, 0x02 }
 
-  #define ENCODER_PULSES_PER_STEP     1 // Overlord uses buttons
-  #define ENCODER_STEPS_PER_MENU_ITEM 1
+  #define STD_ENCODER_PULSES_PER_STEP     1 // Overlord uses buttons
+  #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
 #endif
 
 // 128x64 I2C OLED LCDs - SSD1306/SSD1309/SH1106
@@ -332,7 +310,6 @@
 #if ANY(FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT, TFT_320x240, TFT_480x320, TFT_320x240_SPI, TFT_480x320_SPI, TFT_LVGL_UI_FSMC, TFT_LVGL_UI_SPI)
   #define IS_LEGACY_TFT 1
   #define TFT_GENERIC
-  #warning "Don't forget to update your TFT settings in Configuration.h."
 #endif
 
 #if ANY(FSMC_GRAPHICAL_TFT, TFT_320x240, TFT_480x320, TFT_LVGL_UI_FSMC)
@@ -507,14 +484,19 @@
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   #define SERIAL_CATCHALL 0
   #ifndef LCD_SERIAL_PORT
-    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_E3_TURBO)
+    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_E3_TURBO)
       #define LCD_SERIAL_PORT 1
+    #elif MB(CREALITY_V24S1_301)
+      #define LCD_SERIAL_PORT 2 // Creality Ender3S1 board
     #else
       #define LCD_SERIAL_PORT 3 // Creality 4.x board
     #endif
   #endif
   #define HAS_LCD_BRIGHTNESS 1
   #define LCD_BRIGHTNESS_MAX 250
+  #if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+    #define LCD_BRIGHTNESS_DEFAULT 127
+  #endif
 #endif
 
 #if IS_ULTRA_LCD
@@ -535,12 +517,24 @@
   #define HAS_DISPLAY 1
 #endif
 
+#if HAS_WIRED_LCD && !HAS_GRAPHICAL_TFT && !IS_DWIN_MARLINUI
+  #define HAS_LCDPRINT 1
+#endif
+
 #if ANY(HAS_DISPLAY, HAS_DWIN_E3V2, GLOBAL_STATUS_MESSAGE)
   #define HAS_STATUS_MESSAGE 1
 #endif
 
 #if IS_ULTIPANEL && DISABLED(NO_LCD_MENUS)
-  #define HAS_LCD_MENU 1
+  #define HAS_MARLINUI_MENU 1
+#endif
+
+#if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, HAS_DWIN_E3V2)
+  #define HAS_MANUAL_MOVE_MENU 1
+#endif
+
+#if ANY(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI, HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL, IS_DWIN_MARLINUI, DWIN_CREALITY_LCD_JYERSUI)
+  #define CAN_SHOW_REMAINING_TIME 1
 #endif
 
 #if HAS_MARLINUI_U8GLIB
@@ -690,6 +684,15 @@
   #define HAS_Y_AXIS 1
   #if LINEAR_AXES >= XYZ
     #define HAS_Z_AXIS 1
+    #if LINEAR_AXES >= 4
+      #define HAS_I_AXIS 1
+      #if LINEAR_AXES >= 5
+        #define HAS_J_AXIS 1
+        #if LINEAR_AXES >= 6
+          #define HAS_K_AXIS 1
+        #endif
+      #endif
+    #endif
   #endif
 #endif
 
@@ -819,7 +822,7 @@
 /**
  * Set a flag for any type of bed probe, including the paper-test
  */
-#if ANY(HAS_Z_SERVO_PROBE, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, SOLENOID_PROBE, SENSORLESS_PROBING, RACK_AND_PINION_PROBE)
+#if ANY(HAS_Z_SERVO_PROBE, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, SOLENOID_PROBE, SENSORLESS_PROBING, RACK_AND_PINION_PROBE, MAGLEV4)
   #define HAS_BED_PROBE 1
 #endif
 
@@ -1076,7 +1079,7 @@
     #define CORE_AXIS_2 C_AXIS
   #endif
   #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
-#elif ENABLED(MARKFORGED_XY)
+#elif EITHER(MARKFORGED_XY, MARKFORGED_YX)
   // Markforged kinematics
   #define CORE_AXIS_1 A_AXIS
   #define CORE_AXIS_2 B_AXIS
@@ -1212,13 +1215,13 @@
 #if HAS_Z_AXIS && !defined(INVERT_Z_DIR)
   #define INVERT_Z_DIR false
 #endif
-#if LINEAR_AXES >= 4 && !defined(INVERT_I_DIR)
+#if HAS_I_AXIS && !defined(INVERT_I_DIR)
   #define INVERT_I_DIR false
 #endif
-#if LINEAR_AXES >= 5 && !defined(INVERT_J_DIR)
+#if HAS_J_AXIS && !defined(INVERT_J_DIR)
   #define INVERT_J_DIR false
 #endif
-#if LINEAR_AXES >= 6 && !defined(INVERT_K_DIR)
+#if HAS_K_AXIS && !defined(INVERT_K_DIR)
   #define INVERT_K_DIR false
 #endif
 #if HAS_EXTRUDERS && !defined(INVERT_E_DIR)
@@ -1245,20 +1248,20 @@
  *  - TFT_COLOR
  *  - GRAPHICAL_TFT_UPSCALE
  */
-#if ENABLED(MKS_TS35_V2_0)          // ST7796
+#if EITHER(MKS_TS35_V2_0, BTT_TFT35_SPI_V1_0)                                 // ST7796
   #define TFT_DEFAULT_DRIVER ST7796
   #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY
   #define TFT_RES_480x320
   #define TFT_INTERFACE_SPI
-#elif EITHER(LERDGE_TFT35, ANET_ET5_TFT35) // ST7796
+#elif EITHER(LERDGE_TFT35, ANET_ET5_TFT35)                                    // ST7796
   #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY
   #define TFT_RES_480x320
   #define TFT_INTERFACE_FSMC
-#elif ANY(ANET_ET4_TFT28, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32) // ST7789
+#elif ANY(ANET_ET4_TFT28, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32)  // ST7789
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
   #define TFT_RES_320x240
   #define TFT_INTERFACE_FSMC
-#elif ANY(MKS_ROBIN_TFT35, TFT_TRONXY_X5SA, ANYCUBIC_TFT35) // ILI9488
+#elif ANY(MKS_ROBIN_TFT35, TFT_TRONXY_X5SA, ANYCUBIC_TFT35)                   // ILI9488
   #define TFT_DRIVER ILI9488
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #define TFT_RES_480x320
@@ -1268,11 +1271,11 @@
   #define TFT_DEFAULT_ORIENTATION 0
   #define TFT_RES_480x272
   #define TFT_INTERFACE_FSMC
-#elif ANY(MKS_ROBIN_TFT_V1_1R, LONGER_LK_TFT28)  // ILI9328 or R61505
+#elif ANY(MKS_ROBIN_TFT_V1_1R, LONGER_LK_TFT28)                               // ILI9328 or R61505
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #define TFT_RES_320x240
   #define TFT_INTERFACE_FSMC
-#elif ENABLED(BIQU_BX_TFT70)        // RGB
+#elif ENABLED(BIQU_BX_TFT70)                                                  // RGB
   #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY
   #define TFT_RES_1024x600
   #define TFT_INTERFACE_LTDC
@@ -1408,7 +1411,7 @@
   #endif
 #endif
 
-#if ANY(USE_XMIN_PLUG, USE_YMIN_PLUG, USE_ZMIN_PLUG, USE_XMAX_PLUG, USE_YMAX_PLUG, USE_ZMAX_PLUG)
+#if X_HOME_DIR || (HAS_Y_AXIS && Y_HOME_DIR) || (HAS_Z_AXIS && Z_HOME_DIR) || (HAS_I_AXIS && I_HOME_DIR) || (HAS_J_AXIS && J_HOME_DIR) || (HAS_K_AXIS && K_HOME_DIR)
   #define HAS_ENDSTOPS 1
   #define COORDINATE_OKAY(N,L,H) WITHIN(N,L,H)
 #else
