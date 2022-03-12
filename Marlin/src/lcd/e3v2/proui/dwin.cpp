@@ -2157,14 +2157,12 @@ void SetPID(celsius_t t, heater_id_t h) {
 #if HAS_FILAMENT_SENSOR
   void SetRunoutEnable() {
     runout.reset();
-    runout.enabled = !runout.enabled;
-    Draw_Chkb_Line(CurrentMenu->line(), runout.enabled);
+    runout.enabled[0] = !runout.enabled[0];
+    Draw_Chkb_Line(CurrentMenu->line(), runout.enabled[0]);
     DWIN_UpdateLCD();
   }
-  #if HAS_FILAMENT_RUNOUT_DISTANCE
-    void ApplyRunoutDistance() { runout.set_runout_distance(MenuData.Value / MINUNITMULT); }
-    void SetRunoutDistance() { SetFloatOnClick(0, 999, UNITFDIGITS, runout.runout_distance(), ApplyRunoutDistance); }
-  #endif
+  void ApplyRunoutDistance() { runout.set_runout_distance(MenuData.Value / MINUNITMULT); }
+  void SetRunoutDistance() { SetFloatOnClick(0, 999, UNITFDIGITS, runout.runout_distance(), ApplyRunoutDistance); }
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -2679,7 +2677,7 @@ void onDrawGetColorItem(MenuItemClass* menuitem, int8_t line) {
 }
 
 #if HAS_FILAMENT_SENSOR
-  void onDrawRunoutEnable(MenuItemClass* menuitem, int8_t line) { onDrawChkbMenu(menuitem, line, runout.enabled); }
+  void onDrawRunoutEnable(MenuItemClass* menuitem, int8_t line) { onDrawChkbMenu(menuitem, line, runout.enabled[0]); }
 #endif
 
 void onDrawPIDi(MenuItemClass* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 2, unscalePID_i(*(float*)static_cast<MenuItemPtrClass*>(menuitem)->value)); }
@@ -3173,9 +3171,7 @@ void Draw_Move_Menu() {
       #if HAS_FILAMENT_SENSOR
         MENU_ITEM(ICON_Runout, GET_TEXT_F(MSG_RUNOUT_ENABLE), onDrawRunoutEnable, SetRunoutEnable);
       #endif
-      #if HAS_FILAMENT_RUNOUT_DISTANCE
-        EDIT_ITEM(ICON_Runout, F("Runout Distance"), onDrawPFloatMenu, SetRunoutDistance, &runout.runout_distance());
-      #endif
+      EDIT_ITEM(ICON_Runout, F("Runout Distance"), onDrawPFloatMenu, SetRunoutDistance, &runout.runout_distance());
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         EDIT_ITEM(ICON_ExtrudeMinT, F("Extrude Min Temp."), onDrawPIntMenu, SetExtMinT, &HMI_data.ExtMinT);
       #endif
