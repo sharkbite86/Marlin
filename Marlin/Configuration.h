@@ -17,19 +17,19 @@
  */
 //#define X_2208 // TMC2208 or 2209 in Standalone Mode
 //#define X_SpreadCycle
-//#define X_2209_Uart
+#define X_2209_Uart
 //#define Y_2208
 //#define Y_SpreadCycle // Highly recommended as large prints with high mass can cause layer shifts with stealthchop at high speed
 //#define Y_4988  // Some machines shipped with 4988 drivers across the board. Set this if you arent sure what you have and all the drivers look identical
-//#define Y_2209_Uart
+#define Y_2209_Uart
 //#define Z_2208 // NOT Recommended! Dual stepper current draw is above the recommended limit for this driver
 //#define Z_SpreadCycle
 //#define Z_4988  // Some machines shipped with 4988 drivers across the board. Set this if you arent sure what you have and all the drivers look identical
-//#define Z_2209_Uart
+#define Z_2209_Uart
 //#define E_2208 // Not Recommended! Stealthchop mode faults with linear advance
 //#define E_SpreadCycle
 //#define E_4988
-//#define E_2209_Uart
+#define E_2209_Uart
 
 //#define SKR13
 //#define SKR14
@@ -55,7 +55,7 @@
 //#define HotendCreality
 
 //#define HighPoweredHeater
-//#define ExtruderDDX //DDX kit with Linear Rail
+#define ExtruderDDX //DDX kit with Linear Rail
 //#define ExtruderBMG
 
 /**
@@ -774,15 +774,9 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #if ENABLED(E3DHemeraExtruder)
-      #define  DEFAULT_Kp 21.9
-      #define  DEFAULT_Ki 1.5
-      #define  DEFAULT_Kd 79.88
-    #elif ENABLED(HotendAllMetal)
-      #define  DEFAULT_Kp 21.9
-      #define  DEFAULT_Ki 1.5
-      #define  DEFAULT_Kd 79.88
-    #endif
+    #define  DEFAULT_Kp 21.9
+    #define  DEFAULT_Ki 1.5
+    #define  DEFAULT_Kd 79.88
   #endif
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -1031,7 +1025,7 @@
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 #define X_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
 #define Y_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+#define Z_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define I_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define J_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define K_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
@@ -1780,13 +1774,14 @@
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-  #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
+  #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M591 followed by M500.
   #if NONE(RAPTOR2, SKRBoard)
     #define FIL_RUNOUT_PIN 57
     #define FIL_RUNOUT_STATE     HIGH // set to true to invert the logic of the sensor.
   #else
     #define FIL_RUNOUT_STATE     LOW // set to true to invert the logic of the sensor.
   #endif
+  #define FILAMENT_RUNOUT_DEFAULT_MODE {1}
   #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
   //#define WATCH_ALL_RUNOUT_SENSORS      // Execute runout script on any triggering sensor, not only for the active extruder.
@@ -1827,19 +1822,19 @@
 
   // Commands to execute on filament runout.
   // With multiple runout sensors use the %c placeholder for the current tool in commands (e.g., "M600 T%c")
-  // NOTE: After 'M412 H1' the host handles filament runout and this script does not apply.
+  // NOTE: After 'M591 H1' the host handles filament runout and this script does not apply.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
   // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
-  #if ENABLED(RunoutEncoder)
-    #define FILAMENT_RUNOUT_DISTANCE_MM 15
-  #else
-    #define FILAMENT_RUNOUT_DISTANCE_MM 5
-  #endif
+  //#if ENABLED(RunoutEncoder)
+    #define FILAMENT_RUNOUT_DISTANCE_MM {15}
+  //#else
+  //  #define FILAMENT_RUNOUT_DISTANCE_MM {5}
+  //#endif
 
-  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+  #if defined(FILAMENT_RUNOUT_DISTANCE_MM)
     // Enable this option to use an encoder disc that toggles the runout pin
     // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
     // large enough to avoid false positives.)
