@@ -1773,15 +1773,13 @@
   #define FILAMENT_RUNOUT_SENSOR
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-  #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M591 followed by M500.
+  #define FIL_RUNOUT_ENABLED { true } // Default enabled state for sensors E0[, E1[, E2[, E3...]]]. Override with M591 followed by M500.
   #if NONE(RAPTOR2, SKRBoard)
     #define FIL_RUNOUT_PIN 57
-    #define FIL_RUNOUT_STATE     HIGH // set to true to invert the logic of the sensor.
+    #define FIL_RUNOUT_MODE    { 1 }    // Default mode for sensors E0[, E1[, E2[, E3...]]]. 0:NONE  1:Switch NO  2:Switch NC  7:Motion Sensor
   #else
-    #define FIL_RUNOUT_STATE     LOW // set to true to invert the logic of the sensor.
+    #define FIL_RUNOUT_MODE    { 0 }    // Default mode for sensors E0[, E1[, E2[, E3...]]]. 0:NONE  1:Switch NO  2:Switch NC  7:Motion Sensor
   #endif
-  #define FILAMENT_RUNOUT_DEFAULT_MODE {1}
   #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
   //#define WATCH_ALL_RUNOUT_SENSORS      // Execute runout script on any triggering sensor, not only for the active extruder.
@@ -1828,19 +1826,13 @@
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
   // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
-  //#if ENABLED(RunoutEncoder)
-    #define FILAMENT_RUNOUT_DISTANCE_MM {15}
-  //#else
-  //  #define FILAMENT_RUNOUT_DISTANCE_MM {5}
-  //#endif
+  #define FIL_RUNOUT_DISTANCE_MM { 15 }
 
-  #if defined(FILAMENT_RUNOUT_DISTANCE_MM)
+  #ifdef FIL_RUNOUT_DISTANCE_MM
     // Enable this option to use an encoder disc that toggles the runout pin
-    // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
-    // large enough to avoid false positives.)
-    #if ENABLED(RunoutEncoder)
-      #define FILAMENT_MOTION_SENSOR
-    #endif
+    // as the filament moves. (Be sure to make FIL_RUNOUT_DISTANCE_MM long
+    // enough to avoid false positives.)
+    //#define FILAMENT_MOTION_SENSOR
   #endif
 #endif
 

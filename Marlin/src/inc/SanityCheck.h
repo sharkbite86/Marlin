@@ -561,9 +561,9 @@
   #error "SHORT_MANUAL_Z_MOVE is now FINE_MANUAL_MOVE, applying to Z on most printers."
 #elif defined(FIL_RUNOUT_INVERTING)
   #if FIL_RUNOUT_INVERTING
-    #error "FIL_RUNOUT_INVERTING true is now FIL_RUNOUT_STATE HIGH."
+    #error "FIL_RUNOUT_INVERTING true is now FIL_RUNOUT_MODE {HIGH}."
   #else
-    #error "FIL_RUNOUT_INVERTING false is now FIL_RUNOUT_STATE LOW."
+    #error "FIL_RUNOUT_INVERTING false is now FIL_RUNOUT_MODE {LOW}."
   #endif
 #elif defined(ASSISTED_TRAMMING_MENU_ITEM)
   #error "ASSISTED_TRAMMING_MENU_ITEM is deprecated and should be removed."
@@ -1002,6 +1002,67 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "You can't enable FIL_RUNOUT8_PULLUP and FIL_RUNOUT8_PULLDOWN at the same time."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     static_assert(nullptr == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with FILAMENT_RUNOUT_SENSOR.");
+  #elif defined(FIL_RUNOUT_ENABLED_DEFAULT)
+    #error "FIL_RUNOUT_ENABLED_DEFAULT is now set with the FILAMENT_RUNOUT_ENABLED array."
+  #elif defined(FILAMENT_RUNOUT_DISTANCE_MM)
+    #error "FILAMENT_RUNOUT_DISTANCE_MM is now set with the FIL_RUNOUT_DISTANCE_MM array."
+  #elif defined(FIL_RUNOUT_STATE) || defined(FIL_RUNOUT2_STATE) || defined(FIL_RUNOUT3_STATE) || defined(FIL_RUNOUT4_STATE) || defined(FIL_RUNOUT5_STATE) || defined(FIL_RUNOUT6_STATE) || defined(FIL_RUNOUT7_STATE) || defined(FIL_RUNOUT8_STATE)
+    #ifdef FIL_RUNOUT_STATE
+      #if FIL_RUNOUT_STATE
+        #error "FIL_RUNOUT_STATE HIGH is now set with FIL_RUNOUT_MODE { 2 ... }."
+      #else
+        #error "FIL_RUNOUT_STATE LOW is now set with FIL_RUNOUT_MODE { 1 ... }."
+      #endif
+    #endif
+    #ifdef FIL_RUNOUT2_STATE
+      #if FIL_RUNOUT2_STATE
+        #error "FIL_RUNOUT2_STATE HIGH is now set with FIL_RUNOUT_MODE { n, 2 ... }."
+      #else
+        #error "FIL_RUNOUT2_STATE LOW is now set with FIL_RUNOUT_MODE { n, 1 ... }."
+      #endif
+    #endif
+    #ifdef FIL_RUNOUT3_STATE
+      #if FIL_RUNOUT3_STATE
+        #error "FIL_RUNOUT3_STATE HIGH is now set with FIL_RUNOUT_MODE { n, n, 2 ... }."
+      #else
+        #error "FIL_RUNOUT3_STATE LOW is now set with FIL_RUNOUT_MODE { n, n, 1 ... }."
+      #endif
+    #endif
+    #ifdef FIL_RUNOUT4_STATE
+      #if FIL_RUNOUT4_STATE
+        #error "FIL_RUNOUT4_STATE HIGH is now set with FIL_RUNOUT_MODE { n, n, n, 2 ... }."
+      #else
+        #error "FIL_RUNOUT4_STATE LOW is now set with FIL_RUNOUT_MODE { n, n, n, 1 ... }."
+      #endif
+    #endif
+    #ifdef FIL_RUNOUT5_STATE
+      #if FIL_RUNOUT5_STATE
+        #error "FIL_RUNOUT5_STATE HIGH is now set with FIL_RUNOUT_MODE { n, n, n, n, 2 ... }."
+      #else
+        #error "FIL_RUNOUT5_STATE LOW is now set with FIL_RUNOUT_MODE { n, n, n, n, 1 ... }."
+      #endif
+    #endif
+    #ifdef FIL_RUNOUT6_STATE
+      #if FIL_RUNOUT6_STATE
+        #error "FIL_RUNOUT6_STATE HIGH is now set with FIL_RUNOUT_MODE { n, n, n, n, n, 2 ... }."
+      #else
+        #error "FIL_RUNOUT6_STATE LOW is now set with FIL_RUNOUT_MODE { n, n, n, n, n, 1 ... }."
+      #endif
+    #endif
+    #ifdef FIL_RUNOUT7_STATE
+      #if FIL_RUNOUT7_STATE
+        #error "FIL_RUNOUT7_STATE HIGH is now set with FIL_RUNOUT_MODE { n, n, n, n, n, n, 2 ... }."
+      #else
+        #error "FIL_RUNOUT7_STATE LOW is now set with FIL_RUNOUT_MODE { n, n, n, n, n, n, 1 ... }."
+      #endif
+    #endif
+    #ifdef FIL_RUNOUT8_STATE
+      #if FIL_RUNOUT8_STATE
+        #error "FIL_RUNOUT8_STATE HIGH is now set with FIL_RUNOUT_MODE { n, n, n, n, n, n, n, 2 ... }."
+      #else
+        #error "FIL_RUNOUT8_STATE LOW is now set with FIL_RUNOUT_MODE { n, n, n, n, n, n, n, 1 ... }."
+      #endif
+    #endif
   #endif
 #endif
 

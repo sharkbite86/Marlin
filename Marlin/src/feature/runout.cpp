@@ -32,9 +32,9 @@
 
 FilamentMonitor runout;
 
-bool FilamentMonitorBase::enabled[HOTENDS] = {true},
-     FilamentMonitorBase::filament_ran_out;  // = false
-uint8_t FilamentMonitorBase::mode[HOTENDS] = FILAMENT_RUNOUT_DEFAULT_MODE; // Initialized by settings.load
+bool FilamentMonitorBase::enabled[NUM_RUNOUT_SENSORS], // Initialized by settings.load
+     FilamentMonitorBase::filament_ran_out; // = false
+uint8_t FilamentMonitorBase::mode[NUM_RUNOUT_SENSORS]; // Initialized by settings.load
 #if ENABLED(HOST_ACTION_COMMANDS)
   bool FilamentMonitorBase::host_handling; // = false
 #endif
@@ -45,11 +45,9 @@ uint8_t FilamentMonitorBase::mode[HOTENDS] = FILAMENT_RUNOUT_DEFAULT_MODE; // In
   #include "../core/debug_out.h"
 #endif
 
-
-float RunoutResponseDelayed::runout_distance_mm[HOTENDS] = FILAMENT_RUNOUT_DISTANCE_MM;
-volatile float RunoutResponseDelayed::runout_mm_countdown[HOTENDS];
+float RunoutResponseDelayed::runout_distance_mm[NUM_RUNOUT_SENSORS]; // Initialized by settings.load
+volatile float RunoutResponseDelayed::runout_mm_countdown[NUM_RUNOUT_SENSORS];
 uint8_t FilamentSensorCore::motion_detected;
-
 
 //
 // Filament Runout event handler

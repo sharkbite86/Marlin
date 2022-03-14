@@ -833,10 +833,14 @@
  * Fill in undefined Filament Sensor options
  */
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #define HAS_FILAMENT_SENSOR 1
+  #ifndef NUM_RUNOUT_SENSORS
+    #define NUM_RUNOUT_SENSORS E_STEPPERS
+  #endif
+  #if ENABLED(MIXING_EXTRUDER)
+    #define WATCH_ALL_RUNOUT_SENSORS
+  #endif
   #if NUM_RUNOUT_SENSORS >= 1
-    #ifndef FIL_RUNOUT1_STATE
-      #define FIL_RUNOUT1_STATE FIL_RUNOUT_STATE
-    #endif
     #ifndef FIL_RUNOUT1_PULLUP
       #define FIL_RUNOUT1_PULLUP FIL_RUNOUT_PULLUP
     #endif
@@ -845,9 +849,7 @@
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 2
-    #ifndef FIL_RUNOUT2_STATE
-      #define FIL_RUNOUT2_STATE FIL_RUNOUT_STATE
-    #endif
+    #define MULTI_FILAMENT_SENSOR 1
     #ifndef FIL_RUNOUT2_PULLUP
       #define FIL_RUNOUT2_PULLUP FIL_RUNOUT_PULLUP
     #endif
@@ -856,9 +858,6 @@
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 3
-    #ifndef FIL_RUNOUT3_STATE
-      #define FIL_RUNOUT3_STATE FIL_RUNOUT_STATE
-    #endif
     #ifndef FIL_RUNOUT3_PULLUP
       #define FIL_RUNOUT3_PULLUP FIL_RUNOUT_PULLUP
     #endif
@@ -867,9 +866,6 @@
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 4
-    #ifndef FIL_RUNOUT4_STATE
-      #define FIL_RUNOUT4_STATE FIL_RUNOUT_STATE
-    #endif
     #ifndef FIL_RUNOUT4_PULLUP
       #define FIL_RUNOUT4_PULLUP FIL_RUNOUT_PULLUP
     #endif
@@ -878,9 +874,6 @@
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 5
-    #ifndef FIL_RUNOUT5_STATE
-      #define FIL_RUNOUT5_STATE FIL_RUNOUT_STATE
-    #endif
     #ifndef FIL_RUNOUT5_PULLUP
       #define FIL_RUNOUT5_PULLUP FIL_RUNOUT_PULLUP
     #endif
@@ -889,9 +882,6 @@
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 6
-    #ifndef FIL_RUNOUT6_STATE
-      #define FIL_RUNOUT6_STATE FIL_RUNOUT_STATE
-    #endif
     #ifndef FIL_RUNOUT6_PULLUP
       #define FIL_RUNOUT6_PULLUP FIL_RUNOUT_PULLUP
     #endif
@@ -900,9 +890,6 @@
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 7
-    #ifndef FIL_RUNOUT7_STATE
-      #define FIL_RUNOUT7_STATE FIL_RUNOUT_STATE
-    #endif
     #ifndef FIL_RUNOUT7_PULLUP
       #define FIL_RUNOUT7_PULLUP FIL_RUNOUT_PULLUP
     #endif
@@ -911,9 +898,6 @@
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 8
-    #ifndef FIL_RUNOUT8_STATE
-      #define FIL_RUNOUT8_STATE FIL_RUNOUT_STATE
-    #endif
     #ifndef FIL_RUNOUT8_PULLUP
       #define FIL_RUNOUT8_PULLUP FIL_RUNOUT_PULLUP
     #endif
