@@ -1773,6 +1773,7 @@
   #define FILAMENT_RUNOUT_SENSOR
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  //#define NUM_RUNOUT_SENSORS 1      // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
   #define FIL_RUNOUT_ENABLED { true } // Default enabled state for sensors E0[, E1[, E2[, E3...]]]. Override with M591 followed by M500.
   #if NONE(RAPTOR2, SKRBoard)
     #define FIL_RUNOUT_PIN 57
