@@ -6,7 +6,7 @@
 
 // Enable this is you have a raptor 2.
 // Selects pin file, runout sensor and stock TMC Drivers automatically
-#define RAPTOR2
+//#define RAPTOR2
 
 /**
  * Enable if you replace the stepper drivers with TMC 2208. Be sure to remove MS3 jumper
@@ -17,19 +17,19 @@
  */
 //#define X_2208 // TMC2208 or 2209 in Standalone Mode
 //#define X_SpreadCycle
-#define X_2209_Uart
+//#define X_2209_Uart
 //#define Y_2208
 //#define Y_SpreadCycle // Highly recommended as large prints with high mass can cause layer shifts with stealthchop at high speed
 //#define Y_4988  // Some machines shipped with 4988 drivers across the board. Set this if you arent sure what you have and all the drivers look identical
-#define Y_2209_Uart
+//#define Y_2209_Uart
 //#define Z_2208 // NOT Recommended! Dual stepper current draw is above the recommended limit for this driver
 //#define Z_SpreadCycle
 //#define Z_4988  // Some machines shipped with 4988 drivers across the board. Set this if you arent sure what you have and all the drivers look identical
-#define Z_2209_Uart
+//#define Z_2209_Uart
 //#define E_2208 // Not Recommended! Stealthchop mode faults with linear advance
 //#define E_SpreadCycle
 //#define E_4988
-#define E_2209_Uart
+//#define E_2209_Uart
 
 //#define SKR13
 //#define SKR14
@@ -46,17 +46,19 @@
 /**
  * Enable if you install a KEENOVO AC BED with Solid State Relay
  */
-#define BED_AC
+//#define BED_AC
 
 //#define HotendAllMetal
-#define HotendMosquito // High Tenp Slice Thermistor
+//#define HotendMosquito // High Tenp Slice Thermistor
 //#define HotendSemitec //E3D or SLice 300C Thermistor
 //#define HotendSlicePT1000
 //#define HotendCreality
 
 //#define HighPoweredHeater
-#define ExtruderDDX //DDX kit with Linear Rail
+//#define ExtruderDDX //DDX kit with Linear Rail
 //#define ExtruderBMG
+
+//#define FORCE_E_INVERT // Forces E to invert if you installed a DDX kit without the Tinymachines stepper reversal wire
 
 /**
  * TM3D E3D Hemera Kit
@@ -70,7 +72,6 @@
  * Enable if you install a filament runout sensor from www.tinymachines3d.com
  */
 //#define RunoutSensor
-//#define RunoutEncoder
 
 //#define tallVersion // For 700mm version
 
@@ -1469,10 +1470,10 @@
  */
 #if ENABLED(E3DHemeraExtruder)
   #define NOZZLE_TO_PROBE_OFFSET { -38, 0, 0 }
+#elif ENABLED(ExtruderDDX)
+  #define NOZZLE_TO_PROBE_OFFSET { -41, -5, 0 }
 #elif ENABLED(HotendMosquito)
   #define NOZZLE_TO_PROBE_OFFSET { 35, 10, 0 }
-#elif ENABLED(ExtruderDDX)
-  #define NOZZLE_TO_PROBE_OFFSET { -34.5, 10, 0 }
 #else
   #define NOZZLE_TO_PROBE_OFFSET { -22, 0, 0 }
 #endif
@@ -1558,7 +1559,7 @@
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
 #define Z_AFTER_PROBING           5 // Z position after probing is done
 
-#define Z_PROBE_LOW_POINT          -4 // Farthest distance below the trigger-point to go before stopping
+#define Z_PROBE_LOW_POINT          -6 // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN -9
@@ -1649,7 +1650,7 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#if (ANY(E_2208, E_2209_Uart) && DISABLED(ExtruderBMG)) || (ENABLED(ExtruderBMG) && NONE(E_2208, E_2209_Uart))
+#if (ANY(E_2208, E_2209_Uart) && DISABLED(ExtruderBMG)) || (ENABLED(ExtruderBMG) && NONE(E_2208, E_2209_Uart)) && DISABLED(FORCE_E_INVERT)
   #define INVERT_E0_DIR false
   #define INVERT_E1_DIR true
 #else
@@ -2515,7 +2516,7 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-#define SPEAKER
+//#define SPEAKER
 
 //
 // The duration and frequency for the UI feedback sound.
