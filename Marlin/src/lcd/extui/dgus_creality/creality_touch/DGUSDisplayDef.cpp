@@ -86,7 +86,7 @@ const char MarlinVersion[] PROGMEM = SHORT_BUILD_VERSION;
 #define VPList_HeatBed
 #endif
 
-#define VPList_Common VP_BACK_BUTTON_STATE, VP_Z_OFFSET
+#define VPList_Common VP_BACK_BUTTON_STATE, VP_Z_OFFSET, VP_BUTTON_BEDLEVELKEY
 #define VPList_CommonWithStatus VPList_HeatHotend VPList_HeatBed VP_Z_OFFSET, VP_Feedrate_Percentage, VP_BACK_BUTTON_STATE
 #define VPList_CommonWithHeatOnly VPList_HeatHotend VPList_HeatBed VP_BACK_BUTTON_STATE, VP_Z_OFFSET
 
@@ -628,7 +628,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
     VPHELPER(VP_Z_OFFSET, nullptr, ScreenHandler.HandleZoffsetChange, nullptr),
   #endif
-      
+
 
   VPHELPER(VP_FAN_TOGGLE, &thermalManager.fan_speed[0], nullptr, ScreenHandler.DGUSLCD_SendFanStatusToDisplay),
   VPHELPER(VP_Fan0_Percentage, &thermalManager.fan_speed[0], ScreenHandler.HandleFanSpeedChanged, ScreenHandler.DGUSLCD_SendFanSpeedToDisplay),
