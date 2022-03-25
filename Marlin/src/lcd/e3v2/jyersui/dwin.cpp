@@ -186,8 +186,8 @@ bool sdprint = false;
 
 int16_t pausetemp, pausebed, pausefan;
 
-bool livemove = false;
-bool liveadjust = false;
+bool livemove = true;
+bool liveadjust = true;
 uint8_t preheatmode = 0;
 float zoffsetvalue = 0;
 uint8_t gridpoint;

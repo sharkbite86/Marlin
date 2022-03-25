@@ -439,7 +439,7 @@
   #endif
 #endif
 
-#if ANY(MachineCR5, MachineEnder3S1)
+#if ENABLED(MachineEnder3S1)
   #if NONE(ABL_NCSW, ABL_EZABL, ABL_BLTOUCH)
     #define ABL_BLTOUCH
   #endif
@@ -1635,7 +1635,7 @@
 #define J_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define K_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 
-#if NONE(ABL_EZABL, MachineCR2020)
+#if NONE(ABL_EZABL, MachineCR2020, MachineCR5)
   #define Z_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
 #else

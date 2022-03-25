@@ -72,6 +72,7 @@ namespace ExtUI
   uint8_t dwin_settings_version = 1;
 
   bool reEntryPrevent = false;
+  uint8_t reEntryCount = 0;
   uint16_t idleThrottling = 0;
 
 
@@ -155,11 +156,15 @@ void onStartup()
 
 void onIdle()
 {
-  if (reEntryPrevent)
-    return;
 
-  if (rtscheck.RTS_RecData() > 0 && (rtscheck.recdat.data[0]!=0 || rtscheck.recdat.addr!=0))
+   while (rtscheck.RTS_RecData() > 0 && (rtscheck.recdat.data[0]!=0 || rtscheck.recdat.addr!=0))
 		rtscheck.RTS_HandleData();
+
+  if (reEntryPrevent && reEntryCount < 120) {
+    reEntryCount++;
+    return;
+  }
+  reEntryCount = 0;
 
   if(idleThrottling++ < 750){
     return;
