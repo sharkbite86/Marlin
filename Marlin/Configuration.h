@@ -6,7 +6,7 @@
 
 // Enable this is you have a raptor 2.
 // Selects pin file, runout sensor and stock TMC Drivers automatically
-//#define RAPTOR2
+#define RAPTOR2
 
 /**
  * Enable if you replace the stepper drivers with TMC 2208. Be sure to remove MS3 jumper
@@ -153,7 +153,7 @@
  *
  * Advanced settings can be found in Configuration_adv.h
  */
-#define CONFIGURATION_H_VERSION 02000903
+#define CONFIGURATION_H_VERSION 02010000
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -288,9 +288,9 @@
 //#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 
 /**
- * Define the number of coordinated linear axes.
+ * Define the number of coordinated axes.
  * See https://github.com/DerAndere1/Marlin/wiki
- * Each linear axis gets its own stepper control and endstop:
+ * Each axis gets its own stepper control and endstop:
  *
  *   Steppers: *_STEP_PIN, *_ENABLE_PIN, *_DIR_PIN, *_ENABLE_ON
  *   Endstops: *_STOP_PIN, USE_*MIN_PLUG, USE_*MAX_PLUG
@@ -299,31 +299,50 @@
  *             DEFAULT_MAX_ACCELERATION, AXIS_RELATIVE_MODES,
  *             MICROSTEP_MODES, MANUAL_FEEDRATE
  *
- * :[3, 4, 5, 6]
+ * :[3, 4, 5, 6, 7, 8, 9]
  */
-//#define LINEAR_AXES 3
+//#define NUM_AXES 3
 
 /**
- * Axis codes for additional axes:
- * This defines the axis code that is used in G-code commands to
- * reference a specific axis.
- * 'A' for rotational axis parallel to X
- * 'B' for rotational axis parallel to Y
- * 'C' for rotational axis parallel to Z
- * 'U' for secondary linear axis parallel to X
- * 'V' for secondary linear axis parallel to Y
- * 'W' for secondary linear axis parallel to Z
- * Regardless of the settings, firmware-internal axis IDs are
- * I (AXIS4), J (AXIS5), K (AXIS6).
+ * Additional Axis Settings
+ *
+ * Define AXISn_ROTATES for all axes that rotate or pivot.
+ * Rotational axis coordinates are expressed in degrees.
+ *
+ * AXISn_NAME defines the letter used to refer to the axis in (most) G-code commands.
+ * By convention the names and roles are typically:
+ *   'A' : Rotational axis parallel to X
+ *   'B' : Rotational axis parallel to Y
+ *   'C' : Rotational axis parallel to Z
+ *   'U' : Secondary linear axis parallel to X
+ *   'V' : Secondary linear axis parallel to Y
+ *   'W' : Secondary linear axis parallel to Z
+ *
+ * Regardless of these settings the axes are internally named I, J, K, U, V, W.
  */
-#if LINEAR_AXES >= 4
+#if NUM_AXES >= 4
   #define AXIS4_NAME 'A' // :['A', 'B', 'C', 'U', 'V', 'W']
+  #define AXIS4_ROTATES
 #endif
-#if LINEAR_AXES >= 5
-  #define AXIS5_NAME 'B' // :['A', 'B', 'C', 'U', 'V', 'W']
+#if NUM_AXES >= 5
+  #define AXIS5_NAME 'B' // :['B', 'C', 'U', 'V', 'W']
+  #define AXIS5_ROTATES
 #endif
-#if LINEAR_AXES >= 6
-  #define AXIS6_NAME 'C' // :['A', 'B', 'C', 'U', 'V', 'W']
+#if NUM_AXES >= 6
+  #define AXIS6_NAME 'C' // :['C', 'U', 'V', 'W']
+  #define AXIS6_ROTATES
+#endif
+#if NUM_AXES >= 7
+  #define AXIS7_NAME 'U' // :['U', 'V', 'W']
+  //#define AXIS7_ROTATES
+#endif
+#if NUM_AXES >= 8
+  #define AXIS8_NAME 'V' // :['V', 'W']
+  //#define AXIS8_ROTATES
+#endif
+#if NUM_AXES >= 9
+  #define AXIS9_NAME 'W' // :['W']
+  //#define AXIS9_ROTATES
 #endif
 
 // @section extruder
@@ -754,10 +773,12 @@
 //===========================================================================
 //============================= PID Settings ================================
 //===========================================================================
-// PID Tuning Guide here: https://reprap.org/wiki/PID_Tuning
 
-// Comment the following line to disable PID and enable bang-bang.
-#define PIDTEMP
+// Enable PIDTEMP for PID control or MPCTEMP for Predictive Model.
+// temperature control. Disable both for bang-bang heating.
+#define PIDTEMP          // See the PID Tuning Guide at https://reprap.org/wiki/PID_Tuning
+//#define MPCTEMP        // ** EXPERIMENTAL **
+
 #define BANG_MAX 255     // Limits current to nozzle while in bang-bang mode; 255=full current
 #define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #define PID_K1 0.95      // Smoothing factor within any PID loop
@@ -779,17 +800,45 @@
     #define  DEFAULT_Ki 1.5
     #define  DEFAULT_Kd 79.88
   #endif
-  // MakerGear
-  //#define DEFAULT_Kp 7.0
-  //#define DEFAULT_Ki 0.1
-  //#define DEFAULT_Kd 12
+#endif
 
-  // Mendel Parts V9 on 12V
-  //#define DEFAULT_Kp 63.0
-  //#define DEFAULT_Ki 2.25
-  //#define DEFAULT_Kd 440
+/**
+ * Model Predictive Control for hotend
+ *
+ * Use a physical model of the hotend to control temperature. When configured correctly
+ * this gives better responsiveness and stability than PID and it also removes the need
+ * for PID_EXTRUSION_SCALING and PID_FAN_SCALING. Use M306 to autotune the model.
+ */
+#if ENABLED(MPCTEMP)
+  #define MPC_MAX BANG_MAX                            // (0..255) Current to nozzle while MPC is active.
+  #define MPC_HEATER_POWER { 40.0f }                  // (W) Heat cartridge powers.
 
-#endif // PIDTEMP
+  #define MPC_INCLUDE_FAN                             // Model the fan speed?
+
+  // Measured physical constants from M306
+  #define MPC_BLOCK_HEAT_CAPACITY { 16.7f }           // (J/K) Heat block heat capacities.
+  #define MPC_SENSOR_RESPONSIVENESS { 0.22f }         // (K/s per ∆K) Rate of change of sensor temperature from heat block.
+  #define MPC_AMBIENT_XFER_COEFF { 0.068f }           // (W/K) Heat transfer coefficients from heat block to room air with fan off.
+  #if ENABLED(MPC_INCLUDE_FAN)
+    #define MPC_AMBIENT_XFER_COEFF_FAN255 { 0.097f }  // (W/K) Heat transfer coefficients from heat block to room air with fan on full.
+  #endif
+
+  // For one fan and multiple hotends MPC needs to know how to apply the fan cooling effect.
+  #if ENABLED(MPC_INCLUDE_FAN)
+    //#define MPC_FAN_0_ALL_HOTENDS
+    //#define MPC_FAN_0_ACTIVE_HOTEND
+  #endif
+
+  #define FILAMENT_HEAT_CAPACITY_PERMM 5.6e-3f        // 0.0056 J/K/mm for 1.75mm PLA (0.0149 J/K/mm for 2.85mm PLA).
+  //#define FILAMENT_HEAT_CAPACITY_PERMM 3.6e-3f      // 0.0036 J/K/mm for 1.75mm PETG (0.0094 J/K/mm for 2.85mm PETG).
+
+  // Advanced options
+  #define MPC_SMOOTHING_FACTOR 0.5f                   // (0.0...1.0) Noisy temperature sensors may need a lower value for stabilization.
+  #define MPC_MIN_AMBIENT_CHANGE 1.0f                 // (K/s) Modeled ambient temperature rate of change, when correcting model inaccuracies.
+  #define MPC_STEADYSTATE 0.5f                        // (K/s) Temperature change rate for steady state logic to be enforced.
+
+  #define MPC_TUNING_POS { X_CENTER, Y_CENTER, 1.0f } // (mm) M306 Autotuning position, ideally bed center just above the surface.
+#endif
 
 //===========================================================================
 //====================== PID > Bed Temperature Control ======================
@@ -978,12 +1027,18 @@
 //#define USE_IMIN_PLUG
 //#define USE_JMIN_PLUG
 //#define USE_KMIN_PLUG
+//#define USE_UMIN_PLUG
+//#define USE_VMIN_PLUG
+//#define USE_WMIN_PLUG
 //#define USE_XMAX_PLUG
 #define USE_YMAX_PLUG
 //#define USE_ZMAX_PLUG
 //#define USE_IMAX_PLUG
 //#define USE_JMAX_PLUG
 //#define USE_KMAX_PLUG
+//#define USE_UMAX_PLUG
+//#define USE_VMAX_PLUG
+//#define USE_WMAX_PLUG
 
 // Enable pullup for all endstops to prevent a floating state
 #define ENDSTOPPULLUPS
@@ -995,12 +1050,18 @@
   //#define ENDSTOPPULLUP_IMIN
   //#define ENDSTOPPULLUP_JMIN
   //#define ENDSTOPPULLUP_KMIN
+  //#define ENDSTOPPULLUP_UMIN
+  //#define ENDSTOPPULLUP_VMIN
+  //#define ENDSTOPPULLUP_WMIN
   //#define ENDSTOPPULLUP_XMAX
   //#define ENDSTOPPULLUP_YMAX
   //#define ENDSTOPPULLUP_ZMAX
   //#define ENDSTOPPULLUP_IMAX
   //#define ENDSTOPPULLUP_JMAX
   //#define ENDSTOPPULLUP_KMAX
+  //#define ENDSTOPPULLUP_UMAX
+  //#define ENDSTOPPULLUP_VMAX
+  //#define ENDSTOPPULLUP_WMAX
   //#define ENDSTOPPULLUP_ZMIN_PROBE
 #endif
 
@@ -1014,12 +1075,18 @@
   //#define ENDSTOPPULLDOWN_IMIN
   //#define ENDSTOPPULLDOWN_JMIN
   //#define ENDSTOPPULLDOWN_KMIN
+  //#define ENDSTOPPULLDOWN_UMIN
+  //#define ENDSTOPPULLDOWN_VMIN
+  //#define ENDSTOPPULLDOWN_WMIN
   //#define ENDSTOPPULLDOWN_XMAX
   //#define ENDSTOPPULLDOWN_YMAX
   //#define ENDSTOPPULLDOWN_ZMAX
   //#define ENDSTOPPULLDOWN_IMAX
   //#define ENDSTOPPULLDOWN_JMAX
   //#define ENDSTOPPULLDOWN_KMAX
+  //#define ENDSTOPPULLDOWN_UMAX
+  //#define ENDSTOPPULLDOWN_VMAX
+  //#define ENDSTOPPULLDOWN_WMAX
   //#define ENDSTOPPULLDOWN_ZMIN_PROBE
 #endif
 
@@ -1030,12 +1097,18 @@
 #define I_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define J_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define K_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define U_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define V_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define W_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define X_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define I_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define J_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define K_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define U_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define V_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define W_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
 
 /**
@@ -1101,6 +1174,9 @@
   #define E0_DRIVER_TYPE  DRV8825
   #define E1_DRIVER_TYPE DRV8825
 #endif
+//#define U_DRIVER_TYPE  A4988
+//#define V_DRIVER_TYPE  A4988
+//#define W_DRIVER_TYPE  A4988
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
 //#define E4_DRIVER_TYPE A4988
@@ -1150,9 +1226,9 @@
 //#define DISTINCT_E_FACTORS
 
 /**
- * Default Axis Steps Per Unit (steps/mm)
+ * Default Axis Steps Per Unit (linear=steps/mm, rotational=steps/°)
  * Override with M92
- *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
+ *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
 #if ENABLED(E3DHemeraExtruder)
   #if ANY(E_2208, E_4988, E_2209_Uart)
@@ -1189,9 +1265,9 @@
 #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, Y_STEPSMM, Z_STEPSMM, E_STEPSMM }
 
 /**
- * Default Max Feed Rate (mm/s)
+ * Default Max Feed Rate (linear=mm/s, rotational=°/s)
  * Override with M203
- *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
+ *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
 #define DEFAULT_MAX_FEEDRATE          { 300, 150, 5, 70 }
 
@@ -1201,10 +1277,10 @@
 #endif
 
 /**
- * Default Max Acceleration (change/s) change = mm/s
+ * Default Max Acceleration (speed change with time) (linear=mm/(s^2), rotational=°/(s^2))
  * (Maximum start speed for accelerated moves)
  * Override with M201
- *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
+ *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
  #if(ENABLED(X_2208))
   #if(ENABLED(X_SpreadCycle))
@@ -1233,7 +1309,7 @@
 #endif
 
 /**
- * Default Acceleration (change/s) change = mm/s
+ * Default Acceleration (speed change with time) (linear=mm/(s^2), rotational=°/(s^2))
  * Override with M204
  *
  *   M204 P    Acceleration
@@ -1246,7 +1322,7 @@
 
 /**
  * Default Jerk limits (mm/s)
- * Override with M205 X Y Z E
+ * Override with M205 X Y Z . . . E
  *
  * "Jerk" specifies the minimum speed change that requires acceleration.
  * When changing speed and direction, if the difference is less than the
@@ -1260,6 +1336,9 @@
   //#define DEFAULT_IJERK  0.3
   //#define DEFAULT_JJERK  0.3
   //#define DEFAULT_KJERK  0.3
+  //#define DEFAULT_UJERK  0.3
+  //#define DEFAULT_VJERK  0.3
+  //#define DEFAULT_WJERK  0.3
 
   //#define TRAVEL_EXTRA_XYJERK 0.0     // Additional jerk allowance for all travel moves
 
@@ -1607,6 +1686,9 @@
 //#define I_ENABLE_ON 0
 //#define J_ENABLE_ON 0
 //#define K_ENABLE_ON 0
+//#define U_ENABLE_ON 0
+//#define V_ENABLE_ON 0
+//#define W_ENABLE_ON 0
 
 // Disable axis steppers immediately when they're not being stepped.
 // WARNING: When motors turn off there is a chance of losing position accuracy!
@@ -1616,6 +1698,9 @@
 //#define DISABLE_I false
 //#define DISABLE_J false
 //#define DISABLE_K false
+//#define DISABLE_U false
+//#define DISABLE_V false
+//#define DISABLE_W false
 
 // Turn off the display blinking that warns about possible accuracy reduction
 //#define DISABLE_REDUCED_ACCURACY_WARNING
@@ -1646,6 +1731,9 @@
 //#define INVERT_I_DIR false
 //#define INVERT_J_DIR false
 //#define INVERT_K_DIR false
+//#define INVERT_U_DIR false
+//#define INVERT_V_DIR false
+//#define INVERT_W_DIR false
 
 // @section extruder
 
@@ -1689,6 +1777,9 @@
 //#define I_HOME_DIR -1
 //#define J_HOME_DIR -1
 //#define K_HOME_DIR -1
+//#define U_HOME_DIR -1
+//#define V_HOME_DIR -1
+//#define W_HOME_DIR -1
 
 // @section machine
 
@@ -1704,7 +1795,7 @@
   #define Y_BED_SIZE 400
 #endif
 
-// Travel limits (mm) after homing, corresponding to endstop positions.
+// Travel limits (linear=mm, rotational=°) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
@@ -1721,6 +1812,12 @@
 //#define J_MAX_POS 50
 //#define K_MIN_POS 0
 //#define K_MAX_POS 50
+//#define U_MIN_POS 0
+//#define U_MAX_POS 50
+//#define V_MIN_POS 0
+//#define V_MAX_POS 50
+//#define W_MIN_POS 0
+//#define W_MAX_POS 50
 
 /**
  * Software Endstops
@@ -1740,6 +1837,9 @@
   #define MIN_SOFTWARE_ENDSTOP_I
   #define MIN_SOFTWARE_ENDSTOP_J
   #define MIN_SOFTWARE_ENDSTOP_K
+  #define MIN_SOFTWARE_ENDSTOP_U
+  #define MIN_SOFTWARE_ENDSTOP_V
+  #define MIN_SOFTWARE_ENDSTOP_W
 #endif
 
 // Max software endstops constrain movement within maximum coordinate bounds
@@ -1751,6 +1851,9 @@
   #define MAX_SOFTWARE_ENDSTOP_I
   #define MAX_SOFTWARE_ENDSTOP_J
   #define MAX_SOFTWARE_ENDSTOP_K
+  #define MAX_SOFTWARE_ENDSTOP_U
+  #define MAX_SOFTWARE_ENDSTOP_V
+  #define MAX_SOFTWARE_ENDSTOP_W
 #endif
 
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
@@ -1775,16 +1878,15 @@
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   //#define NUM_RUNOUT_SENSORS 1      // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-  #define FIL_RUNOUT_ENABLED { true } // Default enabled state for sensors E0[, E1[, E2[, E3...]]]. Override with M591 followed by M500.
+  #define FIL_RUNOUT_ENABLED { true } // Default enabled state for sensors E0[, E1[, E2[, E3...]]]. Override with M591EnnSn followed by M500.
   #if NONE(RAPTOR2, SKRBoard)
     #define FIL_RUNOUT_PIN 57
-    #define FIL_RUNOUT_MODE    { 1 }    // Default mode for sensors E0[, E1[, E2[, E3...]]]. 0:NONE  1:Switch NO  2:Switch NC  7:Motion Sensor
+    #define FIL_RUNOUT_MODE    { 1 }    // Default mode for sensors E0[, E1[, E2[, E3...]]]. 0:NONE  1:Switch NO  2:Switch NC  7:Motion Sensor Override with M591EnPnn
   #else
-    #define FIL_RUNOUT_MODE    { 0 }    // Default mode for sensors E0[, E1[, E2[, E3...]]]. 0:NONE  1:Switch NO  2:Switch NC  7:Motion Sensor
+    #define FIL_RUNOUT_MODE    { 0 }    // Default mode for sensors E0[, E1[, E2[, E3...]]]. 0:NONE  1:Switch NO  2:Switch NC  7:Motion Sensor Override with M591EnPnn
   #endif
-  #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
-  //#define WATCH_ALL_RUNOUT_SENSORS      // Execute runout script on any triggering sensor, not only for the active extruder.
-                                          // This is automatically enabled for MIXING_EXTRUDERs.
+  //#define WATCH_ALL_RUNOUT_SENSORS  // Execute runout script on any triggering sensor, not only for the active extruder.
+                                      // This is automatically enabled for MIXING_EXTRUDERs.
 
   // Commands to execute on filament runout.
   // With multiple runout sensors use the %c placeholder for the current tool in commands (e.g., "M600 T%c")
@@ -1801,35 +1903,27 @@
   //#define FIL_RUNOUT_PULLDOWN       // Use internal pulldown for filament runout pins.
 
   // Override individually if the runout sensors vary
-  //#define FIL_RUNOUT1_STATE LOW
   //#define FIL_RUNOUT1_PULLUP
   //#define FIL_RUNOUT1_PULLDOWN
 
-  //#define FIL_RUNOUT2_STATE LOW
   //#define FIL_RUNOUT2_PULLUP
   //#define FIL_RUNOUT2_PULLDOWN
 
-  //#define FIL_RUNOUT3_STATE LOW
   //#define FIL_RUNOUT3_PULLUP
   //#define FIL_RUNOUT3_PULLDOWN
 
-  //#define FIL_RUNOUT4_STATE LOW
   //#define FIL_RUNOUT4_PULLUP
   //#define FIL_RUNOUT4_PULLDOWN
 
-  //#define FIL_RUNOUT5_STATE LOW
   //#define FIL_RUNOUT5_PULLUP
   //#define FIL_RUNOUT5_PULLDOWN
 
-  //#define FIL_RUNOUT6_STATE LOW
   //#define FIL_RUNOUT6_PULLUP
   //#define FIL_RUNOUT6_PULLDOWN
 
-  //#define FIL_RUNOUT7_STATE LOW
   //#define FIL_RUNOUT7_PULLUP
   //#define FIL_RUNOUT7_PULLDOWN
 
-  //#define FIL_RUNOUT8_STATE LOW
   //#define FIL_RUNOUT8_PULLUP
   //#define FIL_RUNOUT8_PULLDOWN
 #endif
@@ -2071,6 +2165,9 @@
 //#define MANUAL_I_HOME_POS 0
 //#define MANUAL_J_HOME_POS 0
 //#define MANUAL_K_HOME_POS 0
+//#define MANUAL_U_HOME_POS 0
+//#define MANUAL_V_HOME_POS 0
+//#define MANUAL_W_HOME_POS 0
 
 /**
  * Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
@@ -2086,7 +2183,7 @@
   #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // Y point for Z homing
 #endif
 
-// Homing speeds (mm/min)
+// Homing speeds (linear=mm/min, rotational=°/min)
 #define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (4*60) }
 
 // Validate that endstops are triggered on homing moves
