@@ -30,7 +30,7 @@
 
 #define tallVersion
 
-#define ABL_Bilinear
+//#define ABL_Bilinear
 /*
  * Enables a filament sensor plugged into the laser pin. Disables the laser
  */
