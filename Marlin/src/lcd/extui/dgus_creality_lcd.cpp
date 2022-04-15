@@ -165,11 +165,11 @@ bool hasPrintTimer = false;
     ScreenHandler.OnHomingStart();
   }
 
-  void onHomingComplete() {
+  void onHomingDone() {
     ScreenHandler.OnHomingComplete();
   }
 
-  void onPrintFinished() {
+  void onPrintDone() {
     ScreenHandler.OnPrintFinished();
   }
 
@@ -185,18 +185,18 @@ bool hasPrintTimer = false;
     // Called after loading or resetting stored settings
   }
 
-  void onConfigurationStoreWritten(bool success) {
+  void onSettingsStored(bool success) {
     // Called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
-  void onConfigurationStoreRead(bool success) {
+  void onSettingsLoaded(bool success) {
     // Called after the entire EEPROM has been read,
     // whether successful or not.
   }
 
   #if HAS_MESH
-    void onMeshLevelingStart() {
+    void onLevelingStart() {
       #if HAS_BED_PROBE
         ScreenHandler.OnMeshLevelingStart();
       #endif
