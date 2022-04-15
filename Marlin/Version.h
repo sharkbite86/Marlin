@@ -39,6 +39,8 @@
   #define VerChar1 "M"
 #elif(ENABLED(MachineEnder2))
   #define VerChar1 "E2"
+#elif(ENABLED(MachineEnder2Pro))
+  #define VerChar1 "E2P"
 #elif(ENABLED(MachineEnder3))
   #define VerChar1 "E3"
 #elif ENABLED(MachineEnder3V2)
@@ -129,7 +131,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "2022-02-05"
+#define STRING_DISTRIBUTION_DATE "2022-04-03"
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
@@ -144,8 +146,12 @@
   #define CUSTOM_MACHINE_NAME "Mini SuPeR"
 #elif(ENABLED(MachineCR10Smart))
   #define CUSTOM_MACHINE_NAME "CR10Smart"
+#elif(ENABLED(MachineCR10SmartPro))
+  #define CUSTOM_MACHINE_NAME "CR10SmartPro"
 #elif(ENABLED(MachineEnder2))
   #define CUSTOM_MACHINE_NAME "Ender2"
+#elif(ENABLED(MachineEnder2Pro))
+  #define CUSTOM_MACHINE_NAME "Ender2 Pro"
 #elif(ENABLED(MachineEnder3))
   #define CUSTOM_MACHINE_NAME "Ender3" MACHINEPRO
 #elif(ENABLED(MachineEnder3Max))

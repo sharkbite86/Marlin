@@ -64,8 +64,14 @@
 //
 // Probe
 //
-#ifndef PROBE_TARE_PIN
-  #define PROBE_TARE_PIN                    PA5
+#if ENABLED(NOZZLE_AS_PROBE)
+  #ifndef PROBE_TARE_PIN
+    #define PROBE_TARE_PIN                  PA5
+  #endif
+#else
+  #ifndef SERVO0_PIN
+    #define SERVO0_PIN                      PA5
+  #endif
 #endif
 
 //

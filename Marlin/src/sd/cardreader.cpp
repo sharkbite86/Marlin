@@ -33,8 +33,8 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../lcd/e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "../lcd/e3v2/enhanced/dwin.h"
+#elif ENABLED(DWIN_LCD_PROUI)
+  #include "../lcd/e3v2/proui/dwin.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -199,7 +199,7 @@ char *createFilename(char * const buffer, const dir_t &p) {
 }
 
 //
-// Return 'true' if the item is something Marlin can read
+// Return 'true' if the item is a folder, G-code file or Binary file
 //
 bool CardReader::is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, bool onlyBin/*=false*/)) {
   //uint8_t pn0 = p.name[0];
@@ -216,14 +216,15 @@ bool CardReader::is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD,
   ) return false;
 
   flag.filenameIsDir = DIR_IS_SUBDIR(&p);               // We know it's a File or Folder
+  setBinFlag(p.name[8] == 'B' &&                        // List .bin files (a firmware file for flashing)
+             p.name[9] == 'I' &&
+             p.name[10]== 'N');
 
   return (
     flag.filenameIsDir                                  // All Directories are ok
+    || fileIsBinary()                                   // BIN files are accepted
     || (!onlyBin && p.name[8] == 'G'
                  && p.name[9] != '~')                   // Non-backup *.G* files are accepted
-    || ( onlyBin && p.name[8]  == 'B'
-                 && p.name[9]  == 'I'
-                 && p.name[10] == 'N')                  // BIN files are accepted
   );
 }
 
@@ -462,7 +463,7 @@ void CardReader::mount() {
     cdroot();
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT) || PIN_EXISTS(SD_DETECT)
     else if (marlin_state != MF_INITIALIZING)
-      ui.set_status(GET_TEXT_F(MSG_MEDIA_INIT_FAIL), -1);
+      LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL);
   #endif
 
   ui.refresh();
@@ -872,6 +873,7 @@ void CardReader::selectFileByIndex(const uint16_t nr) {
       strcpy(filename, sortshort[nr]);
       strcpy(longFilename, sortnames[nr]);
       flag.filenameIsDir = IS_DIR(nr);
+      setBinFlag(strcmp_P(strrchr(filename, '.'), PSTR(".BIN")) == 0);
       return;
     }
   #endif
@@ -889,6 +891,7 @@ void CardReader::selectFileByName(const char * const match) {
         strcpy(filename, sortshort[nr]);
         strcpy(longFilename, sortnames[nr]);
         flag.filenameIsDir = IS_DIR(nr);
+        setBinFlag(strcmp_P(strrchr(filename, '.'), PSTR(".BIN")) == 0);
         return;
       }
   #endif

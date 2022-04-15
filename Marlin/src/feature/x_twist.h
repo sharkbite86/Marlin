@@ -21,26 +21,20 @@
  */
 #pragma once
 
-/**
- * Lock screen implementation for DWIN UI Enhanced implementation
- * Author: Miguel A. Risco-Castillo
- * Version: 2.1
- * Date: 2021/11/09
- */
+#include "../inc/MarlinConfigPre.h"
 
-#include "../common/encoder.h"
-#include <stdint.h>
+typedef float xatc_array_t[XATC_MAX_POINTS];
 
-class LockScreenClass {
-private:
-  static bool unlocked;
-  static uint8_t lock_pos;
+class XATC {
+  static bool enabled;
 public:
-  static uint8_t rprocess;
-  static void init();
-  static void onEncoder(EncoderState encoder_diffState);
-  static void draw();
-  static bool isUnlocked() { return unlocked; }
+  static float spacing, start;
+  static xatc_array_t z_offset;
+
+  static void reset();
+  static void set_enabled(const bool ena) { enabled = ena; }
+  static float compensation(const xy_pos_t &raw);
+  static void print_points();
 };
 
-extern LockScreenClass lockScreen;
+extern XATC xatc;

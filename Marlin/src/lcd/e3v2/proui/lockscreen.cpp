@@ -21,15 +21,15 @@
  */
 
 /**
- * Lock screen implementation for DWIN UI Enhanced implementation
- * Author: Miguel A. Risco-Castillo
+ * Lock screen implementation for PRO UI
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
  * Version: 2.1
  * Date: 2021/11/09
  */
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+#if ENABLED(DWIN_LCD_PROUI)
 
 #include "../../../core/types.h"
 #include "dwin_lcd.h"
@@ -73,4 +73,4 @@ void LockScreenClass::onEncoder(EncoderState encoder_diffState) {
   DWIN_UpdateLCD();
 }
 
-#endif // DWIN_CREALITY_LCD_ENHANCED
+#endif // DWIN_LCD_PROUI
