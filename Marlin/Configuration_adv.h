@@ -2689,6 +2689,8 @@
     #define FILAMENT_CHANGE_UNLOAD_LENGTH      125
   #elif ANY(MachineEnder5Plus, MachineCR10Max, MachineCR10S4, MachineCR10S5)
     #define FILAMENT_CHANGE_UNLOAD_LENGTH   700
+  #elif ANY(MachineEnder2, MachineEnder2Pro)
+    #define FILAMENT_CHANGE_UNLOAD_LENGTH      325  // (mm) The length of filament for a complete unload.
   #else
     #define FILAMENT_CHANGE_UNLOAD_LENGTH      430  // (mm) The length of filament for a complete unload.
   #endif
@@ -4181,9 +4183,9 @@
 
   #define MAIN_MENU_ITEM_1_DESC "Setup"
   #if (ENABLED(ABL_UBL))
-    #define MAIN_MENU_ITEM_1_GCODE "M190S" CommBedTmp "\nG28" DualZComm "\nG29P1\nG29P3\nG29S1\nG29S0\nG29F0.0\nG29A\nM104S215\nG28\nM109S215\nG1X150Y150F5000\nG1Z0\nM500\nM400\nM117 Set Z Offset"
+    #define MAIN_MENU_ITEM_1_GCODE "M190S" CommBedTmp "\nG28" DualZComm "\nG29P1\nG29P3\nG29S1\nG29S0\nG29F0.0\nG29A\nM104S215\nG28\nM109S215\nG1X150Y150F5000\nG1Z0\nM500\nM400\nM77\nM117 Set Z Offset"
   #elif ENABLED(ABL_BI)
-    #define MAIN_MENU_ITEM_1_GCODE "M190S" CommBedTmp "\nG28" DualZComm "\nG29\nM400\nM104S215\nG28\nM109S215\nM420S1\nG1X100Y100F5000\nG1Z0\nM500\nM117 Set Z Offset"
+    #define MAIN_MENU_ITEM_1_GCODE "M190S" CommBedTmp "\nG28" DualZComm "\nG29\nM400\nM104S215\nG28\nM109S215\nM420S1\nG1X100Y100F5000\nG1Z0\nM500\nM77\nM117 Set Z Offset"
   #endif
   //#define MAIN_MENU_ITEM_1_CONFIRM          // Show a confirmation dialog before this action
 

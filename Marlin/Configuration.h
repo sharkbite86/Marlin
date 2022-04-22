@@ -458,7 +458,7 @@
   #define SpriteExtruder
 #endif
 
-#if ANY(MachineCR10SV2, MachineEnder2Pro)
+#if ANY(MachineCR10SV2)
   #define lerdgeFilSensor
 #endif
 
@@ -718,7 +718,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#if ANY(MachineEnder3V2, MachineEnder3S1, CrealityViewerKit, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen, MachineCR10Smart, MachineCR10SmartPro, FORCEV2DISPLAY)
+#if ANY(MachineEnder3V2, MachineEnder3S1, CrealityViewerKit, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen, MachineCR10Smart, MachineCR10SmartPro, FORCEV2DISPLAY, MachineEnder2Pro)
   #define BAUDRATE 115200
 #else
   #define BAUDRATE 250000
@@ -1727,9 +1727,8 @@
 #define J_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define K_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define W_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
 
-#if NONE(ABL_EZABL, MachineCR2020, MachineCR5)
+#if NONE(ABL_EZABL, MachineCR2020)
   #define Z_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
 #else

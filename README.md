@@ -28,14 +28,14 @@ This branch is specifically intended to support the kits sold by F1rst Layer inc
 - [CR30](https://www.tinymachines3d.com/products/cr-30-infinite-z-belt-3d-printer?rfsn=3419592.cc302fe)
 - [Sermoon D1](https://amzn.to/3LXfZeD)
 - [CR5 / Pro HT](https://amzn.to/3gWvpBt)
+- [Ender 3 S1](https://www.tinymachines3d.com/products/ender-3-s1-3d-printer?rfsn=3419592.cc302fe)
+- [Ender 2 Pro](https://www.tinymachines3d.com/products/ender-2-pro-3d-printer?rfsn=3419592.cc302fe)
 
 - CR10S, CR10S4, CR20 and Pro, CR10, CR10Mini, CR2020, Ender 4, Ender 2 - Legacy support
 - These configurations exist however due to age and product availability are no longer actively tested
 
 ## Coming Soon
-- [Ender 3 S1](https://www.tinymachines3d.com/products/ender-3-s1-3d-printer?rfsn=3419592.cc302fe)
 - [CR10 Smart Pro](https://www.tinymachines3d.com/products/cr-10-smart-pro-3d-printer?rfsn=3419592.cc302fe)
-- [Ender 2 Pro](https://www.tinymachines3d.com/products/ender-2-pro-3d-printer?rfsn=3419592.cc302fe)
 - [CR200B]()
 
 ## Resin machines below from Tiny Machines are listed simply as an additional way to help support the project. If youre considering buying one, please do so through the following links :
@@ -75,6 +75,14 @@ We have now created a dedicated Discord server to handle support and archive rel
 Insanity Automation Discord - https://discord.gg/TKmJ85PyG4
 Marlin Firmware Discord - https://discord.gg/n5NJ59y
 
+## Primary Notes for DW7.4.6
+  - Added Support for the Ender 2 Pro
+  - Added support for the Ender 3 S1 thanks to F1rst Layer providing a machine!
+  - Added support for the new DACAI screens being used on current production E3V2 and S1 machines
+  - Added support for runtime configurable runout sensors matching RRF M591 including type and polarity
+  - Moved E3V2/S1 machines to Marlin Display
+  - - Due to the ongoing fued between developers and GPL violations involved with both the Pro/Enahnced UI and the Jyers UI, we have decided to support neither and stay away from the conflict as much as possible. The Marlin UI has more configuration functionality and the menus are more adaptive to the configuration of the machine. This is based off of the default Marlin menu system and will be the most stable long term going forward as well. The cosmetics and graphical icons may not be as nice as with the other UI's however we belive the added functionality more than makes up for it.
+
 ## Primary Notes for DW7.4.5
   - Added support for CR10 Smart - Thanks to Tinymachines for providing the machine
   - Revised file size issues causing corrupted screens on DWINOS3/4 displays (Sermoon, E6/7 etc)
@@ -87,11 +95,11 @@ Marlin Firmware Discord - https://discord.gg/n5NJ59y
 ## Primary Notes for DW7.4.4
   - Added Feedrate / Accel / Jerk Screens
   - Touchscreen DGUS tools bumped to 8.2
-  -- All Portrait displays operate with the same build
-  -- Older screens (10S Pro) audio file selection is a bit off, havnt found a way to properly enforce wav file used yet
+  - - All Portrait displays operate with the same build
+  - - Older screens (10S Pro) audio file selection is a bit off, havnt found a way to properly enforce wav file used yet
   - Ender 7 support
   - Sermoon D1 Support
-  -- Some users have reported Z clicking that the scripts run in the Leveling screen resolves, so if you hear clicking from the Z stepper when printing, run measuring from the leveling screen after powerup before printing.
+  - - Some users have reported Z clicking that the scripts run in the Leveling screen resolves, so if you hear clicking from the Z stepper when printing, run measuring from the leveling screen after powerup before printing.
   - E3V2 Screens Icon issue fixed thanks to note from Jyers on icon file size limit
 
 ## Primary Notes for DW7.4.3
