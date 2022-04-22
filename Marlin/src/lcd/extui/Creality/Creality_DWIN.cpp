@@ -72,6 +72,7 @@ namespace ExtUI
   uint8_t dwin_settings_version = 1;
 
   bool reEntryPrevent = false;
+  uint8_t reEntryCount = 0;
   uint16_t idleThrottling = 0;
 
 
@@ -155,11 +156,15 @@ void onStartup()
 
 void onIdle()
 {
-  if (reEntryPrevent)
-    return;
 
-  if (rtscheck.RTS_RecData() > 0 && (rtscheck.recdat.data[0]!=0 || rtscheck.recdat.addr!=0))
+   while (rtscheck.RTS_RecData() > 0 && (rtscheck.recdat.data[0]!=0 || rtscheck.recdat.addr!=0))
 		rtscheck.RTS_HandleData();
+
+  if (reEntryPrevent && reEntryCount < 120) {
+    reEntryCount++;
+    return;
+  }
+  reEntryCount = 0;
 
   if(idleThrottling++ < 750){
     return;
@@ -1779,10 +1784,8 @@ void RTSSHOW::RTS_HandleData()
         if(
         #if DISABLED(FILAMENT_RUNOUT_SENSOR) || ENABLED(FILAMENT_MOTION_SENSOR)
           true
-        #elif NUM_RUNOUT_SENSORS > 1
-          (getActiveTool() == E0 && READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT2_STATE)
         #else
-          (getActiveTool() == E0 && READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE)
+          (getActiveTool() == E0 && !getFilamentRunoutState() )
         #endif
          || (ExtUI::pauseModeStatus != PAUSE_MESSAGE_PURGE && ExtUI::pauseModeStatus != PAUSE_MESSAGE_OPTION)
         ) {
@@ -2465,14 +2468,14 @@ void onLoadSettings(const char *buff)
   SetTouchScreenConfiguration();
 }
 
-void onConfigurationStoreWritten(bool success)
+void onSettingsStored(bool success)
 {
-	SERIAL_ECHOLNPGM_P(PSTR("==onConfigurationStoreWritten=="));
+	SERIAL_ECHOLNPGM_P(PSTR("==onSettingsStored=="));
 	// This is called after the entire EEPROM has been written,
 	// whether successful or not.
 }
 
-void onConfigurationStoreRead(bool success)
+void onSettingsLoaded(bool success)
 {
 	SERIAL_ECHOLNPGM_P(PSTR("==onConfigurationStoreRead=="));
   #if HAS_MESH && (ANY(MachineCR10SPro, MachineEnder5Plus, MachineCR10Max) || ENABLED(FORCE10SPRODISPLAY))
@@ -2534,7 +2537,11 @@ void onConfigurationStoreRead(bool success)
     onStatusChanged("PID Tune Finished");
   }
 #endif
-void onMeshLevelingStart() {
+void onLevelingStart() {
+
+}
+
+void onLevelingDone() {
 
 }
 
@@ -2543,7 +2550,7 @@ void onSteppersEnabled()
 
 }
 
-void onPrintFinished()
+void onPrintDone()
 {
 
 }
@@ -2553,7 +2560,7 @@ void onHomingStart()
 
 }
 
-void onHomingComplete()
+void onHomingDone()
 {
 
 }

@@ -23,7 +23,7 @@
 
 /**
  * Conditionals_adv.h
- * Defines that depend on advanced configuration.
+ * Conditionals set before pins.h and which depend on Configuration_adv.h.
  */
 
 #ifndef AXIS_RELATIVE_MODES
@@ -95,11 +95,12 @@
   #undef PID_EXTRUSION_SCALING
   #undef LIN_ADVANCE
   #undef FILAMENT_RUNOUT_SENSOR
+  #undef FIL_RUNOUT_ENABLED
+  #undef FIL_RUNOUT_MODE
+  #undef FIL_RUNOUT_DISTANCE_MM
   #undef ADVANCED_PAUSE_FEATURE
-  #undef FILAMENT_RUNOUT_DISTANCE_MM
   #undef FILAMENT_LOAD_UNLOAD_GCODES
   #undef DISABLE_INACTIVE_EXTRUDER
-  #undef FILAMENT_LOAD_UNLOAD_GCODES
   #undef EXTRUDER_RUNOUT_PREVENT
   #undef PREVENT_COLD_EXTRUSION
   #undef PREVENT_LENGTHY_EXTRUDE
@@ -543,19 +544,6 @@
   #define HAS_SERVICE_INTERVALS 1
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #define HAS_FILAMENT_SENSOR 1
-  #if NUM_RUNOUT_SENSORS > 1
-    #define MULTI_FILAMENT_SENSOR 1
-  #endif
-  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-    #define HAS_FILAMENT_RUNOUT_DISTANCE 1
-  #endif
-  #if ENABLED(MIXING_EXTRUDER)
-    #define WATCH_ALL_RUNOUT_SENSORS
-  #endif
-#endif
-
 // Probe Temperature Compensation
 #if !TEMP_SENSOR_PROBE
   #undef PTC_PROBE
@@ -585,6 +573,10 @@
 
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
   #define HAS_PRINT_PROGRESS 1
+#endif
+
+#if STATUS_MESSAGE_TIMEOUT_SEC > 0
+  #define HAS_STATUS_MESSAGE_TIMEOUT 1
 #endif
 
 #if ENABLED(SDSUPPORT) && SD_PROCEDURE_DEPTH
@@ -630,7 +622,8 @@
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+  #ifdef Z_STEPPER_ALIGN_STEPPER_XY
+    #define HAS_Z_STEPPER_ALIGN_STEPPER_XY 1
     #undef Z_STEPPER_ALIGN_AMP
   #endif
   #ifndef Z_STEPPER_ALIGN_AMP
@@ -909,30 +902,45 @@
 #endif
 
 // Remove unused STEALTHCHOP flags
-#if LINEAR_AXES < 6
-  #undef STEALTHCHOP_K
-  #undef CALIBRATION_MEASURE_KMIN
-  #undef CALIBRATION_MEASURE_KMAX
-  #if LINEAR_AXES < 5
-    #undef STEALTHCHOP_J
-    #undef CALIBRATION_MEASURE_JMIN
-    #undef CALIBRATION_MEASURE_JMAX
-    #if LINEAR_AXES < 4
-      #undef STEALTHCHOP_I
-      #undef CALIBRATION_MEASURE_IMIN
-      #undef CALIBRATION_MEASURE_IMAX
-      #if LINEAR_AXES < 3
-        #undef Z_IDLE_HEIGHT
-        #undef STEALTHCHOP_Z
-        #undef Z_PROBE_SLED
-        #undef Z_SAFE_HOMING
-        #undef HOME_Z_FIRST
-        #undef HOMING_Z_WITH_PROBE
-        #undef ENABLE_LEVELING_FADE_HEIGHT
-        #undef NUM_Z_STEPPER_DRIVERS
-        #undef CNC_WORKSPACE_PLANES
-        #if LINEAR_AXES < 2
-          #undef STEALTHCHOP_Y
+#if NUM_AXES < 9
+  #undef STEALTHCHOP_W
+  #undef CALIBRATION_MEASURE_WMIN
+  #undef CALIBRATION_MEASURE_WMAX
+  #if NUM_AXES < 8
+    #undef STEALTHCHOP_V
+    #undef CALIBRATION_MEASURE_VMIN
+    #undef CALIBRATION_MEASURE_VMAX
+    #if NUM_AXES < 7
+      #undef STEALTHCHOP_U
+      #undef CALIBRATION_MEASURE_UMIN
+      #undef CALIBRATION_MEASURE_UMAX
+      #if NUM_AXES < 6
+        #undef STEALTHCHOP_K
+        #undef CALIBRATION_MEASURE_KMIN
+        #undef CALIBRATION_MEASURE_KMAX
+        #if NUM_AXES < 5
+          #undef STEALTHCHOP_J
+          #undef CALIBRATION_MEASURE_JMIN
+          #undef CALIBRATION_MEASURE_JMAX
+          #if NUM_AXES < 4
+            #undef STEALTHCHOP_I
+            #undef CALIBRATION_MEASURE_IMIN
+            #undef CALIBRATION_MEASURE_IMAX
+            #if NUM_AXES < 3
+              #undef Z_IDLE_HEIGHT
+              #undef STEALTHCHOP_Z
+              #undef Z_PROBE_SLED
+              #undef Z_SAFE_HOMING
+              #undef HOME_Z_FIRST
+              #undef HOMING_Z_WITH_PROBE
+              #undef ENABLE_LEVELING_FADE_HEIGHT
+              #undef NUM_Z_STEPPER_DRIVERS
+              #undef CNC_WORKSPACE_PLANES
+              #if NUM_AXES < 2
+                #undef STEALTHCHOP_Y
+              #endif
+            #endif
+          #endif
         #endif
       #endif
     #endif
@@ -986,7 +994,7 @@
 #endif
 
 // Flag whether least_squares_fit.cpp is used
-#if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+#if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, HAS_Z_STEPPER_ALIGN_STEPPER_XY)
   #define NEED_LSF 1
 #endif
 

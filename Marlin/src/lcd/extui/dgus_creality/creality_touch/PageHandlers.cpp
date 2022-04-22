@@ -220,6 +220,25 @@ void PrepareMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 
 void TuneMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
+        case VP_BUTTON_BEDLEVELKEY:
+            switch (buttonValue) {
+                case 2:
+                    // Increase Z-offset
+                    ExtUI::smartAdjustAxis_steps(ExtUI::mmToWholeSteps(0.01, ExtUI::axis_t::Z), ExtUI::axis_t::Z, true);;
+                    ScreenHandler.ForceCompleteUpdate();
+                    ScreenHandler.RequestSaveSettings();
+                    break;
+
+                case 3:
+                    // Decrease Z-offset
+                    ExtUI::smartAdjustAxis_steps(ExtUI::mmToWholeSteps(-0.01, ExtUI::axis_t::Z), ExtUI::axis_t::Z, true);;
+                    ScreenHandler.ForceCompleteUpdate();
+                    ScreenHandler.RequestSaveSettings();
+                    break;
+            }
+
+            break;
+
         case VP_BUTTON_ADJUSTENTERKEY:
             switch (buttonValue) {
                 case 2:

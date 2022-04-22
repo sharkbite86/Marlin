@@ -21,17 +21,19 @@
  */
 #pragma once
 
-#include "../../../inc/MarlinConfigPre.h"
+/**
+ * Print Stats page for PRO UI
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 1.3.0
+ * Date: 2022/02/24
+ */
 
-typedef float xatc_points_t[XATC_MAX_POINTS];
-
-class XATC {
+class PrintStatsClass {
 public:
-  static float spacing, start;
-  static xatc_points_t z_values;
-
-  static float compensation(const xy_pos_t &raw);
-  static void print_points();
+  static void Draw();
+  static void Reset();
 };
 
-extern XATC xatc;
+extern PrintStatsClass PrintStats;
+
+void Goto_PrintStats();

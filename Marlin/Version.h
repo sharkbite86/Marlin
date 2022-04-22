@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "2.0.9_DW7.4.5"
+#define SHORT_BUILD_VERSION "2.0.9_DW7.4.5.1"
 
 /**
  * Verbose version identifier which should contain a reference to the location
@@ -39,10 +39,14 @@
   #define VerChar1 "M"
 #elif(ENABLED(MachineEnder2))
   #define VerChar1 "E2"
+#elif(ENABLED(MachineEnder2Pro))
+  #define VerChar1 "E2P"
 #elif(ENABLED(MachineEnder3))
   #define VerChar1 "E3"
 #elif ENABLED(MachineEnder3V2)
   #define VerChar1 "E3V2"
+#elif ENABLED(MachineEnder3S1)
+  #define VerChar1 "E3S1"
 #elif ENABLED(MachineEnder3Max)
   #define VerChar1 "E3M"
 #elif(ENABLED(MachineEnder4))
@@ -127,7 +131,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "2022-02-05"
+#define STRING_DISTRIBUTION_DATE "2022-04-03"
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
@@ -136,8 +140,12 @@
   #define CUSTOM_MACHINE_NAME "Mini SuPeR"
 #elif(ENABLED(MachineCR10Smart))
   #define CUSTOM_MACHINE_NAME "TM3D CR10Smart"
+#elif(ENABLED(MachineCR10SmartPro))
+  #define CUSTOM_MACHINE_NAME "TM3D CR10SmartPro"
 #elif(ENABLED(MachineEnder2))
   #define CUSTOM_MACHINE_NAME "TM3D Ender2"
+#elif(ENABLED(MachineEnder2Pro))
+  #define CUSTOM_MACHINE_NAME "TM3D Ender2 Pro"
 #elif(ENABLED(MachineEnder3))
   #define CUSTOM_MACHINE_NAME "TM3D Ender3"
 #elif(ENABLED(MachineEnder3Max))
@@ -148,6 +156,8 @@
   #define CUSTOM_MACHINE_NAME "TM3D Ender7"
 #elif(ENABLED(MachineEnder3V2))
   #define CUSTOM_MACHINE_NAME "TM3D Ender3V2"
+#elif(ENABLED(MachineEnder3S1))
+  #define CUSTOM_MACHINE_NAME "TM3D Ender3S1"
 #elif(ENABLED(MachineEnder4))
   #define CUSTOM_MACHINE_NAME "TM3D Ender4"
 #elif(ENABLED(MachineEnder5))

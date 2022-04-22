@@ -82,10 +82,6 @@
 
 #define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)
 
-#ifndef CORP_WEBSITE
-   #define CORP_WEBSITE WEBSITE_URL
- #endif
-
 #define DWIN_FONT_MENU font8x16
 #define DWIN_FONT_STAT font10x20
 #define DWIN_FONT_HEAD font10x20
@@ -186,8 +182,8 @@ bool sdprint = false;
 
 int16_t pausetemp, pausebed, pausefan;
 
-bool livemove = false;
-bool liveadjust = false;
+bool livemove = true;
+bool liveadjust = true;
 uint8_t preheatmode = 0;
 float zoffsetvalue = 0;
 uint8_t gridpoint;
@@ -1016,8 +1012,8 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
   static bool new_msg;
   static uint8_t msgscrl = 0;
   static char lastmsg[64];
-  if (strcmp_P(lastmsg, statusmsg) != 0 || refresh) {
-    strcpy_P(lastmsg, statusmsg);
+  if (strcmp(lastmsg, statusmsg) != 0 || refresh) {
+    strcpy(lastmsg, statusmsg);
     msgscrl = 0;
     new_msg = true;
   }
@@ -3144,7 +3140,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_COLD_EXTRUDE  (ADVANCED_UNLOAD + ENABLED(PREVENT_COLD_EXTRUSION))
       #define ADVANCED_FILSENSORENABLED (ADVANCED_COLD_EXTRUDE + ENABLED(FILAMENT_RUNOUT_SENSOR))
-      #define ADVANCED_FILSENSORDISTANCE (ADVANCED_FILSENSORENABLED + ENABLED(HAS_FILAMENT_RUNOUT_DISTANCE))
+      #define ADVANCED_FILSENSORDISTANCE (ADVANCED_FILSENSORENABLED + 1)
       #define ADVANCED_POWER_LOSS (ADVANCED_FILSENSORDISTANCE + ENABLED(POWER_LOSS_RECOVERY))
       #define ADVANCED_TOTAL ADVANCED_POWER_LOSS
 
@@ -3234,24 +3230,22 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case ADVANCED_FILSENSORENABLED:
             if (draw) {
               Draw_Menu_Item(row, ICON_Extruder, F("Filament Sensor"));
-              Draw_Checkbox(row, runout.enabled);
+              Draw_Checkbox(row, runout.enabled[0]);
             }
             else {
-              runout.enabled = !runout.enabled;
-              Draw_Checkbox(row, runout.enabled);
+              runout.enabled[0] = !runout.enabled[0];
+              Draw_Checkbox(row, runout.enabled[0]);
             }
             break;
 
-          #if ENABLED(HAS_FILAMENT_RUNOUT_DISTANCE)
-            case ADVANCED_FILSENSORDISTANCE:
-              if (draw) {
-                Draw_Menu_Item(row, ICON_MaxAccE, F("Runout Distance"));
-                Draw_Float(runout.runout_distance(), row, false, 10);
-              }
-              else
-                Modify_Value(runout.runout_distance(), 0, 999, 10);
-              break;
-          #endif
+          case ADVANCED_FILSENSORDISTANCE:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_MaxAccE, F("Runout Distance"));
+              Draw_Float(runout.runout_distance(), row, false, 10);
+            }
+            else
+              Modify_Value(runout.runout_distance(), 0, 999, 10);
+            break;
         #endif // FILAMENT_RUNOUT_SENSOR
 
         #if ENABLED(POWER_LOSS_RECOVERY)
@@ -3728,7 +3722,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_Back, F("Back"));
             else {
               set_bed_leveling_enabled(level_state);
-              TERN_(AUTO_BED_LEVELING_BILINEAR, refresh_bed_level());
+              TERN_(AUTO_BED_LEVELING_BILINEAR, bbl.refresh_bed_level());
               Draw_Menu(Leveling, LEVELING_MANUAL);
             }
             break;
@@ -4140,11 +4134,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           case TUNE_FILSENSORENABLED:
             if (draw) {
               Draw_Menu_Item(row, ICON_Extruder, F("Filament Sensor"));
-              Draw_Checkbox(row, runout.enabled);
+              Draw_Checkbox(row, runout.enabled[0]);
             }
             else {
-              runout.enabled = !runout.enabled;
-              Draw_Checkbox(row, runout.enabled);
+              runout.enabled = !runout.enabled[0];
+              Draw_Checkbox(row, runout.enabled[0]);
             }
             break;
         #endif
@@ -5143,10 +5137,7 @@ void CrealityDWINClass::Modify_String(char * string, uint8_t maxlength, bool res
 /* Main Functions */
 
 void CrealityDWINClass::Update_Status(const char * const text) {
-  char header[4];
-  LOOP_L_N(i, 3) header[i] = text[i];
-  header[3] = '\0';
-  if (strcmp_P(header, PSTR("<F>")) == 0) {
+  if (strncmp_P(text, PSTR("<F>"), 3) == 0) {
     LOOP_L_N(i, _MIN((size_t)LONG_FILENAME_LENGTH, strlen(text))) filename[i] = text[i + 3];
     filename[_MIN((size_t)LONG_FILENAME_LENGTH - 1, strlen(text))] = '\0';
     Draw_Print_Filename(true);
@@ -5170,10 +5161,10 @@ void CrealityDWINClass::Start_Print(bool sd) {
           card.selectFileByName(fname);
         }
       #endif
-      strcpy_P(filename, card.longest_filename());
+      strcpy(filename, card.longest_filename());
     }
     else
-      strcpy_P(filename, "Host Print");
+      strcpy_P(filename, PSTR("Host Print"));
     TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress(0));
     TERN_(USE_M73_REMAINING_TIME, ui.set_remaining_time(0));
     Draw_Print_Screen();
@@ -5369,18 +5360,10 @@ void CrealityDWINClass::Screen_Update() {
 }
 
 void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {
-  if (success) {
-    if (ui.buzzer_enabled) {
-      BUZZ(100, 659);
-      BUZZ( 10,   0);
-      BUZZ(100, 698);
-    }
-    else Update_Status("Success");
-  }
-  else if (ui.buzzer_enabled)
-    BUZZ(40, 440);
+  if (ui.buzzer_enabled)
+    DONE_BUZZ(success);
   else
-    Update_Status("Failed");
+    Update_Status(success ? "Success" : "Failed");
 }
 
 void CrealityDWINClass::Save_Settings(char *buff) {
@@ -5454,6 +5437,8 @@ void MarlinUI::init_lcd() {
     DWIN_UpdateLCD();
     delay(20);
   }
+
+  DWIN_JPG_ShowAndCache(3);
   DWIN_JPG_CacheTo1(Language_English);
   CrealityDWIN.Redraw_Screen();
 }
