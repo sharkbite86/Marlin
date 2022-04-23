@@ -1893,7 +1893,7 @@
  * following movement settings. If fewer factors are given than the
  * total number of extruders, the last value applies to the rest.
  */
-//#define DISTINCT_E_FACTORS
+#define DISTINCT_E_FACTORS
 
 /**
  * Default Axis Steps Per Unit (linear=steps/mm, rotational=steps/°)
@@ -1996,7 +1996,7 @@
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #elif ENABLED(MachineEnder7)
   #define DEFAULT_MAX_FEEDRATE          { 750, 750, 10, 75 }
-  #define DEFAULT_MAX_ACCELERATION      { 35000, 35000, 100, 75 }
+  #define DEFAULT_MAX_ACCELERATION      { 25000, 25000, 100, 75 }
   #define DEFAULT_ACCELERATION          10000    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   10000    // X, Y, Z acceleration for travel (non printing) moves
@@ -2042,8 +2042,8 @@
     #define DEFAULT_XJERK 20.0
     #define DEFAULT_YJERK 20.0
   #elif ENABLED(MachineEnder7)
-    #define DEFAULT_XJERK 30.0
-    #define DEFAULT_YJERK 30.0
+    #define DEFAULT_XJERK 20.0
+    #define DEFAULT_YJERK 20.0
   #else
     #define DEFAULT_XJERK 10.0
     #define DEFAULT_YJERK 5.0
