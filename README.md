@@ -77,6 +77,8 @@ Marlin Firmware Discord - https://discord.gg/n5NJ59y
   - Added support for runtime configurable runout sensors matching RRF M591 including type and polarity
   - Moved E3V2/S1 machines to Marlin Display
   - - Due to the ongoing fued between developers and GPL violations involved with both the Pro/Enahnced UI and the Jyers UI, we have decided to support neither and stay away from the conflict as much as possible. The Marlin UI has more configuration functionality and the menus are more adaptive to the configuration of the machine. This is based off of the default Marlin menu system and will be the most stable long term going forward as well. The cosmetics and graphical icons may not be as nice as with the other UI's however we belive the added functionality more than makes up for it.
+  - Removed non-touchscreen 8 bit UBL builds due to RAM constraints
+  - Removed Pre-Built Melzi / Sanguino files. These are legacy and no longer actively supported. Its recommended to purchase replacement 32bit motherboards for any machine still using it from https://amzn.to/3KdqyI8
 
 ## Primary Notes for DW7.4.5
   - Added support for CR10 Smart - Thanks to Tinymachines for providing the machine
