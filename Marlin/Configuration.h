@@ -608,7 +608,7 @@
   #endif
 #endif
 
-#if ENABLED(E3DHemera)
+#if ANY(E3DHemera, SpriteExtruder)
  #define DirectDrive
 #endif
 
@@ -1363,10 +1363,14 @@
         #define  DEFAULT_Kp 22.2
         #define  DEFAULT_Ki 1.08
         #define  DEFAULT_Kd 114
-      #elif ANY(MachineEnder3V2, MachineEnder3S1)
+      #elif ENABLED(MachineEnder3V2)
         #define DEFAULT_Kp 28.72
         #define DEFAULT_Ki 2.62
         #define DEFAULT_Kd 78.81
+      #elif ENABLED(MachineEnder3S1)
+        #define DEFAULT_Kp 17.10
+        #define DEFAULT_Ki 1.39
+        #define DEFAULT_Kd 52.79
       #elif ANY(MachineCR6, MachineCR6Max, MachineCR10Smart, MachineCR10SmartPro)
        #define DEFAULT_Kp  14.32
        #define DEFAULT_Ki   0.81
@@ -2971,7 +2975,7 @@
       #define DISABLED_ADDON
       #define MODE_ADDON_7
       #define MODE_ADDON_2
-      #define MODE_ADDON_1 
+      #define MODE_ADDON_1
   #endif
   #if NONE(MachineCR10Orig, MachineCR20, MachineEnder3, MachineEnder3V2, MachineEnder4, MachineEnder5, MachineCRX, Melzi_To_SBoardUpgrade) || ANY(AddonFilSensor, lerdgeFilSensor, DualFilSensors)
     #define FIL_RUNOUT_ENABLED { true ENABLED_ADDON} // Default enabled state for sensors E0[, E1[, E2[, E3...]]]. Override with M591EnnSn followed by M500.
@@ -2981,7 +2985,7 @@
 
   #if ENABLED(FilamentEncoder)
     #define FIL_RUNOUT_MODE    { 7 MODE_ADDON_7}    // Default mode for sensors E0[, E1[, E2[, E3...]]]. 0:NONE  1:Switch NO  2:Switch NC  7:Motion Sensor Override with M591EnPnn
-  #elif DISABLED(lerdgeFilSensor)
+  #elif DISABLED(lerdgeFilSensor) && ( ANY(AddonFilSensor, DualFilSensors) || NONE(MachineCR10Orig, MachineCR20, MachineEnder3, MachineEnder3V2, MachineEnder4, MachineEnder5, MachineCRX, Melzi_To_SBoardUpgrade))
     #define FIL_RUNOUT_MODE    { 2 MODE_ADDON_2}    // Default mode for sensors E0[, E1[, E2[, E3...]]]. 0:NONE  1:Switch NO  2:Switch NC  7:Motion Sensor Override with M591EnPnn
   #else
     #define FIL_RUNOUT_MODE    { 1 MODE_ADDON_1}    // Default mode for sensors E0[, E1[, E2[, E3...]]]. 0:NONE  1:Switch NO  2:Switch NC  7:Motion Sensor Override with M591EnPnn
