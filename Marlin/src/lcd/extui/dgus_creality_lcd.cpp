@@ -213,6 +213,9 @@ bool hasPrintTimer = false;
         ScreenHandler.OnMeshLevelingUpdate(xpos, ypos, 0);
       #endif
     }
+    void onLevelingDone() {
+
+    }
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
