@@ -391,10 +391,6 @@
   #define SD_DETECT_PIN -1
 #endif
 
-#if ANY(MicroswissDirectDrive, DDXExtruderKit, CrealityTitan)
-  #define DirectDrive
-#endif
-
 #if ENABLED(DDXExtruderKit)
   #define BondtechBMG
 #endif
@@ -608,8 +604,8 @@
   #endif
 #endif
 
-#if ANY(E3DHemera, SpriteExtruder)
- #define DirectDrive
+#if ANY(MicroswissDirectDrive, DDXExtruderKit, CrealityTitan, E3DHemera, SpriteExtruder)
+  #define DirectDrive
 #endif
 
 #if ENABLED(MachineCR10Orig, ABL_BI)
