@@ -178,7 +178,7 @@ void onIdle()
   rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
 	rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
 
-  if(awaitingUserConfirm() && (lastPauseMsgState!=ExtUI::pauseModeStatus || userConfValidation > 2000))
+  if(awaitingUserConfirm() && (lastPauseMsgState!=ExtUI::pauseModeStatus || userConfValidation > 99))
   {
     switch(ExtUI::pauseModeStatus)
       {
@@ -215,7 +215,7 @@ void onIdle()
   else if (awaitingUserConfirm() && pause_resume_selected)
   {
     pause_resume_selected = false;
-    userConfValidation = 2001;
+    userConfValidation = 100;
   }
 
 
@@ -1797,23 +1797,27 @@ void RTSSHOW::RTS_HandleData()
 
       if (recdat.data[0] == 1) //Filament is out, resume / resume selected on screen
       {
-
+        SERIAL_ECHOLNPGM_P(PSTR("Resume Yes during print"));
         if(
-        #if DISABLED(FILAMENT_RUNOUT_SENSOR) || ENABLED(FILAMENT_MOTION_SENSOR)
-          true
-        #else
-          (getActiveTool() == E0 && !getFilamentRunoutState() )
-        #endif
+          #if DISABLED(FILAMENT_RUNOUT_SENSOR)
+            true
+          #else
+            ( getActiveTool() == E0 && !getFilamentRunoutState() && getFilamentRunoutEnabled() )
+          #endif
          || (ExtUI::pauseModeStatus != PAUSE_MESSAGE_PURGE && ExtUI::pauseModeStatus != PAUSE_MESSAGE_OPTION)
-        ) {
-          SERIAL_ECHOLNPGM_P(PSTR("Resume Yes during print"));
-          //setHostResponse(1); //Send Resume host prompt command
+        )
+        {
           setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
           setUserConfirmed();
-          RTS_SndData(1 + CEIconGrap, IconPrintstatus);
           PrinterStatusKey[1] = 3;
           pause_resume_selected = true;
-          //reEntryPrevent = false;
+        }
+        else {
+          ExtUI::setFilamentRunoutEnabled(false, getActiveTool());
+          setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
+          setUserConfirmed();
+          PrinterStatusKey[1] = 3;
+          pause_resume_selected = true;
         }
       }
       else if (recdat.data[0] == 0) // Filamet is out, Cancel Selected
@@ -2308,11 +2312,13 @@ void onUserConfirmRequired(const char *const msg)
       case PAUSE_MESSAGE_PURGE:
       {
         rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
-        char newMsg[40] = "Yes to Continue           No to ";
+        char newMsg[40] = "Yes to ";
         if(TERN0(FILAMENT_RUNOUT_SENSOR, ExtUI::getFilamentRunoutState()))
-          strcat(newMsg, "Disable");
+          strcat(newMsg, "Continue");
         else
-          strcat(newMsg, "Purge");
+          strcat(newMsg, "Disable ");
+        
+        strcat(newMsg, "       No to Purge     ");
         onStatusChanged(newMsg);
         break;
       }
@@ -2322,11 +2328,13 @@ void onUserConfirmRequired(const char *const msg)
     case PAUSE_MESSAGE_OPTION:
     {
       rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
-      char newMsg[40] = "Yes to Continue           No to ";
-      if(TERN0(FILAMENT_RUNOUT_SENSOR, ExtUI::getFilamentRunoutState()))
-        strcat(newMsg, "Disable");
-      else
-        strcat(newMsg, "Purge");
+      char newMsg[40] = "Yes to ";
+        if(TERN0(FILAMENT_RUNOUT_SENSOR, ExtUI::getFilamentRunoutState()))
+          strcat(newMsg, "Continue");
+        else
+          strcat(newMsg, "Disable ");
+        
+        strcat(newMsg, "       No to Purge");
       onStatusChanged(newMsg);
       break;
     }
