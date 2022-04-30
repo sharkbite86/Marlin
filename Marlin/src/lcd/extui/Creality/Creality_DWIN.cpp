@@ -1798,26 +1798,30 @@ void RTSSHOW::RTS_HandleData()
       if (recdat.data[0] == 1) //Filament is out, resume / resume selected on screen
       {
         SERIAL_ECHOLNPGM_P(PSTR("Resume Yes during print"));
-        if(
-          #if DISABLED(FILAMENT_RUNOUT_SENSOR)
-            true
-          #else
-            ( getActiveTool() == E0 && !getFilamentRunoutState() && getFilamentRunoutEnabled() )
-          #endif
-         || (ExtUI::pauseModeStatus != PAUSE_MESSAGE_PURGE && ExtUI::pauseModeStatus != PAUSE_MESSAGE_OPTION)
-        )
+        if (ExtUI::pauseModeStatus != PAUSE_MESSAGE_PURGE && ExtUI::pauseModeStatus != PAUSE_MESSAGE_OPTION)
         {
-          setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
+          //setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
           setUserConfirmed();
-          PrinterStatusKey[1] = 3;
-          pause_resume_selected = true;
+          //PrinterStatusKey[1] = 3;
+          //pause_resume_selected = true;
         }
-        else {
-          ExtUI::setFilamentRunoutEnabled(false, getActiveTool());
-          setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
-          setUserConfirmed();
-          PrinterStatusKey[1] = 3;
-          pause_resume_selected = true;
+        else if (ExtUI::pauseModeStatus == PAUSE_MESSAGE_PURGE || ExtUI::pauseModeStatus == PAUSE_MESSAGE_OPTION) {
+          #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+            if(getFilamentRunoutState() && getFilamentRunoutEnabled(getActiveTool()))
+              ExtUI::setFilamentRunoutEnabled(false, getActiveTool());
+            else {
+              setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
+              setUserConfirmed();
+              PrinterStatusKey[1] = 3;
+              pause_resume_selected = true;
+            }
+
+          #else
+            setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
+            setUserConfirmed();
+            PrinterStatusKey[1] = 3;
+            pause_resume_selected = true;
+          #endif
         }
       }
       else if (recdat.data[0] == 0) // Filamet is out, Cancel Selected
@@ -2299,13 +2303,13 @@ void onUserConfirmRequired(const char *const msg)
     case PAUSE_MESSAGE_INSERT:
     {
       rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
-      onStatusChanged("Load Filament to Continue");
+      onStatusChanged("Load Filament to       Continue");
       break;
     }
     case PAUSE_MESSAGE_HEAT:
     {
       rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
-      onStatusChanged("Press Yes to Reheat");
+      onStatusChanged("Add Filament and Press   Yes to Reheat");
       break;
     }
     #if DISABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
@@ -2313,7 +2317,7 @@ void onUserConfirmRequired(const char *const msg)
       {
         rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
         char newMsg[40] = "Yes to ";
-        if(TERN0(FILAMENT_RUNOUT_SENSOR, ExtUI::getFilamentRunoutState()))
+        if(TERN1(FILAMENT_RUNOUT_SENSOR, (!ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled())))
           strcat(newMsg, "Continue");
         else
           strcat(newMsg, "Disable ");
@@ -2329,7 +2333,7 @@ void onUserConfirmRequired(const char *const msg)
     {
       rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
       char newMsg[40] = "Yes to ";
-        if(TERN0(FILAMENT_RUNOUT_SENSOR, ExtUI::getFilamentRunoutState()))
+        if(TERN1(FILAMENT_RUNOUT_SENSOR, (!ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled())))
           strcat(newMsg, "Continue");
         else
           strcat(newMsg, "Disable ");
