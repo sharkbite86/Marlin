@@ -65,6 +65,7 @@ namespace ExtUI
   bool FanStatus = true;
   bool AutohomeKey = false;
   unsigned char AutoHomeIconNum;
+  int16_t userConfValidation = 0;
 
   uint8_t lastPauseMsgState = 0;
 
@@ -75,6 +76,7 @@ namespace ExtUI
   uint8_t reEntryCount = 0;
   uint16_t idleThrottling = 0;
 
+  bool pause_resume_selected = false;
 
   #if HAS_PID_HEATING
     uint16_t pid_hotendAutoTemp = 150;
@@ -176,7 +178,7 @@ void onIdle()
   rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
 	rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
 
-  if(awaitingUserConfirm() && lastPauseMsgState!=ExtUI::pauseModeStatus)
+  if(awaitingUserConfirm() && (lastPauseMsgState!=ExtUI::pauseModeStatus || userConfValidation > 2000))
   {
     switch(ExtUI::pauseModeStatus)
       {
@@ -199,8 +201,23 @@ void onIdle()
       case PAUSE_MESSAGE_STATUS: SERIAL_ECHOLNPGM_P(PSTR("PauseStatus")); break;
       default: onUserConfirmRequired(PSTR("Confirm Continue")); break;
     }
+    userConfValidation = 0;
 
+  } else if (pause_resume_selected && !awaitingUserConfirm()) {
+      rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
+      pause_resume_selected = false;
+      userConfValidation = 0;
   }
+  else if (awaitingUserConfirm() && !pause_resume_selected)
+  {
+    userConfValidation++;
+  }
+  else if (awaitingUserConfirm() && pause_resume_selected)
+  {
+    pause_resume_selected = false;
+    userConfValidation = 2001;
+  }
+
 
   reEntryPrevent = true;
   idleThrottling = 0;
@@ -1795,7 +1812,7 @@ void RTSSHOW::RTS_HandleData()
           setUserConfirmed();
           RTS_SndData(1 + CEIconGrap, IconPrintstatus);
           PrinterStatusKey[1] = 3;
-          RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
+          pause_resume_selected = true;
           //reEntryPrevent = false;
         }
       }
