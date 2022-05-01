@@ -2303,13 +2303,13 @@ void onUserConfirmRequired(const char *const msg)
     case PAUSE_MESSAGE_INSERT:
     {
       rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
-      onStatusChanged("Load Filament to       Continue");
+      onStatusChanged("Load Filament to           Continue");
       break;
     }
     case PAUSE_MESSAGE_HEAT:
     {
       rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
-      onStatusChanged("Add Filament and Press   Yes to Reheat");
+      onStatusChanged("Add Filament and Press    Yes to Reheat");
       break;
     }
     #if DISABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
@@ -2322,7 +2322,7 @@ void onUserConfirmRequired(const char *const msg)
         else
           strcat(newMsg, "Disable ");
         
-        strcat(newMsg, "       No to Purge     ");
+        strcat(newMsg, "           No to Purge");
         onStatusChanged(newMsg);
         break;
       }
@@ -2338,7 +2338,7 @@ void onUserConfirmRequired(const char *const msg)
         else
           strcat(newMsg, "Disable ");
         
-        strcat(newMsg, "       No to Purge");
+        strcat(newMsg, "           No to Purge");
       onStatusChanged(newMsg);
       break;
     }
