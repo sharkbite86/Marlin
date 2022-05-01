@@ -2507,7 +2507,7 @@ void onSettingsStored(bool success)
 void onSettingsLoaded(bool success)
 {
 	SERIAL_ECHOLNPGM_P(PSTR("==onConfigurationStoreRead=="));
-  #if HAS_MESH && (ANY(MachineCR10SPro, MachineEnder5Plus, MachineCR10Max) || ENABLED(FORCE10SPRODISPLAY))
+  #if HAS_MESH
     if (ExtUI::getMeshValid())
     {
       uint8_t abl_probe_index = 0;
@@ -2571,7 +2571,32 @@ void onLevelingStart() {
 }
 
 void onLevelingDone() {
+  #if HAS_MESH
+    if (ExtUI::getMeshValid())
+    {
+      uint8_t abl_probe_index = 0;
+        for(uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
+        {
+          for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++)
+          {
+            uint8_t x_Point = inner;
+            bool zig = (outer & 1);
+            if (zig) x_Point = (GRID_MAX_POINTS_X - 1) - inner;
+            xy_uint8_t point = {x_Point, outer};
+            rtscheck.RTS_SndData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
+            ++abl_probe_index;
+          }
+        }
 
+      rtscheck.RTS_SndData(3, AutoLevelIcon); //2=On, 3=Off
+      setLevelingActive(true);
+    }
+    else
+    {
+      rtscheck.RTS_SndData(2, AutoLevelIcon); /*Off*/
+      setLevelingActive(false);
+    }
+  #endif
 }
 
 void onSteppersEnabled()
