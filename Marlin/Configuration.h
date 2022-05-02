@@ -2826,11 +2826,11 @@
     #define Y_MAX_POS 400
     #define ClipClearance 15
   #elif ENABLED(MachineCR10Max)
-    #define X_BED_SIZE 450
-    #define Y_BED_SIZE 450
+    #define X_BED_SIZE 470
+    #define Y_BED_SIZE 470
     #define Z_MAX_POS 470
-    #define X_MAX_POS 450
-    #define Y_MAX_POS 450
+    #define X_MAX_POS 470
+    #define Y_MAX_POS 470
     #define ClipClearance 15
   #elif ENABLED(MachineS5)
     #define X_BED_SIZE 500
