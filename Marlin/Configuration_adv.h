@@ -638,7 +638,7 @@
 #if ENABLED(MachineEnder3S1)
   #define E0_AUTO_FAN_PIN PC0
 #else
-  #define E0_AUTO_FAN_PIN -1
+  //#define E0_AUTO_FAN_PIN -1
 #endif
 #define E1_AUTO_FAN_PIN -1
 #define E2_AUTO_FAN_PIN -1
@@ -2095,7 +2095,7 @@
     #endif
   #endif
 
-  #if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, MachineCR6, MachineCR6Max) || ENABLED(MESH_BED_LEVELING)
+  #if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, MachineCR6, MachineCR6Max, MachineCR10Smart) || ENABLED(MESH_BED_LEVELING)
     #define BABYSTEP_DISPLAY_TOTAL          // Display total babysteps since last G28
   #else
     #define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
@@ -4181,25 +4181,31 @@
     #define DualZComm ""
   #endif
 
+  #if ENABLED(EXTENSIBLE_UI)
+    #define PRINTTIMERSTOP ""
+  #else
+    #define PRINTTIMERSTOP "M77\n"
+  #endif
+
   #define MAIN_MENU_ITEM_1_DESC "Setup"
   #if (ENABLED(ABL_UBL))
-    #define MAIN_MENU_ITEM_1_GCODE "M190S" CommBedTmp "\nG28" DualZComm "\nG29P1\nG29P3\nG29S1\nG29S0\nG29F0.0\nG29A\nM104S215\nG28\nM109S215\nG1X150Y150F5000\nG1Z0\nM500\nM400\nM77\nM117 Set Z Offset"
+    #define MAIN_MENU_ITEM_1_GCODE "M190S" CommBedTmp "\nG28" DualZComm "\nG29P1\nG29P3\nG29S1\nG29S0\nG29F0.0\nG29A\nM104S215\nG28\nM109S215\nG1X150Y150F5000\nG1Z0\nM500\nM400\n" PRINTTIMERSTOP "M117 Set Z Offset"
   #elif ENABLED(ABL_BI)
-    #define MAIN_MENU_ITEM_1_GCODE "M190S" CommBedTmp "\nG28" DualZComm "\nG29\nM400\nM104S215\nG28\nM109S215\nM420S1\nG1X100Y100F5000\nG1Z0\nM500\nM77\nM117 Set Z Offset"
+    #define MAIN_MENU_ITEM_1_GCODE "M190S" CommBedTmp "\nG28" DualZComm "\nG29\nM400\nM104S215\nG28\nM109S215\nM420S1\nG1X100Y100F5000\nG1Z0\nM500\n" PRINTTIMERSTOP "M117 Set Z Offset"
   #endif
-  //#define MAIN_MENU_ITEM_1_CONFIRM          // Show a confirmation dialog before this action
+  #define MAIN_MENU_ITEM_1_CONFIRM          // Show a confirmation dialog before this action
 
     #define MAIN_MENU_ITEM_2_DESC "PID Tune"
     #define MAIN_MENU_ITEM_2_GCODE "M106S128\nM303C8S215E0U\nM500\nM117 PID Tune Done"
-  //#define MAIN_MENU_ITEM_2_CONFIRM          // Show a confirmation dialog before this action
+    #define MAIN_MENU_ITEM_2_CONFIRM          // Show a confirmation dialog before this action
 
     #define MAIN_MENU_ITEM_3_DESC "Prep for Z Adjust"
     #define MAIN_MENU_ITEM_3_GCODE "M190S" CommBedTmp "\nM104S215\nG28\nG29L1\nG1 X100Y100F5000\nG1Z0"
-  //#define MAIN_MENU_ITEM_3_CONFIRM          // Show a confirmation dialog before this action
+    #define MAIN_MENU_ITEM_3_CONFIRM          // Show a confirmation dialog before this action
 
     #define MAIN_MENU_ITEM_4_DESC "Store Settings"
     #define MAIN_MENU_ITEM_4_GCODE "M500\nM117 Settings Stored"
-  //#define MAIN_MENU_ITEM_4_CONFIRM          // Show a confirmation dialog before this action
+    #define MAIN_MENU_ITEM_4_CONFIRM          // Show a confirmation dialog before this action
 
   //#define MAIN_MENU_ITEM_5_DESC "Run Mesh Validation"
   //#define MAIN_MENU_ITEM_5_GCODE "G26"
