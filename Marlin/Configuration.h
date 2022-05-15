@@ -86,7 +86,7 @@
 // Enable this if you used a plug and play creality e3d or mosquito kit and kept the Creality thermistor
 //#define CrealityThermistor
 
-#define SlicePT1000 // Enable this if you have a mosquito with the newer PT1000 sensor
+//#define SlicePT1000 // Enable this if you have a mosquito with the newer PT1000 sensor
 //#define PID50W //Set PID for 50W Heater
 /*
  * Select these if you have changed to a high performance extruder
