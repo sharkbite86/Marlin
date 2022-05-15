@@ -55,6 +55,7 @@
 //#define MachineEnder2Pro
 //#define MachineEnder3V2
 //#define MachineEnder3S1
+//#define MachineEnder3S1_F4
 //#define MachineEnder3Max
 //#define MachineEnder3Pro422
 //#define MachineEnder3Pro427
@@ -85,7 +86,7 @@
 // Enable this if you used a plug and play creality e3d or mosquito kit and kept the Creality thermistor
 //#define CrealityThermistor
 
-//#define SlicePT1000 // Enable this if you have a mosquito with the newer PT1000 sensor
+#define SlicePT1000 // Enable this if you have a mosquito with the newer PT1000 sensor
 //#define PID50W //Set PID for 50W Heater
 /*
  * Select these if you have changed to a high performance extruder
@@ -441,6 +442,11 @@
   #endif
 #endif
 
+#if ENABLED(MachineEnder3S1_F4)
+  #define MachineEnder3S1
+#endif
+
+
 #if ENABLED(MachineEnder3S1)
   #if NONE(ABL_NCSW, ABL_EZABL, ABL_BLTOUCH)
     #define ABL_BLTOUCH
@@ -450,7 +456,7 @@
   #endif
 #endif
 
-#if ENABLED(MachineEnder3S1)
+#if ANY(MachineEnder3S1, MachineCR10SmartPro)
   #define SpriteExtruder
 #endif
 
@@ -691,11 +697,11 @@
   #define LCD_SERIAL_PORT 3
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 1
-#elif ANY(MachineCR10Smart, MachineCR10SmartPro)
+#elif ENABLED(MachineCR10Smart)
   #define LCD_SERIAL_PORT 3
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 1
-#elif ENABLED(MachineEnder7)
+#elif ANY(MachineEnder7, MachineCR10SmartPro)
   #define LCD_SERIAL_PORT 2
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 1
@@ -763,7 +769,9 @@
     #define MOTHERBOARD BOARD_CREALITY_V427
   #elif ENABLED(Creality422)
     #define MOTHERBOARD BOARD_CREALITY_V4
-  #elif ENABLED(MachineEnder3S1)
+  #elif ENABLED(MachineEnder3S1_F4)
+    #define MOTHERBOARD BOARD_CREALITY_V24S1_301F4
+  #elif ENABLED(MachineEnder3S1) && DISABLED(MachineEnder3S1_F4)
     #define MOTHERBOARD BOARD_CREALITY_V24S1_301
   #elif (ENABLED(MachineCR10Orig) && DISABLED(Melzi_To_SBoardUpgrade))
     #define MOTHERBOARD BOARD_MELZI_CREALITY
@@ -773,7 +781,9 @@
     #define MOTHERBOARD BOARD_CREALITY_V452
   #elif ENABLED(MachineCR30)
     #define MOTHERBOARD BOARD_CREALITY_V4210
-  #elif ANY(MachineCR6, MachineCR6Max, MachineCR10Smart, MachineCR10SmartPro)
+  #elif ENABLED(MachineCR10SmartPro)
+    #define MOTHERBOARD BOARD_CREALITY_V25S1
+  #elif ANY(MachineCR6, MachineCR6Max, MachineCR10Smart)
     #define MOTHERBOARD BOARD_CREALITY_V453
   #elif ENABLED(MachineEnder2Pro)
     #define MOTHERBOARD BOARD_CREALITY_V423
@@ -1852,7 +1862,7 @@
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
-#if ANY(MachineEnder3V2, MachineEnder3S1, Creality422, MachineEnder2Pro) && NONE(SKRE3Turbo, SKR14Turbo, SKR14, SKR13)
+#if ANY(MachineEnder3V2, MachineEnder3S1, Creality422, MachineEnder2Pro, MachineCR10SmartPro) && NONE(SKRE3Turbo, SKR14Turbo, SKR14, SKR13)
   #define ENDSTOP_INTERRUPTS_FEATURE
 #endif
 
@@ -1868,7 +1878,7 @@
  *
  * :[2,3,4,5,6,7]
  */
-#if ANY(MachineEnder5Plus, CableExtensionNoiseFilter, MachineCR6, MachineCR6Max, MachineEnder6, MachineCR10Smart, MachineCR10SmartPro, MachineSermoonD1)
+#if ANY(MachineEnder5Plus, CableExtensionNoiseFilter, MachineCR6, MachineCR6Max, MachineEnder6, MachineCR10Smart, MachineSermoonD1)
   #define ENDSTOP_NOISE_THRESHOLD 2
 #endif
 
@@ -2105,7 +2115,7 @@
  * The probe replaces the Z-MIN endstop and is used for Z homing.
  * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
-#if NONE(Creality422, Creality427, MachineEnder6, MachineEnder7, MachineCR5, MachineEnder2Pro, MachineEnder3S1) && DISABLED(Creality42XUseZMin) || DISABLED(ABL_BLTOUCH)
+#if NONE(Creality422, Creality427, MachineEnder6, MachineEnder7, MachineCR5, MachineEnder2Pro, MachineEnder3S1, MachineCR10SmartPro) && DISABLED(Creality42XUseZMin) || DISABLED(ABL_BLTOUCH)
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
 // Force the use of the probe for Z-axis homing
@@ -2329,6 +2339,8 @@
   #define NOZZLE_TO_PROBE_OFFSET { -45, -5, 0 }
 #elif ENABLED(MachineEnder3S1)
   #define NOZZLE_TO_PROBE_OFFSET { -37, -39, -2.0 }
+#elif ENABLED(MachineCR10SmartPro)
+  #define NOZZLE_TO_PROBE_OFFSET { -30, -40, -1.0 }
 #elif (ENABLED(ABL_BLTOUCH) && ENABLED(HotendStock))
   #define NOZZLE_TO_PROBE_OFFSET { -41, -8, 0 }
 #elif ((ANY(ABL_EZABL, ABL_NCSW)) && ENABLED(HotendStock))
@@ -2973,7 +2985,7 @@
       #define MODE_ADDON_2
       #define MODE_ADDON_1
   #endif
-  #if NONE(MachineCR10Orig, MachineCR20, MachineEnder3, MachineEnder3V2, MachineEnder4, MachineEnder5, MachineCRX, Melzi_To_SBoardUpgrade) || ANY(AddonFilSensor, lerdgeFilSensor, DualFilSensors)
+  #if NONE(MachineCR10Orig, MachineCR20, MachineEnder3,  MachineEnder2, MachineEnder2Pro, MachineEnder3V2, MachineEnder4, MachineEnder5, MachineCRX, Melzi_To_SBoardUpgrade) || ANY(AddonFilSensor, lerdgeFilSensor, DualFilSensors)
     #define FIL_RUNOUT_ENABLED { true ENABLED_ADDON} // Default enabled state for sensors E0[, E1[, E2[, E3...]]]. Override with M591EnnSn followed by M500.
   #else
     #define FIL_RUNOUT_ENABLED { false DISABLED_ADDON} // Default enabled state for sensors E0[, E1[, E2[, E3...]]]. Override with M591EnnSn followed by M500.
@@ -2981,7 +2993,7 @@
 
   #if ENABLED(FilamentEncoder)
     #define FIL_RUNOUT_MODE    { 7 MODE_ADDON_7}    // Default mode for sensors E0[, E1[, E2[, E3...]]]. 0:NONE  1:Switch NO  2:Switch NC  7:Motion Sensor Override with M591EnPnn
-  #elif DISABLED(lerdgeFilSensor) && ( ANY(AddonFilSensor, DualFilSensors) || NONE(MachineCR10Orig, MachineCR20, MachineEnder3, MachineEnder3V2, MachineEnder4, MachineEnder5, MachineCRX, Melzi_To_SBoardUpgrade))
+  #elif DISABLED(lerdgeFilSensor) && ( ANY(AddonFilSensor, DualFilSensors) || NONE(MachineCR10Orig, MachineCR20, MachineEnder3, MachineEnder2, MachineEnder2Pro,  MachineEnder3V2, MachineEnder4, MachineEnder5, MachineCRX, Melzi_To_SBoardUpgrade))
     #define FIL_RUNOUT_MODE    { 2 MODE_ADDON_2}    // Default mode for sensors E0[, E1[, E2[, E3...]]]. 0:NONE  1:Switch NO  2:Switch NC  7:Motion Sensor Override with M591EnPnn
   #else
     #define FIL_RUNOUT_MODE    { 1 MODE_ADDON_1}    // Default mode for sensors E0[, E1[, E2[, E3...]]]. 0:NONE  1:Switch NO  2:Switch NC  7:Motion Sensor Override with M591EnPnn
@@ -3108,7 +3120,7 @@
  * NOTE: Requires a lot of PROGMEM!
  */
 #if ENABLED(MachineLargeROM)
-  #define DEBUG_LEVELING_FEATURE
+  //#define DEBUG_LEVELING_FEATURE
 #endif
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PROBE_MANUALLY)

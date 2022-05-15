@@ -90,7 +90,12 @@ void onStartup()
 	rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
 	memset(rtscheck.databuf, 0, sizeof(rtscheck.databuf));
 
-  delay_ms(500); // Delay to allow screen startup
+  #if ENABLED(DWINOS_4)
+    #define DWIN_BOOTUP_DELAY 1500
+  #else
+    #define DWIN_BOOTUP_DELAY 500
+  #endif
+  delay_ms(DWIN_BOOTUP_DELAY); // Delay to allow screen startup
   SetTouchScreenConfiguration();
   rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
   delay_ms(400); // Delay to allow screen to configure
@@ -2100,7 +2105,7 @@ void SetTouchScreenConfiguration() {
   if (Settings.display_sound) cfg_bits |= 1UL << 3; // 3: audio
   if (Settings.display_standby) cfg_bits |= 1UL << 2; // 2: backlight on standby
   if(Settings.screen_rotation==10) cfg_bits |= 1UL << 1; // 1 & 0: Inversion
-  #if ENABLED(MachineCR10Smart)
+  #if ANY(MachineCR10Smart, MachineCR10SmartPro )
     cfg_bits |= 1UL << 0; // Portrait Mode or 800x480 display has 0 point rotated 90deg from 480x272 display
   #endif
 
