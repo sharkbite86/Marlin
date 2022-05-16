@@ -216,9 +216,7 @@ bool hasPrintTimer = false;
     void onLevelingDone() {
 
     }
-    void onLevelingDone() {
 
-    }
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
