@@ -36,14 +36,6 @@
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 //
-// Servos
-//
-#define SERVO0_PIN                            11
-#define SERVO1_PIN                             6
-#define SERVO2_PIN                            -1  // Original pin 5 used for hotend fans
-#define SERVO3_PIN                             4
-
-//
 // Limit Switches
 //
 #define X_MIN_PIN                              3
@@ -51,14 +43,12 @@
 #define Y_MIN_PIN                             14
 //#define Y_MAX_PIN                           15  // Connected to "DJ" plug on extruder heads
 #define Z_MIN_PIN                             18
-#define Z_MAX_PIN                             19
-
-//
-// Z Probe (when not Z_MIN_PIN)
-//
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     15  // Ramps is normally 32
+#if ENABLED(BLTOUCH)
+  #define SERVO0_PIN                          19
+#else
+  #define Z_MAX_PIN                           19
 #endif
+
 
 //
 // Steppers
@@ -119,22 +109,15 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                            13  // Analog Input
-#define TEMP_1_PIN                            15  // Analog Input
+#define TEMP_0_PIN                            15  // Analog Input
+#define TEMP_1_PIN                            13  // Analog Input
 #define TEMP_BED_PIN                          14  // Analog Input
-
-// SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
-  #define TEMP_0_CS_PIN                       -1  // Don't use 53 if using Display/SD card
-#else
-  #define TEMP_0_CS_PIN                       -1  // Don't use 49 (SD_DETECT_PIN)
-#endif
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                          10
-#define HEATER_1_PIN                          11
+#define HEATER_0_PIN                          11
+#define HEATER_1_PIN                          10
 #define HEATER_BED_PIN                         8
 
 #define FAN_PIN                                9
@@ -142,8 +125,15 @@
 
 // XXX Runout support unknown?
 //#define NUM_RUNOUT_SENSORS                   0
-//#define FIL_RUNOUT_PIN                      22
+#define FIL_RUNOUT_PIN                        15
 //#define FIL_RUNOUT2_PIN                     21
+
+//
+// PSU and Powerloss Recovery
+//
+#ifdef PSU_CONTROL
+   #define PS_ON_PIN               40
+#endif
 
 //
 // Misc. Functions
