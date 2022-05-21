@@ -109,7 +109,7 @@ void onStartup()
 	/***************transmit temperature to screen*****************/
 	rtscheck.RTS_SndData(0, NozzlePreheat);
 	rtscheck.RTS_SndData(0, BedPreheat);
-	rtscheck.RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
+	rtscheck.RTS_SndData(getActualTemp_celsius(getActiveTool()), NozzleTemp);
 	rtscheck.RTS_SndData(getActualTemp_celsius(BED), Bedtemp);
 	/***************transmit Fan speed to screen*****************/
 	rtscheck.RTS_SndData(2, FanKeyIcon); //turn 0ff fan icon
@@ -173,9 +173,9 @@ void onIdle()
   }
 
   // Always send temperature data
-  rtscheck.RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
+  rtscheck.RTS_SndData(getActualTemp_celsius(getActiveTool()), NozzleTemp);
 	rtscheck.RTS_SndData(getActualTemp_celsius(BED), Bedtemp);
-  rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
+  rtscheck.RTS_SndData(getTargetTemp_celsius(getActiveTool()), NozzlePreheat);
 	rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
 
   if(awaitingUserConfirm() && (lastPauseMsgState!=ExtUI::pauseModeStatus || userConfValidation > 99))
@@ -379,16 +379,16 @@ void onIdle()
   else
     rtscheck.RTS_SndData(2, DisplayStandbyEnableIndicator);
 
-  if(getTargetTemp_celsius(BED)==0 && getTargetTemp_celsius(H0)==0)
+  if(getTargetTemp_celsius(BED)==0 && getTargetTemp_celsius(getActiveTool())==0)
   {
     rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
   }
-  else if (getActualTemp_celsius(BED) < (getTargetTemp_celsius(BED) - THERMAL_PROTECTION_BED_HYSTERESIS ) || (getActualTemp_celsius(H0) < (getTargetTemp_celsius(H0) - THERMAL_PROTECTION_HYSTERESIS)))
+  else if (getActualTemp_celsius(BED) < (getTargetTemp_celsius(BED) - THERMAL_PROTECTION_BED_HYSTERESIS ) || (getActualTemp_celsius(getActiveTool()) < (getTargetTemp_celsius(getActiveTool()) - THERMAL_PROTECTION_HYSTERESIS)))
   {
     rtscheck.RTS_SndData(1 + CEIconGrap, IconPrintstatus); // Heating Status
     PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 1 : PrinterStatusKey[1]);
   }
-  else if (getActualTemp_celsius(BED) > (getTargetTemp_celsius(BED) + THERMAL_PROTECTION_BED_HYSTERESIS) || (getActualTemp_celsius(H0) > (getTargetTemp_celsius(H0) + THERMAL_PROTECTION_HYSTERESIS)))
+  else if (getActualTemp_celsius(BED) > (getTargetTemp_celsius(BED) + THERMAL_PROTECTION_BED_HYSTERESIS) || (getActualTemp_celsius(getActiveTool()) > (getTargetTemp_celsius(getActiveTool()) + THERMAL_PROTECTION_HYSTERESIS)))
   {
     rtscheck.RTS_SndData(8 + CEIconGrap, IconPrintstatus); // Cooling Status
     PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 2 : PrinterStatusKey[1]);
@@ -441,11 +441,11 @@ void onIdle()
 	{
 		unsigned int IconTemp;
 
-		IconTemp = getActualTemp_celsius(H0) * 100 / getTargetTemp_celsius(H0);
+		IconTemp = getActualTemp_celsius(getActiveTool()) * 100 / getTargetTemp_celsius(getActiveTool());
 		if (IconTemp >= 100)
 			IconTemp = 100;
 		rtscheck.RTS_SndData(IconTemp, HeatPercentIcon);
-		if (getActualTemp_celsius(H0) > EXTRUDE_MINTEMP && NozzleTempStatus[0]!=0)
+		if (getActualTemp_celsius(getActiveTool()) > EXTRUDE_MINTEMP && NozzleTempStatus[0]!=0)
 		{
 			NozzleTempStatus[0] = 0;
 			rtscheck.RTS_SndData(10 * ChangeMaterialbuf[0], FilementUnit1);
@@ -453,7 +453,7 @@ void onIdle()
       SERIAL_ECHOLNPGM_P(PSTR("==Heating Done Change Filament=="));
 			rtscheck.RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
 		}
-		else if (getActualTemp_celsius(H0) >= getTargetTemp_celsius(H0) && NozzleTempStatus[2])
+		else if (getActualTemp_celsius(getActiveTool()) >= getTargetTemp_celsius(getActiveTool()) && NozzleTempStatus[2])
 		{
 			SERIAL_ECHOLNPGM("***NozzleTempStatus[2] =", (int)NozzleTempStatus[2]);
 			NozzleTempStatus[2] = 0;
@@ -1086,7 +1086,7 @@ void RTSSHOW::RTS_HandleData()
       }
       else if (recdat.data[0] == 5) //PLA mode
       {
-        setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, H0);
+        setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, getActiveTool());
         setTargetTemp_celsius(PREHEAT_1_TEMP_BED, BED);
 
         RTS_SndData(PREHEAT_1_TEMP_HOTEND, NozzlePreheat);
@@ -1094,7 +1094,7 @@ void RTSSHOW::RTS_HandleData()
       }
       else if (recdat.data[0] == 6) //ABS mode
       {
-        setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, H0);
+        setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, getActiveTool());
         setTargetTemp_celsius(PREHEAT_2_TEMP_BED, BED);
 
         RTS_SndData(PREHEAT_2_TEMP_HOTEND, NozzlePreheat);
@@ -1108,7 +1108,7 @@ void RTSSHOW::RTS_HandleData()
                 setTargetFan_percent(0, (fan_t)i);
         #endif
         FanStatus = false;
-        setTargetTemp_celsius(0.0, H0);
+        setTargetTemp_celsius(0.0, getActiveTool());
         setTargetTemp_celsius(0.0, BED);
 
         RTS_SndData(0, NozzlePreheat);
@@ -1135,7 +1135,7 @@ void RTSSHOW::RTS_HandleData()
         }
         else if (recdat.data[0] == 1)
         {
-          setTargetTemp_celsius(0.0, H0);
+          setTargetTemp_celsius(0.0, getActiveTool());
           RTS_SndData(0, NozzlePreheat);
         }
         else if (recdat.data[0] == 2)
@@ -1145,7 +1145,7 @@ void RTSSHOW::RTS_HandleData()
         }
       }
       else if (recdat.addr == NozzlePreheat)
-        setTargetTemp_celsius((float)recdat.data[0], H0);
+        setTargetTemp_celsius((float)recdat.data[0], getActiveTool());
       else if (recdat.addr == BedPreheat)
         setTargetTemp_celsius((float)recdat.data[0], BED);
       else if (recdat.addr == Flowrate)
@@ -1340,8 +1340,8 @@ void RTSSHOW::RTS_HandleData()
         ChangeMaterialbuf[1] = ChangeMaterialbuf[0] = 10;
         RTS_SndData(10 * ChangeMaterialbuf[0], FilementUnit1); //It's ChangeMaterialbuf for show,instead of current_position[E_AXIS] in them.
         RTS_SndData(10 * ChangeMaterialbuf[1], FilementUnit2);
-        RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
-        RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
+        RTS_SndData(getActualTemp_celsius(getActiveTool()), NozzleTemp);
+        RTS_SndData(getTargetTemp_celsius(getActiveTool()), NozzlePreheat);
         delay_ms(2);
         RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
       }
@@ -1656,7 +1656,7 @@ void RTSSHOW::RTS_HandleData()
       unsigned int IconTemp;
       if (recdat.addr == Exchfilement)
       {
-        if (getActualTemp_celsius(H0) < EXTRUDE_MINTEMP && recdat.data[0] < 5)
+        if (getActualTemp_celsius(getActiveTool()) < EXTRUDE_MINTEMP && recdat.data[0] < 5)
         {
           RTS_SndData((int)EXTRUDE_MINTEMP, 0x1020);
           delay_ms(5);
@@ -1691,14 +1691,14 @@ void RTSSHOW::RTS_HandleData()
             NozzleTempStatus[0] = 1;
             //InforShowoStatus = true;
 
-            setTargetTemp_celsius((PREHEAT_1_TEMP_HOTEND+10), H0);
-            IconTemp = getActualTemp_celsius(H0) * 100 / getTargetTemp_celsius(H0);
+            setTargetTemp_celsius((PREHEAT_1_TEMP_HOTEND+10), getActiveTool());
+            IconTemp = getActualTemp_celsius(getActiveTool()) * 100 / getTargetTemp_celsius(getActiveTool());
             if (IconTemp >= 100)
               IconTemp = 100;
             RTS_SndData(IconTemp, HeatPercentIcon);
 
-            RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
-            RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
+            RTS_SndData(getActualTemp_celsius(getActiveTool()), NozzleTemp);
+            RTS_SndData(getTargetTemp_celsius(getActiveTool()), NozzlePreheat);
             delay_ms(5);
             RTS_SndData(ExchangePageBase + 68, ExchangepageAddr);
             break;
