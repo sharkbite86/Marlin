@@ -166,11 +166,6 @@ namespace ExtUI {
 #define DisplayStandbyEnableIndicator 0x1146
 #define DisplayStandbySeconds 0x1148
 
-//#if ANY(MachineCR10SPro, MachineEnder5Plus, MachineCR10Max) || ENABLED(FORCE10SPRODISPLAY)
-//  #define StatusMessageString 0x3000
-//#else
-//  #define StatusMessageString 0x20E8
-//#endif
 #define StatusMessageString 0x2064
 
 #if defined(TARGET_STM32F4)
