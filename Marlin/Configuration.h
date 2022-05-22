@@ -207,12 +207,18 @@
   #define X_DRIVER_TYPE  TMC2130
   #define Y_DRIVER_TYPE  TMC2130
   #define Z_DRIVER_TYPE  TMC2130
+  #if ENABLED(TazDualZ)
+    #define Z2_DRIVER_TYPE TMC2130
+  #endif
   #define E0_DRIVER_TYPE TMC2130
   #define E1_DRIVER_TYPE TMC2130
 #else
   #define X_DRIVER_TYPE  A4988
   #define Y_DRIVER_TYPE  A4988
   #define Z_DRIVER_TYPE  A4988
+   #if ENABLED(TazDualZ)
+    #define Z2_DRIVER_TYPE A4988
+  #endif
   #define E0_DRIVER_TYPE A4988
   #define E1_DRIVER_TYPE A4988
 #endif
