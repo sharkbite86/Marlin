@@ -49,6 +49,10 @@
   #include "../../module/planner.h"
 #endif
 
+#if HAS_LEVELING
+  #include "../../module/planner.h"
+#endif
+
 #if HAS_CUTTER
   #include "../../feature/spindle_laser.h"
 #endif
@@ -57,7 +61,7 @@
   #include "../../feature/cooler.h"
 #endif
 
-#if ENABLED(I2C_AMMETER)
+#if DO_DRAW_AMMETER
   #include "../../feature/ammeter.h"
 #endif
 
@@ -191,7 +195,7 @@
 
 FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, const uint8_t ty) {
   if (temp < 0)
-    lcd_put_u8str(tx - 3 * (INFO_FONT_WIDTH) / 2 + 1, ty, "err");
+    lcd_put_u8str(tx - 3 * (INFO_FONT_WIDTH) / 2 + 1, ty, F("err"));
   else {
     const char *str = i16tostr3rj(temp);
     const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
@@ -428,7 +432,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   const bool is_inch = parser.using_inch_units();
   const AxisEnum a = TERN(LCD_SHOW_E_TOTAL, axis == E_AXIS ? X_AXIS : axis, axis);
   const uint8_t offs = a * (is_inch ? XYZ_SPACING_IN : XYZ_SPACING);
-  lcd_put_wchar((is_inch ? X_LABEL_POS_IN : X_LABEL_POS) + offs, XYZ_BASELINE, axis_codes[axis]);
+  lcd_put_wchar((is_inch ? X_LABEL_POS_IN : X_LABEL_POS) + offs, XYZ_BASELINE, AXIS_CHAR(axis));
   lcd_moveto((is_inch ? X_VALUE_POS_IN : X_VALUE_POS) + offs, XYZ_BASELINE);
 
   if (blink)
@@ -436,7 +440,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   else if (axis_should_home(axis))
     while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
   else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !axis_is_trusted(axis))
-    lcd_put_u8str_P(axis == Z_AXIS ? PSTR("       ") : PSTR("    "));
+    lcd_put_u8str(axis == Z_AXIS ? F("       ") : F("    "));
   else
     lcd_put_u8str(value);
 }
@@ -456,13 +460,13 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   #if HAS_PRINT_PROGRESS
-    #if DISABLED(DOGM_SD_PERCENT)
+    #if DISABLED(SHOW_SD_PERCENT)
       #define _SD_INFO_X(len) (PROGRESS_BAR_X + (PROGRESS_BAR_WIDTH) / 2 - (len) * (MENU_FONT_WIDTH) / 2)
     #else
       #define _SD_INFO_X(len) (LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH))
     #endif
 
-    #if ENABLED(DOGM_SD_PERCENT)
+    #if ENABLED(SHOW_SD_PERCENT)
       static char progress_string[5];
     #endif
     static uint8_t lastElapsed = 0xFF, lastProgress = 0xFF;
@@ -471,7 +475,7 @@ void MarlinUI::draw_status_screen() {
     #if ENABLED(SHOW_REMAINING_TIME)
       static u8g_uint_t estimation_x_pos = 0;
       static char estimation_string[10];
-      #if BOTH(DOGM_SD_PERCENT, ROTATE_PROGRESS_DISPLAY)
+      #if BOTH(SHOW_SD_PERCENT, ROTATE_PROGRESS_DISPLAY)
         static u8g_uint_t progress_x_pos = 0;
         static uint8_t progress_state = 0;
         static bool prev_blink = 0;
@@ -526,7 +530,7 @@ void MarlinUI::draw_status_screen() {
 
         progress_bar_solid_width = u8g_uint_t((PROGRESS_BAR_WIDTH - 2) * (progress / (PROGRESS_SCALE)) * 0.01f);
 
-        #if ENABLED(DOGM_SD_PERCENT)
+        #if ENABLED(SHOW_SD_PERCENT)
           if (progress == 0) {
             progress_string[0] = '\0';
             #if ENABLED(SHOW_REMAINING_TIME)
@@ -543,7 +547,7 @@ void MarlinUI::draw_status_screen() {
         #endif
       }
 
-      constexpr bool can_show_days = DISABLED(DOGM_SD_PERCENT) || ENABLED(ROTATE_PROGRESS_DISPLAY);
+      constexpr bool can_show_days = DISABLED(SHOW_SD_PERCENT) || ENABLED(ROTATE_PROGRESS_DISPLAY);
       if (ev != lastElapsed) {
         lastElapsed = ev;
         const uint8_t len = elapsed.toDigital(elapsed_string, can_show_days && elapsed.value >= 60*60*24L);
@@ -564,11 +568,7 @@ void MarlinUI::draw_status_screen() {
             else {
               duration_t estimation = timeval;
               const uint8_t len = estimation.toDigital(estimation_string, can_show_days && estimation.value >= 60*60*24L);
-              estimation_x_pos = _SD_INFO_X(len
-                #if !BOTH(DOGM_SD_PERCENT, ROTATE_PROGRESS_DISPLAY)
-                  + 1
-                #endif
-              );
+              estimation_x_pos = _SD_INFO_X(len + !BOTH(SHOW_SD_PERCENT, ROTATE_PROGRESS_DISPLAY));
             }
           }
         #endif
@@ -606,7 +606,13 @@ void MarlinUI::draw_status_screen() {
 
   #if DO_DRAW_BED && DISABLED(STATUS_COMBINE_HEATERS)
     #if ANIM_BED
-      #define BED_BITMAP(S) ((S) ? status_bed_on_bmp : status_bed_bmp)
+      #if BOTH(HAS_LEVELING, STATUS_ALT_BED_BITMAP)
+        #define BED_BITMAP(S) ((S) \
+          ? (planner.leveling_active ? status_bed_leveled_on_bmp : status_bed_on_bmp) \
+          : (planner.leveling_active ? status_bed_leveled_bmp : status_bed_bmp))
+      #else
+        #define BED_BITMAP(S) ((S) ? status_bed_on_bmp : status_bed_bmp)
+      #endif
     #else
       #define BED_BITMAP(S) status_bed_bmp
     #endif
@@ -668,7 +674,7 @@ void MarlinUI::draw_status_screen() {
         #if CUTTER_UNIT_IS(PERCENT)
           lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, cutter_power2str(cutter.unitPower));
         #elif CUTTER_UNIT_IS(RPM)
-          lcd_put_u8str(STATUS_CUTTER_TEXT_X - 2, STATUS_CUTTER_TEXT_Y, ftostr51rj(float(cutter.unitPower) / 1000));
+          lcd_put_u8str(STATUS_CUTTER_TEXT_X - 2, STATUS_CUTTER_TEXT_Y, ftostr61rj(float(cutter.unitPower) / 1000));
           lcd_put_wchar('K');
         #else
           lcd_put_u8str(STATUS_CUTTER_TEXT_X, STATUS_CUTTER_TEXT_Y, cutter_power2str(cutter.unitPower));
@@ -767,7 +773,7 @@ void MarlinUI::draw_status_screen() {
 
     if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
 
-      #if ALL(DOGM_SD_PERCENT, SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY)
+      #if ALL(SHOW_SD_PERCENT, SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY)
 
         if (prev_blink != blink) {
           prev_blink = blink;
@@ -781,21 +787,21 @@ void MarlinUI::draw_status_screen() {
           }
         }
         else if (progress_state == 2 && estimation_string[0]) {
-          lcd_put_u8str_P(PROGRESS_BAR_X, EXTRAS_BASELINE, PSTR("R:"));
+          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("R:"));
           lcd_put_u8str(estimation_x_pos, EXTRAS_BASELINE, estimation_string);
         }
         else if (elapsed_string[0]) {
-          lcd_put_u8str_P(PROGRESS_BAR_X, EXTRAS_BASELINE, E_LBL);
+          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("E:"));
           lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
         }
 
-      #else // !DOGM_SD_PERCENT || !SHOW_REMAINING_TIME || !ROTATE_PROGRESS_DISPLAY
+      #else // !SHOW_SD_PERCENT || !SHOW_REMAINING_TIME || !ROTATE_PROGRESS_DISPLAY
 
         //
         // SD Percent Complete
         //
 
-        #if ENABLED(DOGM_SD_PERCENT)
+        #if ENABLED(SHOW_SD_PERCENT)
           if (progress_string[0]) {
             lcd_put_u8str(55, EXTRAS_BASELINE, progress_string); // Percent complete
             lcd_put_wchar('%');
@@ -815,7 +821,7 @@ void MarlinUI::draw_status_screen() {
         #endif
             lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
 
-      #endif // !DOGM_SD_PERCENT || !SHOW_REMAINING_TIME || !ROTATE_PROGRESS_DISPLAY
+      #endif // !SHOW_SD_PERCENT || !SHOW_REMAINING_TIME || !ROTATE_PROGRESS_DISPLAY
     }
 
   #endif // HAS_PRINT_PROGRESS
@@ -866,24 +872,22 @@ void MarlinUI::draw_status_screen() {
             mix_label = PSTR("Mx");
           }
 
+        #pragma GCC diagnostic push
         #if GCC_VERSION <= 50000
-          #pragma GCC diagnostic push
           #pragma GCC diagnostic ignored "-Wformat-overflow"
         #endif
 
         sprintf_P(mixer_messages, PSTR(S_FMT " %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
         lcd_put_u8str(X_LABEL_POS, XYZ_BASELINE, mixer_messages);
 
-        #if GCC_VERSION <= 50000
-          #pragma GCC diagnostic pop
-        #endif
+        #pragma GCC diagnostic pop
 
       #else
 
         if (show_e_total) {
           #if ENABLED(LCD_SHOW_E_TOTAL)
             _draw_axis_value(E_AXIS, xstring, true);
-            lcd_put_u8str_P(PSTR("       "));
+            lcd_put_u8str(F("       "));
           #endif
         }
         else {
@@ -922,7 +926,7 @@ void MarlinUI::draw_status_screen() {
       lcd_put_u8str(102, EXTRAS_2_BASELINE, mstring);
       lcd_put_wchar('%');
       set_font(FONT_MENU);
-      lcd_put_wchar(47, EXTRAS_2_BASELINE, LCD_STR_FILAM_DIA[0]); // lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
+      lcd_put_wchar(47, EXTRAS_2_BASELINE, LCD_STR_FILAM_DIA[0]); // lcd_put_u8str(F(LCD_STR_FILAM_DIA));
       lcd_put_wchar(93, EXTRAS_2_BASELINE, LCD_STR_FILAM_MUL[0]);
     #endif
   }
@@ -936,10 +940,10 @@ void MarlinUI::draw_status_screen() {
     #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
       // Alternate Status message and Filament display
       if (ELAPSED(millis(), next_filament_display)) {
-        lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
+        lcd_put_u8str(F(LCD_STR_FILAM_DIA));
         lcd_put_wchar(':');
         lcd_put_u8str(wstring);
-        lcd_put_u8str_P(PSTR("  " LCD_STR_FILAM_MUL));
+        lcd_put_u8str(F("  " LCD_STR_FILAM_MUL));
         lcd_put_wchar(':');
         lcd_put_u8str(mstring);
         lcd_put_wchar('%');

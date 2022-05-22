@@ -54,13 +54,6 @@
 #define Z_MAX_PIN                             43
 
 //
-// Z Probe (when not Z_MIN_PIN)
-//
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     49
-#endif
-
-//
 // Steppers
 //
 #define X_STEP_PIN                            37  // Support Extension Board
@@ -105,14 +98,12 @@
   #define E2_CS_PIN                           61
 #endif
 
-#if USES_Z_MIN_PROBE_PIN
+#ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                     49
 #endif
 
-#if HAS_FILAMENT_SENSOR
-  #ifndef FIL_RUNOUT_PIN
-    #define FIL_RUNOUT_PIN             Y_MIN_PIN
-  #endif
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN               Y_MIN_PIN
 #endif
 
 //
@@ -171,16 +162,16 @@
 //
 // EEPROM
 //
-#define MARLIN_EEPROM_SIZE                0x8000  // 32Kb (24lc256)
+#define MARLIN_EEPROM_SIZE                0x8000  // 32K (24lc256)
 #define I2C_EEPROM                                // EEPROM on I2C-0
 //#define EEPROM_SD                               // EEPROM on SDCARD
 //#define SPI_EEPROM                              // EEPROM on SPI-0
 //#define SPI_CHAN_EEPROM1        ?
-//#define SPI_EEPROM1_CS          ?
+//#define SPI_EEPROM1_CS_PIN      ?
 // 2K EEPROM
-//#define SPI_EEPROM2_CS          ?
+//#define SPI_EEPROM2_CS_PIN      ?
 // 32Mb FLASH
-//#define SPI_FLASH_CS            ?
+//#define SPI_FLASH_CS_PIN        ?
 
 //
 // LCD / Controller

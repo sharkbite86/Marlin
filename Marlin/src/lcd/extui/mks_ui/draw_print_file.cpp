@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -401,7 +402,7 @@ void lv_gcode_file_read(uint8_t *data_buf) {
     char temp_test[200];
     volatile uint16_t *p_index;
 
-    watchdog_refresh();
+    hal.watchdog_refresh();
     memset(public_buf, 0, 200);
 
     while (card.isFileOpen()) {

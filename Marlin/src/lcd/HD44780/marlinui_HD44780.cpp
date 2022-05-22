@@ -121,7 +121,7 @@ static void createChar_P(const char c, const byte * const ptr) {
 
 #if ENABLED(LCD_USE_I2C_BUZZER)
   void MarlinUI::buzz(const long duration, const uint16_t freq) {
-    if (!buzzer_enabled) return;
+    if (!sound_on) return;
     lcd.buzz(duration, freq);
   }
 #endif
@@ -284,7 +284,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
   #endif // LCD_PROGRESS_BAR
 
-  #if BOTH(SDSUPPORT, HAS_LCD_MENU)
+  #if BOTH(SDSUPPORT, HAS_MARLINUI_MENU)
 
     // CHARSET_MENU
     const static PROGMEM byte refresh[8] = {
@@ -334,7 +334,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
       #endif
         {
           createChar_P(LCD_STR_UPLEVEL[0], uplevel);
-          #if BOTH(SDSUPPORT, HAS_LCD_MENU)
+          #if BOTH(SDSUPPORT, HAS_MARLINUI_MENU)
             // SD Card sub-menu special characters
             createChar_P(LCD_STR_REFRESH[0], refresh);
             createChar_P(LCD_STR_FOLDER[0], folder);
@@ -409,15 +409,15 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
   }
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
-  void lcd_scroll(const lcd_uint_t col, const lcd_uint_t line, PGM_P const text, const uint8_t len, const int16_t time) {
-    uint8_t slen = utf8_strlen_P(text);
+  void lcd_scroll(const lcd_uint_t col, const lcd_uint_t line, FSTR_P const ftxt, const uint8_t len, const int16_t time) {
+    uint8_t slen = utf8_strlen_P(FTOP(ftxt));
     if (slen < len) {
-      lcd_put_u8str_max_P(col, line, text, len);
+      lcd_put_u8str_max(col, line, ftxt, len);
       for (; slen < len; ++slen) lcd_put_wchar(' ');
       safe_delay(time);
     }
     else {
-      PGM_P p = text;
+      PGM_P p = FTOP(ftxt);
       int dly = time / _MAX(slen, 1);
       LOOP_LE_N(i, slen) {
 
@@ -439,9 +439,9 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
 
   static void logo_lines(PGM_P const extra) {
     int16_t indent = (LCD_WIDTH - 8 - utf8_strlen_P(extra)) / 2;
-    lcd_put_wchar(indent, 0, '\x00'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x01');
-    lcd_put_u8str_P(indent, 1, PSTR("|Marlin|"));  lcd_put_u8str_P(extra);
-    lcd_put_wchar(indent, 2, '\x02'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x03');
+    lcd_put_wchar(indent, 0, '\x00'); lcd_put_u8str(F( "------" ));  lcd_put_wchar('\x01');
+    lcd_put_u8str(indent, 1, F("|Marlin|"));  lcd_put_u8str_P(extra);
+    lcd_put_wchar(indent, 2, '\x02'); lcd_put_u8str(F( "------" ));  lcd_put_wchar('\x03');
   }
 
   void MarlinUI::show_bootscreen() {
@@ -450,15 +450,16 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
 
     #define LCD_EXTRA_SPACE (LCD_WIDTH-8)
 
-    #define CENTER_OR_SCROLL(STRING,DELAY) \
+    #define CENTER_OR_SCROLL(STRING,DELAY) { \
       lcd_erase_line(3); \
-      if (utf8_strlen(STRING) <= LCD_WIDTH) { \
-        lcd_put_u8str_P((LCD_WIDTH - utf8_strlen_P(PSTR(STRING))) / 2, 3, PSTR(STRING)); \
+      const int len = utf8_strlen(STRING); \
+      if (len <= LCD_WIDTH) { \
+        lcd_put_u8str((LCD_WIDTH - len) / 2, 3, F(STRING)); \
         safe_delay(DELAY); \
       } \
-      else { \
-        lcd_scroll(0, 3, PSTR(STRING), LCD_WIDTH, DELAY); \
-      }
+      else \
+        lcd_scroll(0, 3, F(STRING), LCD_WIDTH, DELAY); \
+    }
 
     //
     // Show the Marlin logo with splash line 1
@@ -497,9 +498,9 @@ void MarlinUI::draw_kill_screen() {
   lcd_put_u8str(0, 0, status_message);
   lcd_uint_t y = 2;
   #if LCD_HEIGHT >= 4
-    lcd_put_u8str_P(0, y++, GET_TEXT(MSG_HALTED));
+    lcd_put_u8str(0, y++, GET_TEXT_F(MSG_HALTED));
   #endif
-  lcd_put_u8str_P(0, y, GET_TEXT(MSG_PLEASE_RESET));
+  lcd_put_u8str(0, y, GET_TEXT_F(MSG_PLEASE_RESET));
 }
 
 //
@@ -514,7 +515,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   else if (axis_should_home(axis))
     while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
   else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !axis_is_trusted(axis))
-    lcd_put_u8str_P(axis == Z_AXIS ? PSTR("       ") : PSTR("    "));
+    lcd_put_u8str(axis == Z_AXIS ? F("       ") : F("    "));
   else
     lcd_put_u8str(value);
 }
@@ -613,11 +614,11 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
 
   FORCE_INLINE void _draw_print_progress() {
     const uint8_t progress = ui.get_progress_percent();
-    lcd_put_u8str_P(PSTR(TERN(SDSUPPORT, "SD", "P:")));
+    lcd_put_u8str(F(TERN(SDSUPPORT, "SD", "P:")));
     if (progress)
       lcd_put_u8str(ui8tostr3rj(progress));
     else
-      lcd_put_u8str_P(PSTR("---"));
+      lcd_put_u8str(F("---"));
     lcd_put_wchar('%');
   }
 
@@ -661,9 +662,9 @@ void MarlinUI::draw_status_message(const bool blink) {
 
     // Alternate Status message and Filament display
     if (ELAPSED(millis(), next_filament_display)) {
-      lcd_put_u8str_P(PSTR("Dia "));
+      lcd_put_u8str(F("Dia "));
       lcd_put_u8str(ftostr12ns(filwidth.measured_mm));
-      lcd_put_u8str_P(PSTR(" V"));
+      lcd_put_u8str(F(" V"));
       lcd_put_u8str(i16tostr3rj(planner.volumetric_percent(parser.volumetric_enabled)));
       lcd_put_wchar('%');
       return;
@@ -1050,7 +1051,7 @@ void MarlinUI::draw_status_screen() {
   draw_status_message(blink);
 }
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
   #include "../menu/menu.h"
 
@@ -1116,10 +1117,14 @@ void MarlinUI::draw_status_screen() {
   // The Select Screen presents a prompt and two "buttons"
   void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     ui.draw_select_screen_prompt(pref, string, suff);
-    SETCURSOR(0, LCD_HEIGHT - 1);
-    lcd_put_wchar(yesno ? ' ' : '['); lcd_put_u8str_P(no); lcd_put_wchar(yesno ? ' ' : ']');
-    SETCURSOR_RJ(utf8_strlen_P(yes) + 2, LCD_HEIGHT - 1);
-    lcd_put_wchar(yesno ? '[' : ' '); lcd_put_u8str_P(yes); lcd_put_wchar(yesno ? ']' : ' ');
+    if (no) {
+      SETCURSOR(0, LCD_HEIGHT - 1);
+      lcd_put_wchar(yesno ? ' ' : '['); lcd_put_u8str_P(no); lcd_put_wchar(yesno ? ' ' : ']');
+    }
+    if (yes) {
+      SETCURSOR_RJ(utf8_strlen_P(yes) + 2, LCD_HEIGHT - 1);
+      lcd_put_wchar(yesno ? '[' : ' '); lcd_put_u8str_P(yes); lcd_put_wchar(yesno ? ']' : ' ');
+    }
   }
 
   #if ENABLED(SDSUPPORT)
@@ -1276,9 +1281,9 @@ void MarlinUI::draw_status_screen() {
          * Show X and Y positions
          */
         _XLABEL(_PLOT_X, 0);
-        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(ubl.mesh_index_to_xpos(x_plot))));
+        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(bedlevel.get_mesh_x(x_plot))));
         _YLABEL(_LCD_W_POS, 0);
-        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(ubl.mesh_index_to_ypos(y_plot))));
+        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(bedlevel.get_mesh_y(y_plot))));
 
         lcd_moveto(_PLOT_X, 0);
 
@@ -1321,7 +1326,7 @@ void MarlinUI::draw_status_screen() {
         y_map_pixels = pixels_per_y_mesh_pnt * (GRID_MAX_POINTS_Y);         // Directions fit nicely
 
         right_edge   = pixels_per_x_mesh_pnt * (GRID_MAX_POINTS_X) + 1;     // Find location of right edge within the character cell
-        bottom_line  = pixels_per_y_mesh_pnt * (GRID_MAX_POINTS_Y) + 1;     // Find location of bottome line within the character cell
+        bottom_line  = pixels_per_y_mesh_pnt * (GRID_MAX_POINTS_Y) + 1;     // Find location of bottom line within the character cell
 
         n_rows = bottom_line / (HD44780_CHAR_HEIGHT) + 1;
         n_cols = right_edge / (HD44780_CHAR_WIDTH) + 1;
@@ -1470,10 +1475,10 @@ void MarlinUI::draw_status_screen() {
          * Print Z values
          */
         _ZLABEL(_LCD_W_POS, 1);
-        if (!isnan(ubl.z_values[x_plot][y_plot]))
-          lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+        if (!isnan(bedlevel.z_values[x_plot][y_plot]))
+          lcd_put_u8str(ftostr43sign(bedlevel.z_values[x_plot][y_plot]));
         else
-          lcd_put_u8str_P(PSTR(" -----"));
+          lcd_put_u8str(F(" -----"));
 
       #else                 // 16x4 or 20x4 display
 
@@ -1481,18 +1486,18 @@ void MarlinUI::draw_status_screen() {
          * Show all values at right of screen
          */
         _XLABEL(_LCD_W_POS, 1);
-        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(ubl.mesh_index_to_xpos(x_plot))));
+        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(bedlevel.get_mesh_x(x_plot))));
         _YLABEL(_LCD_W_POS, 2);
-        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(ubl.mesh_index_to_ypos(y_plot))));
+        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(bedlevel.get_mesh_y(y_plot))));
 
         /**
          * Show the location value
          */
         _ZLABEL(_LCD_W_POS, 3);
-        if (!isnan(ubl.z_values[x_plot][y_plot]))
-          lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+        if (!isnan(bedlevel.z_values[x_plot][y_plot]))
+          lcd_put_u8str(ftostr43sign(bedlevel.z_values[x_plot][y_plot]));
         else
-          lcd_put_u8str_P(PSTR(" -----"));
+          lcd_put_u8str(F(" -----"));
 
       #endif // LCD_HEIGHT > 3
     }
@@ -1583,6 +1588,6 @@ void MarlinUI::draw_status_screen() {
 
   #endif // AUTO_BED_LEVELING_UBL
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU
 
 #endif // HAS_MARLINUI_HD44780

@@ -47,7 +47,10 @@ millis_t Touch::last_touch_ms = 0,
          Touch::time_to_hold,
          Touch::repeat_delay,
          Touch::touch_time;
-TouchControlType  Touch::touch_control_type = NONE;
+TouchControlType Touch::touch_control_type = NONE;
+#if HAS_TOUCH_SLEEP
+  millis_t Touch::next_sleep_ms; // = 0
+#endif
 #if HAS_RESUME_CONTINUE
   extern bool wait_for_user;
 #endif
@@ -56,6 +59,7 @@ void Touch::init() {
   TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
   reset();
   io.Init();
+  TERN_(HAS_TOUCH_SLEEP, wakeUp());
   enable();
 }
 
@@ -176,8 +180,8 @@ void Touch::touch(touch_control_t *control) {
       ui.refresh();
       break;
     case SLIDER:    hold(control); ui.encoderPosition = (x - control->x) * control->data / control->width; break;
-    case INCREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? ubl.encoder_diff++ : ui.encoderPosition++, ui.encoderPosition++); break;
-    case DECREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? ubl.encoder_diff-- : ui.encoderPosition--, ui.encoderPosition--); break;
+    case INCREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff++ : ui.encoderPosition++, ui.encoderPosition++); break;
+    case DECREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff-- : ui.encoderPosition--, ui.encoderPosition--); break;
     case HEATER:
       int8_t heater;
       heater = control->data;
@@ -271,9 +275,38 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
   #elif ENABLED(TFT_TOUCH_DEVICE_GT911)
     bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? io.getPoint(y, x) : io.getPoint(x, y));
   #endif
-
+  #if HAS_TOUCH_SLEEP
+    if (is_touched)
+      wakeUp();
+    else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
+      sleepTimeout();
+  #endif
   return is_touched;
 }
+
+#if HAS_TOUCH_SLEEP
+
+  void Touch::sleepTimeout() {
+    #if HAS_LCD_BRIGHTNESS
+      ui.set_brightness(0);
+    #elif PIN_EXISTS(TFT_BACKLIGHT)
+      WRITE(TFT_BACKLIGHT_PIN, LOW);
+    #endif
+    next_sleep_ms = TSLP_SLEEPING;
+  }
+  void Touch::wakeUp() {
+    if (isSleeping()) {
+      #if HAS_LCD_BRIGHTNESS
+        ui.set_brightness(ui.brightness);
+      #elif PIN_EXISTS(TFT_BACKLIGHT)
+        WRITE(TFT_BACKLIGHT_PIN, HIGH);
+      #endif
+    }
+    next_sleep_ms = millis() + SEC_TO_MS(TOUCH_IDLE_SLEEP);
+  }
+
+#endif // HAS_TOUCH_SLEEP
+
 Touch touch;
 
 bool MarlinUI::touch_pressed() {

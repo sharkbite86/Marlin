@@ -28,20 +28,20 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "LulzbotUnified - 2.0.6"
+//#define SHORT_BUILD_VERSION "bugfix-2.0.x"
 
 /**
  * Verbose version identifier which should contain a reference to the location
  * from where the binary was downloaded or the source code was compiled.
  */
-#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " Rev2"
+//#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "2021-08-01"
+//#define STRING_DISTRIBUTION_DATE "2022-05-17"
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
@@ -71,8 +71,6 @@
  * Set the vendor info the serial USB interface, if changable
  * Currently only supported by DUE platform
  */
-#if ENABLED(TazPro)
-  #define USB_DEVICE_VENDOR_ID 0x27b1 // <-- changed
-  #define USB_DEVICE_PRODUCT_ID 0x0001 // <-- changed
-#endif
-//#define  USB_DEVICE_MANUFACTURE_NAME    WEBSITE_URL
+//#define USB_DEVICE_VENDOR_ID           0x0000
+//#define USB_DEVICE_PRODUCT_ID          0x0000
+//#define USB_DEVICE_MANUFACTURE_NAME    WEBSITE_URL

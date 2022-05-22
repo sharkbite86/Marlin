@@ -39,12 +39,12 @@ void DialogBoxBaseClass::drawMessage(T message, int16_t font) {
      .cmd(CLEAR(true,true,true))
      .cmd(COLOR_RGB(bg_text_enabled))
      .tag(0);
-  draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(2,3), message, OPT_CENTER, font ? font : font_large);
+  draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(2,6), message, OPT_CENTER, font ? font : font_large);
   cmd.colors(normal_btn);
 }
 
 template void DialogBoxBaseClass::drawMessage(const char *, int16_t font);
-template void DialogBoxBaseClass::drawMessage(progmem_str, int16_t font);
+template void DialogBoxBaseClass::drawMessage(FSTR_P, int16_t font);
 
 void DialogBoxBaseClass::drawYesNoButtons(uint8_t default_btn) {
   CommandProcessor cmd;
@@ -67,13 +67,7 @@ void DialogBoxBaseClass::drawButton(T label) {
 }
 
 template void DialogBoxBaseClass::drawButton(const char *);
-template void DialogBoxBaseClass::drawButton(progmem_str);
-
-void DialogBoxBaseClass::drawSpinner() {
-  CommandProcessor cmd;
-  cmd.cmd(COLOR_RGB(bg_text_enabled))
-     .spinner(BTN_POS(1,4), BTN_SIZE(2,3)).execute();
-}
+template void DialogBoxBaseClass::drawButton(FSTR_P);
 
 bool DialogBoxBaseClass::onTouchEnd(uint8_t tag) {
   switch (tag) {
