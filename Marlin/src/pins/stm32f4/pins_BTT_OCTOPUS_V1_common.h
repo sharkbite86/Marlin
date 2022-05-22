@@ -356,7 +356,6 @@
   #define SD_DETECT_PIN                     PC14
 #elif SD_CONNECTION_IS(LCD)
 
-  #define CUSTOM_SPI_PINS
   #define SDSS                              PA4
   #define SD_SS_PIN                         SDSS
   #define SD_SCK_PIN                        PA5
@@ -499,6 +498,24 @@
   #ifndef BOARD_ST7920_DELAY_3
     #define BOARD_ST7920_DELAY_3   DELAY_NS(580)  // DELAY_NS(600)
   #endif
+#endif
+
+#if HAS_SPI_TFT
+  #define TFT_CS_PIN                 EXP2_07_PIN
+  #define TFT_A0_PIN                 EXP2_04_PIN
+  #define TFT_SCK_PIN                EXP2_09_PIN
+  #define TFT_MISO_PIN               EXP2_10_PIN
+  #define TFT_MOSI_PIN               EXP2_05_PIN
+
+  #define TOUCH_INT_PIN              EXP1_04_PIN
+  #define TOUCH_MISO_PIN             EXP1_05_PIN
+  #define TOUCH_MOSI_PIN             EXP1_08_PIN
+  #define TOUCH_SCK_PIN              EXP1_06_PIN
+  #define TOUCH_CS_PIN               EXP1_07_PIN
+
+  #define BTN_EN1                    EXP2_08_PIN
+  #define BTN_EN2                    EXP2_06_PIN
+  #define BTN_ENC                    EXP1_09_PIN
 #endif
 
 //

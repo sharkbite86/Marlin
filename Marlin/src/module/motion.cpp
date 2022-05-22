@@ -266,7 +266,18 @@ void report_current_position_projected() {
 
     get_cartesian_from_steppers();
     const xyz_pos_t lpos = cartes.asLogical();
-    SERIAL_ECHOPAIR("X:", lpos.x, " Y:", lpos.y, " Z:", lpos.z, " E:", current_position.e);
+    SERIAL_ECHOPAIR(
+      "X:", lpos.x
+      #if HAS_Y_AXIS
+        , " Y:", lpos.y
+      #endif
+      #if HAS_Z_AXIS
+        , " Z:", lpos.z
+      #endif
+      #if HAS_EXTRUDERS
+        , " E:", current_position.e
+      #endif
+    );
 
     stepper.report_positions();
     #if IS_SCARA
@@ -293,6 +304,10 @@ void report_current_position_projected() {
   }
 
 #endif
+
+void home_if_needed(const bool keeplev/*=false*/) {
+  if (!all_axes_trusted()) gcode.home_all_axes(keeplev);
+}
 
 /**
  * Run out the planner buffer and re-sync the current
@@ -588,27 +603,27 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
   }
 #endif
 
-#if LINEAR_AXES == 4
+#if LINEAR_AXES >= 4
   void do_blocking_move_to_i(const_float_t ri, const_feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyz_i(current_position, ri, fr_mm_s);
   }
   void do_blocking_move_to_xyz_i(const xyze_pos_t &raw, const_float_t i, const_feedRate_t fr_mm_s/*=0.0f*/) {
-	  do_blocking_move_to(raw.x, raw.y, raw.z, i, fr_mm_s);
+    do_blocking_move_to(
+      LINEAR_AXIS_LIST(raw.x, raw.y, raw.z, i, raw.j, raw.k),
+      fr_mm_s
+    );
   }
 #endif
 
 #if LINEAR_AXES >= 5
-  void do_blocking_move_to_i(const_float_t ri, const_feedRate_t fr_mm_s/*=0.0*/) {
-    do_blocking_move_to_xyz_i(current_position, ri, fr_mm_s);
-  }
-  void do_blocking_move_to_xyz_i(const xyze_pos_t &raw, const_float_t i, const_feedRate_t fr_mm_s/*=0.0f*/) {
-	  do_blocking_move_to(raw.x, raw.y, raw.z, i, raw.j, fr_mm_s);
-  }
   void do_blocking_move_to_j(const_float_t rj, const_feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyzi_j(current_position, rj, fr_mm_s);
   }
   void do_blocking_move_to_xyzi_j(const xyze_pos_t &raw, const_float_t j, const_feedRate_t fr_mm_s/*=0.0f*/) {
-    do_blocking_move_to(raw.x, raw.y, raw.z, raw.i, j, fr_mm_s);
+    do_blocking_move_to(
+      LINEAR_AXIS_LIST(raw.x, raw.y, raw.z, raw.i, j, raw.k),
+      fr_mm_s
+    );
   }
 #endif
 
@@ -617,7 +632,10 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyzij_k(current_position, rk, fr_mm_s);
   }
   void do_blocking_move_to_xyzij_k(const xyze_pos_t &raw, const_float_t k, const_feedRate_t fr_mm_s/*=0.0f*/) {
-    do_blocking_move_to(raw.x, raw.y, raw.z, raw.i, raw.j, k, fr_mm_s);
+    do_blocking_move_to(
+      LINEAR_AXIS_LIST(raw.x, raw.y, raw.z, raw.i, raw.j, k),
+      fr_mm_s
+    );
   }
 #endif
 
@@ -685,8 +703,7 @@ void restore_feedrate_and_scaling() {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis
-    OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index/*=0*/)
-    OPTARG(HAS_HOTEND_OFFSET, const uint8_t new_tool_index/*=0*/)
+    OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index/*=0*/, const uint8_t new_tool_index/*=0*/)
   ) {
 
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -822,7 +839,7 @@ void restore_feedrate_and_scaling() {
         #endif
       }
     #endif
-    #if LINEAR_AXES >= 4  // TODO (DerAndere): Find out why this was missing / removed
+    #if LINEAR_AXES >= 4
       if (axis_was_homed(I_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_I)
           NOLESS(target.i, soft_endstop.min.i);
@@ -922,7 +939,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     float cartesian_mm = diff.magnitude();
 
     // If the move is very short, check the E move distance
-    if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e);
+    TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
 
     // No E move either? Game over.
     if (UNEAR_ZERO(cartesian_mm)) return true;
@@ -1001,7 +1018,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       // If the move is very short, check the E move distance
       // No E move either? Game over.
       float cartesian_mm = diff.magnitude();
-      if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e);
+      TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
       if (UNEAR_ZERO(cartesian_mm)) return;
 
       // The length divided by the segment size
@@ -1295,7 +1312,7 @@ void prepare_line_to_destination() {
 
   bool homing_needed_error(linear_axis_bits_t axis_bits/*=linear_bits*/) {
     if ((axis_bits = axes_should_home(axis_bits))) {
-      PGM_P home_first = GET_TEXT(MSG_HOME_FIRST);  // TODO: (DerAndere) Set this up for extra axes
+      PGM_P home_first = GET_TEXT(MSG_HOME_FIRST);
       char msg[strlen_P(home_first)+1];
       sprintf_P(msg, home_first,
         LINEAR_AXIS_LIST(
@@ -1390,8 +1407,21 @@ void prepare_line_to_destination() {
       #if ENABLED(SPI_ENDSTOPS)
         switch (axis) {
           case X_AXIS: if (ENABLED(X_SPI_SENSORLESS)) endstops.tmc_spi_homing.x = true; break;
-          case Y_AXIS: if (ENABLED(Y_SPI_SENSORLESS)) endstops.tmc_spi_homing.y = true; break;
-          case Z_AXIS: if (ENABLED(Z_SPI_SENSORLESS)) endstops.tmc_spi_homing.z = true; break;
+          #if HAS_Y_AXIS
+            case Y_AXIS: if (ENABLED(Y_SPI_SENSORLESS)) endstops.tmc_spi_homing.y = true; break;
+          #endif
+          #if HAS_Z_AXIS
+            case Z_AXIS: if (ENABLED(Z_SPI_SENSORLESS)) endstops.tmc_spi_homing.z = true; break;
+          #endif
+          #if LINEAR_AXES >= 4
+            case I_AXIS: if (ENABLED(I_SPI_SENSORLESS)) endstops.tmc_spi_homing.i = true; break;
+          #endif
+          #if LINEAR_AXES >= 5
+            case J_AXIS: if (ENABLED(J_SPI_SENSORLESS)) endstops.tmc_spi_homing.j = true; break;
+          #endif
+          #if LINEAR_AXES >= 6
+            case K_AXIS: if (ENABLED(K_SPI_SENSORLESS)) endstops.tmc_spi_homing.k = true; break;
+          #endif
           default: break;
         }
       #endif
@@ -1454,11 +1484,21 @@ void prepare_line_to_destination() {
       #if ENABLED(SPI_ENDSTOPS)
         switch (axis) {
           case X_AXIS: if (ENABLED(X_SPI_SENSORLESS)) endstops.tmc_spi_homing.x = false; break;
-          case Y_AXIS: if (ENABLED(Y_SPI_SENSORLESS)) endstops.tmc_spi_homing.y = false; break;
-          case Z_AXIS: if (ENABLED(Z_SPI_SENSORLESS)) endstops.tmc_spi_homing.z = false; break;
-          case I_AXIS: if (ENABLED(I_SPI_SENSORLESS)) endstops.tmc_spi_homing.i = false; break;
-          case J_AXIS: if (ENABLED(J_SPI_SENSORLESS)) endstops.tmc_spi_homing.j = false; break;
-          case K_AXIS: if (ENABLED(K_SPI_SENSORLESS)) endstops.tmc_spi_homing.k = false; break;
+          #if HAS_Y_AXIS
+            case Y_AXIS: if (ENABLED(Y_SPI_SENSORLESS)) endstops.tmc_spi_homing.y = false; break;
+          #endif
+          #if HAS_Z_AXIS
+            case Z_AXIS: if (ENABLED(Z_SPI_SENSORLESS)) endstops.tmc_spi_homing.z = false; break;
+          #endif
+          #if LINEAR_AXES >= 4
+            case I_AXIS: if (ENABLED(I_SPI_SENSORLESS)) endstops.tmc_spi_homing.i = false; break;
+          #endif
+          #if LINEAR_AXES >= 5
+            case J_AXIS: if (ENABLED(J_SPI_SENSORLESS)) endstops.tmc_spi_homing.j = false; break;
+          #endif
+          #if LINEAR_AXES >= 6
+            case K_AXIS: if (ENABLED(K_SPI_SENSORLESS)) endstops.tmc_spi_homing.k = false; break;
+          #endif
           default: break;
         }
       #endif
@@ -1734,11 +1774,11 @@ void prepare_line_to_destination() {
     #endif
 
     //
-    // Back away to prevent an early X/Y sensorless trigger
+    // Back away to prevent an early sensorless trigger
     //
     #if DISABLED(DELTA) && defined(SENSORLESS_BACKOFF_MM)
-      const xy_float_t backoff = SENSORLESS_BACKOFF_MM;
-      if ((TERN0(X_SENSORLESS, axis == X_AXIS) || TERN0(Y_SENSORLESS, axis == Y_AXIS)) && backoff[axis]) {
+      const xyz_float_t backoff = SENSORLESS_BACKOFF_MM;
+      if ((TERN0(X_SENSORLESS, axis == X_AXIS) || TERN0(Y_SENSORLESS, axis == Y_AXIS) || TERN0(Z_SENSORLESS, axis == Z_AXIS) || TERN0(I_SENSORLESS, axis == I_AXIS) || TERN0(J_SENSORLESS, axis == J_AXIS) || TERN0(K_SENSORLESS, axis == K_AXIS)) && backoff[axis]) {
         const float backoff_length = -ABS(backoff[axis]) * axis_home_dir;
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Sensorless backoff: ", backoff_length, "mm");
         do_homing_move(axis, backoff_length, homing_feedrate(axis));
@@ -1777,6 +1817,15 @@ void prepare_line_to_destination() {
           case X_AXIS: es = X_ENDSTOP; break;
           case Y_AXIS: es = Y_ENDSTOP; break;
           case Z_AXIS: es = Z_ENDSTOP; break;
+          #if LINEAR_AXES >= 4
+            case I_AXIS: es = I_ENDSTOP; break;
+          #endif
+          #if LINEAR_AXES >= 5
+            case J_AXIS: es = J_ENDSTOP; break;
+          #endif
+          #if LINEAR_AXES >= 6
+            case K_AXIS: es = K_ENDSTOP; break;
+          #endif
         }
         if (TEST(endstops.state(), es)) {
           SERIAL_ECHO_MSG("Bad ", AS_CHAR(AXIS_CHAR(axis)), " Endstop?");

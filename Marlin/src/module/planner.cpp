@@ -1451,7 +1451,7 @@ void Planner::check_axes_activity() {
     float high = 0.0;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
       block_t *block = &block_buffer[b];
-      if (LINEAR_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, block->steps.i, || block->steps.j, || block->steps.k)) {
+      if (LINEAR_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, || block->steps.i, || block->steps.j, || block->steps.k)) {
         const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
         NOLESS(high, se);
       }
@@ -1525,6 +1525,34 @@ void Planner::check_axes_activity() {
 
     refresh_e_factor(FILAMENT_SENSOR_EXTRUDER_NUM);
   }
+#endif
+
+#if ENABLED(IMPROVE_HOMING_RELIABILITY)
+
+  void Planner::enable_stall_prevention(const bool onoff) {
+    static motion_state_t saved_motion_state;
+    if (onoff) {
+      saved_motion_state.acceleration.x = settings.max_acceleration_mm_per_s2[X_AXIS];
+      saved_motion_state.acceleration.y = settings.max_acceleration_mm_per_s2[Y_AXIS];
+      settings.max_acceleration_mm_per_s2[X_AXIS] = settings.max_acceleration_mm_per_s2[Y_AXIS] = 100;
+      #if ENABLED(DELTA)
+        saved_motion_state.acceleration.z = settings.max_acceleration_mm_per_s2[Z_AXIS];
+        settings.max_acceleration_mm_per_s2[Z_AXIS] = 100;
+      #endif
+      #if HAS_CLASSIC_JERK
+        saved_motion_state.jerk_state = max_jerk;
+        max_jerk.set(0, 0 OPTARG(DELTA, 0));
+      #endif
+    }
+    else {
+      settings.max_acceleration_mm_per_s2[X_AXIS] = saved_motion_state.acceleration.x;
+      settings.max_acceleration_mm_per_s2[Y_AXIS] = saved_motion_state.acceleration.y;
+      TERN_(DELTA, settings.max_acceleration_mm_per_s2[Z_AXIS] = saved_motion_state.acceleration.z);
+      TERN_(HAS_CLASSIC_JERK, max_jerk = saved_motion_state.jerk_state);
+    }
+    reset_acceleration_rates();
+  }
+
 #endif
 
 #if HAS_LEVELING
@@ -2656,7 +2684,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #ifndef TRAVEL_EXTRA_XYJERK
       #define TRAVEL_EXTRA_XYJERK 0
     #endif
-    const float extra_xyjerk = (de <= 0) ? TRAVEL_EXTRA_XYJERK : 0;
+    const float extra_xyjerk = TERN0(HAS_EXTRUDERS, de <= 0) ? TRAVEL_EXTRA_XYJERK : 0;
 
     uint8_t limited = 0;
     TERN(HAS_LINEAR_E_JERK, LOOP_LINEAR_AXES, LOOP_LOGICAL_AXES)(i) {
@@ -2852,7 +2880,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
       int32_t(LROUND(abce.a * settings.axis_steps_per_mm[A_AXIS])),
       int32_t(LROUND(abce.b * settings.axis_steps_per_mm[B_AXIS])),
       int32_t(LROUND(abce.c * settings.axis_steps_per_mm[C_AXIS])),
-      int32_t(LROUND(abce.i * settings.axis_steps_per_mm[I_AXIS])), // FIXME (DerAndere): Multiplication by 4.0 is a work-around for issue with wrong internal steps per mm
+      int32_t(LROUND(abce.i * settings.axis_steps_per_mm[I_AXIS])),
       int32_t(LROUND(abce.j * settings.axis_steps_per_mm[J_AXIS])),
       int32_t(LROUND(abce.k * settings.axis_steps_per_mm[K_AXIS]))
     )
@@ -2893,7 +2921,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
     #endif
     #if LINEAR_AXES >= 4
       SERIAL_ECHOPAIR_P(SP_I_LBL, abce.i);
-      SERIAL_ECHOPAIR(" (", position.i, "->", target.i); // FIXME (DerAndere): Introduce work-around for issue with wrong internal steps per mm and feedrate for I_AXIS
+      SERIAL_ECHOPAIR(" (", position.i, "->", target.i);
       SERIAL_CHAR(')');
     #endif
     #if LINEAR_AXES >= 5
