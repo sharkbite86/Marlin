@@ -1161,7 +1161,14 @@
   //#define CALIBRATION_SCRIPT_PRE  "M117 Starting Auto-Calibration\nT0\nG28\nG12\nM117 Calibrating..."
   //#define CALIBRATION_SCRIPT_POST "M500\nM117 Calibration data saved"
 
-  #define CALIBRATION_MEASUREMENT_RESOLUTION     0.01 // mm
+  // Calculate single step resolution
+  #if ENABLED(Mini)
+    #define CALIBRATION_MEASUREMENT_RESOLUTION   (1.0f/833.0f)  // mm
+  #elif ENABLED(Taz6)
+    #define CALIBRATION_MEASUREMENT_RESOLUTION   (1.0f/830.0f)  // mm
+  #elif ANY(Workhorse, TazPro, MiniV2)
+    #define CALIBRATION_MEASUREMENT_RESOLUTION   (1.0f/420.0f)  // mm
+  #endif
 
   #define CALIBRATION_FEEDRATE_SLOW             60    // mm/m
   #define CALIBRATION_FEEDRATE_FAST           1200    // mm/m
@@ -1249,7 +1256,7 @@
  * vibration and surface artifacts. The algorithm adapts to provide the best possible step smoothing at the
  * lowest stepping frequencies.
  */
-//#define ADAPTIVE_STEP_SMOOTHING
+#define ADAPTIVE_STEP_SMOOTHING
 
 /**
  * Custom Microstepping
@@ -1520,7 +1527,7 @@
 
   //#define MEDIA_MENU_AT_TOP               // Force the media menu to be listed on the top of the main menu
 
-  #define EVENT_GCODE_SD_ABORT "G28XY"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
+  #define EVENT_GCODE_SD_ABORT "G91\nG1Z5\nG90\nM84\nM104S0\nM140S0"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
 
   #if ENABLED(PRINTER_EVENT_LEDS)
     #define PE_LEDS_COMPLETED_TIME  (30*60) // (seconds) Time to keep the LED "done" color before restoring normal illumination
@@ -4141,7 +4148,7 @@
   #endif
 
   #define MAIN_MENU_ITEM_4_DESC "Mosquito BMG-M"
-  #define USER_GCOMAIN_MENU_ITEM_4_GCODEDE_4 "M92E415\nM206X-5Y-12\nM301P148.07I26.58D206.21\nM907E" E_CURRENT_BMG "\nM500"
+  #define MAIN_MENU_ITEM_4_GCODE "M92E415\nM206X-5Y-12\nM301P148.07I26.58D206.21\nM907E" E_CURRENT_BMG "\nM500"
   #define MAIN_MENU_ITEM_4_CONFIRM
 #endif
 
