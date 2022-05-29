@@ -1535,6 +1535,10 @@ void setup() {
     i2c.onRequest(i2c_on_request);
   #endif
 
+  #if ENABLED(EMI_MITIGATION)
+    SETUP_RUN(emi_init());
+  #endif
+
   #if DO_SWITCH_EXTRUDER
     SETUP_RUN(move_extruder_servo(0));  // Initialize extruder servo
   #endif

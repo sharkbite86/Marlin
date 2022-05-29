@@ -31,10 +31,16 @@ using namespace ExtUI;
 
 void EndstopStatesScreen::onEntry() {
   BaseScreen::onEntry();
+  #if ENABLED(EMI_MITIGATION)
+    enable_emi_pins(true);
+  #endif
 }
 
 void EndstopStatesScreen::onExit() {
   BaseScreen::onExit();
+  #if ENABLED(EMI_MITIGATION)
+    enable_emi_pins(false);
+  #endif
 }
 
 #define GRID_COLS 6

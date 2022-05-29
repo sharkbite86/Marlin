@@ -1922,6 +1922,10 @@ void prepare_line_to_destination() {
       }
     #endif
 
+    #if ENABLED(EMI_MITIGATION)
+      enable_emi_pins(true);
+    #endif
+
     //
     // Back away to prevent an early sensorless trigger
     //
@@ -2206,6 +2210,10 @@ void prepare_line_to_destination() {
           ) safe_delay(200);  // Short delay to allow belts to spring back
         #endif
       }
+    #endif
+
+    #if ENABLED(EMI_MITIGATION)
+      enable_emi_pins(false);
     #endif
 
     // Clear retracted status if homing the Z axis

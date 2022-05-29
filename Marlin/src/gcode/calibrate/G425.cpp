@@ -853,6 +853,10 @@ void GcodeSuite::G425() {
   TEMPORARY_BED_LEVELING_STATE(false);
   SET_SOFT_ENDSTOP_LOOSE(true);
 
+  #if ENABLED(EMI_MITIGATION) && ENABLED(NOZZLE_AS_PROBE)
+   enable_emi_pins(true);
+  #endif
+
   measurements_t m;
   const float uncertainty = parser.floatval('U', CALIBRATION_MEASUREMENT_UNCERTAIN);
 
@@ -879,6 +883,10 @@ void GcodeSuite::G425() {
     calibrate_all();
 
   SET_SOFT_ENDSTOP_LOOSE(false);
+
+  #if ENABLED(EMI_MITIGATION) && ENABLED(NOZZLE_AS_PROBE)
+    enable_emi_pins(false);
+  #endif
 
   #ifdef CALIBRATION_SCRIPT_POST
     process_subcommands_now(F(CALIBRATION_SCRIPT_POST));
