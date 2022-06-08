@@ -71,15 +71,17 @@ void Servo_Handler(timer16_Sequence_t timer, Tc *pTc, uint8_t channel);
 #endif
 
 void Servo_Handler(timer16_Sequence_t timer, Tc *tc, uint8_t channel) {
-  if (Channel[timer] < 0)
-    tc->TC_CHANNEL[channel].TC_CCR |= TC_CCR_SWTRG; // channel set to -1 indicated that refresh interval completed so reset the timer
-  else {
-  //else if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && SERVO(timer, Channel[timer]).Pin.isActive)
-    extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW); // pulse this channel low if activated
-  }
-
   // clear interrupt
   tc->TC_CHANNEL[channel].TC_SR;
+
+  if (Channel[timer] < 0)
+    tc->TC_CHANNEL[channel].TC_CCR |= TC_CCR_SWTRG; // channel set to -1 indicated that refresh interval completed so reset the timer
+  else if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && SERVO(timer, Channel[timer]).Pin.isActive)
+    extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW); // pulse this channel low if activated
+
+
+  // clear interrupt
+  //tc->TC_CHANNEL[channel].TC_SR;
 
   Channel[timer]++;    // increment to the next channel
   if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && Channel[timer] < SERVOS_PER_TIMER) {
@@ -101,7 +103,7 @@ void Servo_Handler(timer16_Sequence_t timer, Tc *tc, uint8_t channel) {
 static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
   pmc_enable_periph_clk(id);
   TC_Configure(tc, channel,
-    TC_CMR_TCCLKS_TIMER_CLOCK3 | // MCK/32
+    TC_CMR_TCCLKS_TIMER_CLOCK1 | // MCK/32
     TC_CMR_WAVE |                // Waveform mode
     TC_CMR_WAVSEL_UP_RC );       // Counter running up and reset when equals to RC
 
