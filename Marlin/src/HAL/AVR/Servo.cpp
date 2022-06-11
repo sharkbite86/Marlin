@@ -66,27 +66,26 @@ static volatile int8_t Channel[_Nbr_16timers];              // counter for the s
 
 /************ static functions common to all instances ***********************/
 
-static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t* TCNTn, volatile uint16_t* OCRnA) {
-  if (Channel[timer] < 0)
-    *TCNTn = 0; // channel set to -1 indicated that refresh interval completed so reset the timer
-  else {
-    if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && SERVO(timer, Channel[timer]).Pin.isActive)
-      extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW); // pulse this channel low if activated
-  }
+static inline void handle_interrupts(const timer16_Sequence_t timer, volatile uint16_t* TCNTn, volatile uint16_t* OCRnA) {
+  int8_t cho = Channel[timer];                                        // Handle the prior Channel[timer] first
+  if (cho < 0)                                                        // Channel -1 indicates the refresh interval completed...
+    *TCNTn = 0;                                                       // ...so reset the timer
+  else if (SERVO_INDEX(timer, cho) < ServoCount)                      // prior channel handled?
+    extDigitalWrite(SERVO(timer, cho).Pin.nbr, LOW);                  // pulse the prior channel LOW
 
-  Channel[timer]++;    // increment to the next channel
-  if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && Channel[timer] < SERVOS_PER_TIMER) {
-    *OCRnA = *TCNTn + SERVO(timer, Channel[timer]).ticks;
-    if (SERVO(timer, Channel[timer]).Pin.isActive)    // check if activated
-      extDigitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, HIGH); // it's an active channel so pulse it high
+  Channel[timer] = ++cho;                                             // Handle the next channel (or 0)
+  if (cho < SERVOS_PER_TIMER && SERVO_INDEX(timer, cho) < ServoCount) {
+    *OCRnA = *TCNTn + SERVO(timer, cho).ticks;                        // set compare to current ticks plus duration
+    if (SERVO(timer, cho).Pin.isActive)                               // activated?
+      extDigitalWrite(SERVO(timer, cho).Pin.nbr, HIGH);               // yes: pulse HIGH
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
-    if (((unsigned)*TCNTn) + 4 < usToTicks(REFRESH_INTERVAL))    // allow a few ticks to ensure the next OCR1A not missed
-      *OCRnA = (unsigned int)usToTicks(REFRESH_INTERVAL);
-    else
-      *OCRnA = *TCNTn + 4;  // at least REFRESH_INTERVAL has elapsed
-    Channel[timer] = -1; // this will get incremented at the end of the refresh period to start again at the first channel
+    const unsigned int cval = ((unsigned)*TCNTn) + 32 / (SERVO_TIMER_PRESCALER), // allow 32 cycles to ensure the next OCR1A not missed
+                       ival = (unsigned int)usToTicks(REFRESH_INTERVAL); // at least REFRESH_INTERVAL has elapsed
+    *OCRnA = max(cval, ival);
+
+    Channel[timer] = -1;                                              // reset the timer counter to 0 on the next call
   }
 }
 
@@ -123,7 +122,7 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
 
 /****************** end of static functions ******************************/
 
-void initISR(timer16_Sequence_t timer) {
+void initISR(const timer16_Sequence_t timer) {
   #ifdef _useTimer1
     if (timer == _timer1) {
       TCCR1A = 0;             // normal counting mode
@@ -182,7 +181,7 @@ void initISR(timer16_Sequence_t timer) {
   #endif
 }
 
-void finISR(timer16_Sequence_t timer) {
+void finISR(const timer16_Sequence_t timer) {
   // Disable use of the given timer
   #ifdef WIRING
     if (timer == _timer1) {
@@ -192,7 +191,8 @@ void finISR(timer16_Sequence_t timer) {
         #else
           TIMSK
         #endif
-          , OCIE1A);    // disable timer 1 output compare interrupt
+        , OCIE1A    // disable timer 1 output compare interrupt
+      );
       timerDetach(TIMER1OUTCOMPAREA_INT);
     }
     else if (timer == _timer3) {
@@ -202,7 +202,8 @@ void finISR(timer16_Sequence_t timer) {
         #else
           ETIMSK
         #endif
-          , OCIE3A);    // disable the timer3 output compare A interrupt
+        , OCIE3A    // disable the timer3 output compare A interrupt
+      );
       timerDetach(TIMER3OUTCOMPAREA_INT);
     }
   #else // !WIRING
