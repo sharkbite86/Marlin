@@ -39,20 +39,28 @@ struct IF<true, L, R> { typedef L type; };
 #define NUM_AXIS_GANG(V...) GANG_N(NUM_AXES, V)
 #define NUM_AXIS_CODE(V...) CODE_N(NUM_AXES, V)
 #define NUM_AXIS_LIST(V...) LIST_N(NUM_AXES, V)
+#define NUM_AXIS_LIST_1(V)  LIST_N_1(NUM_AXES, V)
 #define NUM_AXIS_ARRAY(V...) { NUM_AXIS_LIST(V) }
+#define NUM_AXIS_ARRAY_1(V)  { NUM_AXIS_LIST_1(V) }
 #define NUM_AXIS_ARGS(T...) NUM_AXIS_LIST(T x, T y, T z, T i, T j, T k, T u, T v, T w)
 #define NUM_AXIS_ELEM(O)    NUM_AXIS_LIST(O.x, O.y, O.z, O.i, O.j, O.k, O.u, O.v, O.w)
 #define NUM_AXIS_DEFS(T,V)  NUM_AXIS_LIST(T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
+#define MAIN_AXIS_NAMES     NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W)
+#define MAIN_AXIS_MAP(F)    MAP(F, MAIN_AXIS_NAMES)
+#define STR_AXES_MAIN       NUM_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define LOGICAL_AXIS_GANG(E,V...) NUM_AXIS_GANG(V) GANG_ITEM_E(E)
 #define LOGICAL_AXIS_CODE(E,V...) NUM_AXIS_CODE(V) CODE_ITEM_E(E)
 #define LOGICAL_AXIS_LIST(E,V...) NUM_AXIS_LIST(V) LIST_ITEM_E(E)
+#define LOGICAL_AXIS_LIST_1(V)    NUM_AXIS_LIST_1(V) LIST_ITEM_E(V)
 #define LOGICAL_AXIS_ARRAY(E,V...) { LOGICAL_AXIS_LIST(E,V) }
+#define LOGICAL_AXIS_ARRAY_1(V)    { LOGICAL_AXIS_LIST_1(V) }
 #define LOGICAL_AXIS_ARGS(T...) LOGICAL_AXIS_LIST(T e, T x, T y, T z, T i, T j, T k, T u, T v, T w)
 #define LOGICAL_AXIS_ELEM(O)    LOGICAL_AXIS_LIST(O.e, O.x, O.y, O.z, O.i, O.j, O.k, O.u, O.v, O.w)
 #define LOGICAL_AXIS_DECL(T,V)  LOGICAL_AXIS_LIST(T e=V, T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
-
-#define LOGICAL_AXES_STRING LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
+#define LOGICAL_AXIS_NAMES      LOGICAL_AXIS_LIST(E, X, Y, Z, I, J, K, U, V, W)
+#define LOGICAL_AXIS_MAP(F)     MAP(F, LOGICAL_AXIS_NAMES)
+#define STR_AXES_LOGICAL     LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define XYZ_GANG(V...) GANG_N(PRIMARY_LINEAR_AXES, V)
 #define XYZ_CODE(V...) CODE_N(PRIMARY_LINEAR_AXES, V)
@@ -75,6 +83,59 @@ struct IF<true, L, R> { typedef L type; };
 #endif
 
 #define AXIS_COLLISION(L) (AXIS4_NAME == L || AXIS5_NAME == L || AXIS6_NAME == L || AXIS7_NAME == L || AXIS8_NAME == L || AXIS9_NAME == L)
+
+// General Flags for some number of states
+template<size_t N>
+struct Flags {
+  typedef typename IF<(N>8), uint16_t, uint8_t>::type bits_t;
+  typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1; } N8;
+  typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1, b8:1, b9:1, b10:1, b11:1, b12:1, b13:1, b14:1, b15:1; } N16;
+  union {
+    bits_t b;
+    typename IF<(N>8), N16, N8>::type flag;
+  };
+  void reset()                             { b = 0; }
+  void set(const int n, const bool onoff)  { onoff ? set(n) : clear(n); }
+  void set(const int n)                    { b |=  (bits_t)_BV(n); }
+  void clear(const int n)                  { b &= ~(bits_t)_BV(n); }
+  bool test(const int n) const             { return TEST(b, n); }
+  const bool operator[](const int n)       { return test(n); }
+  const bool operator[](const int n) const { return test(n); }
+  int size() const                         { return sizeof(b); }
+};
+
+// Specialization for a single bool flag
+template<>
+struct Flags<1> {
+  bool b;
+  void reset()                            { b = false; }
+  void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
+  void set(const int)                     { b = true; }
+  void clear(const int)                   { b = false; }
+  bool test(const int) const              { return b; }
+  bool& operator[](const int)             { return b; }
+  bool  operator[](const int) const       { return b; }
+  int size() const                        { return sizeof(b); }
+};
+
+typedef Flags<8> flags_8_t;
+typedef Flags<16> flags_16_t;
+
+// Flags for some axis states, with per-axis aliases xyzijkuvwe
+typedef struct AxisFlags {
+  union {
+    struct Flags<LOGICAL_AXES> flags;
+    struct { bool LOGICAL_AXIS_LIST(e:1, x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1); };
+  };
+  void reset()                             { flags.reset(); }
+  void set(const int n)                    { flags.set(n); }
+  void set(const int n, const bool onoff)  { flags.set(n, onoff); }
+  void clear(const int n)                  { flags.clear(n); }
+  bool test(const int n) const             { return flags.test(n); }
+  bool operator[](const int n)             { return flags[n]; }
+  bool operator[](const int n) const       { return flags[n]; }
+  int size() const                         { return sizeof(flags); }
+} axis_flags_t;
 
 //
 // Enumerated axis indices
@@ -120,7 +181,6 @@ enum AxisEnum : uint8_t {
 };
 
 typedef IF<(NUM_AXIS_ENUMS > 8), uint16_t, uint8_t>::type axis_bits_t;
-typedef IF<(NUM_AXES > 8), uint16_t, uint8_t>::type linear_axis_bits_t;
 
 //
 // Loop over axes

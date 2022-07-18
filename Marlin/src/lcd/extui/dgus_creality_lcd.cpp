@@ -252,12 +252,14 @@ bool hasPrintTimer = false;
   void onSteppersEnabled() {
   }
 
-  void onMeshValidationStarting() {
-    MeshValidationHandler::OnMeshValidationStart();
-  }
+  #if HAS_MESH
+    void onMeshValidationStarting() {
+      MeshValidationHandler::OnMeshValidationStart();
+    }
 
-  void onMeshValidationFinished() {
-    MeshValidationHandler::OnMeshValidationFinish();
-  }
+    void onMeshValidationFinished() {
+      MeshValidationHandler::OnMeshValidationFinish();
+    }
+  #endif
 }
 #endif // HAS_DGUS_LCD

@@ -6,7 +6,7 @@ import pioutil
 if pioutil.is_pio_build():
 	Import("env")
 
-	env.Replace(PROGNAME="%s_DW7.4.6" % (str(env["PIOENV"])))
+	env.Replace(PROGNAME="%s_DW7.4.7" % (str(env["PIOENV"])))
 
 	cxxflags = [
 		#"-Wno-incompatible-pointer-types",
@@ -31,12 +31,8 @@ if pioutil.is_pio_build():
 	# It useful to keep two live versions: a debug version for debugging and another for
 	# release, for flashing when upload is not done automatically by jlink/stlink.
 	# Without this, PIO needs to recompile everything twice for any small change.
-	if env.GetBuildType() == "debug" and env.get('UPLOAD_PROTOCOL') not in ['jlink', 'stlink']:
-	  env['BUILD_DIR'] = '$PROJECT_BUILD_DIR/$PIOENV/debug'
-
-  # Setup file naming
-      #env_name = str(env["PIOENV"])
-  #print("Environment: %s" % (env_name))
+	if env.GetBuildType() == "debug" and env.get('UPLOAD_PROTOCOL') not in ['jlink', 'stlink', 'custom']:
+		env['BUILD_DIR'] = '$PROJECT_BUILD_DIR/$PIOENV/debug'
 
 	# On some platform, F_CPU is a runtime variable. Since it's used to convert from ns
 	# to CPU cycles, this adds overhead preventing small delay (in the order of less than

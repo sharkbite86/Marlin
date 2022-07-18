@@ -43,11 +43,11 @@ void GcodeSuite::M92() {
   if (target_extruder < 0) return;
 
   // No arguments? Show M92 report.
-  if (!parser.seen(LOGICAL_AXES_STRING TERN_(MAGIC_NUMBERS_GCODE, "HL")))
+  if (!parser.seen(STR_AXES_LOGICAL TERN_(MAGIC_NUMBERS_GCODE, "HL")))
     return M92_report(true, target_extruder);
 
   LOOP_LOGICAL_AXES(i) {
-    if (parser.seenval(axis_codes[i])) {
+    if (parser.seenval(AXIS_CHAR(i))) {
       if (TERN1(HAS_EXTRUDERS, i != E_AXIS))
         planner.settings.axis_steps_per_mm[i] = parser.value_per_axis_units((AxisEnum)i);
       else {

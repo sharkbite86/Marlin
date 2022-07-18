@@ -92,6 +92,13 @@ namespace ExtUI {
 #define ProbeOffset_Y  0x123A
 #define ProbeOffset_Z  0x1026
 
+#define T2Offset_X    0x1090
+#define T2Offset_Y    0x1092
+#define T2Offset_Z    0x1094
+#define T2StepMM_E    0x1096
+
+#define ActiveToolVP  0x1014
+
 #define HotendPID_AutoTmp 0x1252
 #define BedPID_AutoTmp    0x1254
 
@@ -121,11 +128,14 @@ namespace ExtUI {
 
 #define	HeatPercentIcon		0x1024
 
-#define	NzBdSet				0x1032
-#define	NozzlePreheat		0x1034
-#define	NozzleTemp			0x1036
-#define	BedPreheat			0x103A
-#define	Bedtemp				0x103C
+#define	NzBdSet				0x1032 // cooldown Hotend and Bed
+#define	NozzlePreheat		0x1034 // setpoint
+#define	NozzleTemp			0x1036 // Actual
+#define	BedPreheat			0x103A // Setpoint
+#define	Bedtemp				0x103C // Actual
+
+#define e2Temp      0x104E
+#define e2Preheat   0x1050
 
 #define	AutoZeroIcon		0x1042
 #define	AutoLevelIcon		0x1045

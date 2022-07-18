@@ -79,6 +79,10 @@
   #define SERVO_DELAY { 50 }
 #endif
 
+#if !HAS_STOWABLE_PROBE
+  #undef PROBE_DEPLOY_STOW_MENU
+#endif
+
 #if !HAS_EXTRUDERS
   #define NO_VOLUMETRICS
   #undef TEMP_SENSOR_0
@@ -544,16 +548,19 @@
   #define HAS_SERVICE_INTERVALS 1
 #endif
 
-// Probe Temperature Compensation
-#if !TEMP_SENSOR_PROBE
-  #undef PTC_PROBE
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #define HAS_FILAMENT_SENSOR 1
+  #if NUM_RUNOUT_SENSORS > 1
+    #define MULTI_FILAMENT_SENSOR 1
+  #endif
+  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    #define HAS_FILAMENT_RUNOUT_DISTANCE 1
+  #endif
+  #if ENABLED(MIXING_EXTRUDER)
+    #define WATCH_ALL_RUNOUT_SENSORS
+  #endif
 #endif
-#if !TEMP_SENSOR_BED
-  #undef PTC_BED
-#endif
-#if !HAS_EXTRUDERS
-  #undef PTC_HOTEND
-#endif
+
 #if ANY(PTC_PROBE, PTC_BED, PTC_HOTEND)
   #define HAS_PTC 1
 #endif
@@ -573,6 +580,10 @@
 
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
   #define HAS_PRINT_PROGRESS 1
+#endif
+
+#if ANY(HAS_MARLINUI_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
+  #define HAS_ENCODER_ACTION 1
 #endif
 
 #if STATUS_MESSAGE_TIMEOUT_SEC > 0
@@ -616,6 +627,12 @@
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, SDSUPPORT)
   #define HAS_LEDS_OFF_FLAG 1
 #endif
+#ifdef DISPLAY_SLEEP_MINUTES
+  #define HAS_DISPLAY_SLEEP 1
+#endif
+#if HAS_DISPLAY_SLEEP || LCD_BACKLIGHT_TIMEOUT
+  #define HAS_GCODE_M255 1
+#endif
 
 #if EITHER(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
   #define HAS_MOTOR_CURRENT_I2C 1
@@ -632,31 +649,18 @@
 #endif
 
 // Multiple Z steppers
-#ifndef NUM_Z_STEPPER_DRIVERS
-  #define NUM_Z_STEPPER_DRIVERS 1
-#endif
-
-// Fallback Stepper Driver types that depend on Configuration_adv.h
-#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
-  #define HAS_X2_STEPPER 1
-#else
-  #undef X2_DRIVER_TYPE
-#endif
-#if DISABLED(Y_DUAL_STEPPER_DRIVERS)
-  #undef Y2_DRIVER_TYPE
-#endif
-
-#if NUM_Z_STEPPER_DRIVERS < 4
-  #undef Z4_DRIVER_TYPE
+#if NUM_Z_STEPPERS < 4
   #undef INVERT_Z4_VS_Z_DIR
-  #if NUM_Z_STEPPER_DRIVERS < 3
-    #undef Z3_DRIVER_TYPE
+  #if NUM_Z_STEPPERS < 3
     #undef INVERT_Z3_VS_Z_DIR
-    #if NUM_Z_STEPPER_DRIVERS < 2
-      #undef Z2_DRIVER_TYPE
+    #if NUM_Z_STEPPERS < 2
       #undef INVERT_Z2_VS_Z_DIR
     #endif
   #endif
+#endif
+
+#if defined(X2_DRIVER_TYPE) && DISABLED(DUAL_X_CARRIAGE)
+  #define HAS_DUAL_X_STEPPERS 1
 #endif
 
 //
@@ -687,6 +691,10 @@
 #else
   // SERIAL_XON_XOFF not supported on USB-native devices
   #undef SERIAL_XON_XOFF
+#endif
+
+#if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
+  #define HAS_GCODE_M876 1
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)
@@ -934,7 +942,7 @@
               #undef HOME_Z_FIRST
               #undef HOMING_Z_WITH_PROBE
               #undef ENABLE_LEVELING_FADE_HEIGHT
-              #undef NUM_Z_STEPPER_DRIVERS
+              #undef NUM_Z_STEPPERS
               #undef CNC_WORKSPACE_PLANES
               #if NUM_AXES < 2
                 #undef STEALTHCHOP_Y
@@ -975,7 +983,7 @@
 #endif
 
 // Flag whether hex_print.cpp is used
-#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE)
+#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE, DEBUG_CARDREADER)
   #define NEED_HEX_PRINT 1
 #endif
 
@@ -1005,6 +1013,24 @@
   #define HAS_USER_ITEM(N) 0
 #endif
 
+/**
+ * LCD_SERIAL_PORT must be defined ahead of HAL.h
+ */
+#ifndef LCD_SERIAL_PORT
+  #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI || HAS_DGUS_LCD
+    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_E3_TURBO)
+      #define LCD_SERIAL_PORT 1
+    #elif MB(CREALITY_V24S1_301, CREALITY_V24S1_301F4, CREALITY_V423, MKS_ROBIN)
+      #define LCD_SERIAL_PORT 2 // Creality Ender3S1, MKS Robin
+    #else
+      #define LCD_SERIAL_PORT 3 // Other boards
+    #endif
+  #endif
+  #ifdef LCD_SERIAL_PORT
+    #define AUTO_ASSIGNED_LCD_SERIAL 1
+  #endif
+#endif
+
 #if !HAS_MULTI_SERIAL
   #undef MEATPACK_ON_SERIAL_PORT_2
 #endif
@@ -1016,4 +1042,8 @@
 #if ENABLED(CONFIGURATION_EMBEDDING) && !defined(FORCE_CONFIG_EMBED) && (defined(__AVR__) || DISABLED(SDSUPPORT) || EITHER(SDCARD_READONLY, DISABLE_M503))
   #undef CONFIGURATION_EMBEDDING
   #define CANNOT_EMBED_CONFIGURATION defined(__AVR__)
+#endif
+
+#if ANY(DISABLE_INACTIVE_X, DISABLE_INACTIVE_Y, DISABLE_INACTIVE_Z, DISABLE_INACTIVE_I, DISABLE_INACTIVE_J, DISABLE_INACTIVE_K, DISABLE_INACTIVE_U, DISABLE_INACTIVE_V, DISABLE_INACTIVE_W, DISABLE_INACTIVE_E)
+  #define HAS_DISABLE_INACTIVE_AXIS 1
 #endif

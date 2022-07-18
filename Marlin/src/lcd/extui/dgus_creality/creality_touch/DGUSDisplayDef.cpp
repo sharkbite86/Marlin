@@ -540,15 +540,16 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_GENERIC_BACK_BUTTON, nullptr, ScreenHandler.OnBackButton, nullptr),
 
-  // ... Mesh validation
-  VPHELPER(VP_MESHPATTERN_NOZZLE_TEMP, &MeshValidationHandler::nozzle_temperature, MeshValidationHandler::HandleTemperature, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_MESHPATTERN_BED_TEMP, &MeshValidationHandler::bed_temperature, MeshValidationHandler::HandleTemperature, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  #if HAS_MESH
+    // ... Mesh validation
+    VPHELPER(VP_MESHPATTERN_NOZZLE_TEMP, &MeshValidationHandler::nozzle_temperature, MeshValidationHandler::HandleTemperature, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+    VPHELPER(VP_MESHPATTERN_BED_TEMP, &MeshValidationHandler::bed_temperature, MeshValidationHandler::HandleTemperature, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
 
-  VPHELPER(VP_MESHPATTERN_BUTTON_ICON, &MeshValidationHandler::is_running,  nullptr, (ScreenHandler.DGUSLCD_SendIconValue<MESHPATTERN_BUTTON_CANCEL, MESHPATTERN_BUTTON_START>)),
+    VPHELPER(VP_MESHPATTERN_BUTTON_ICON, &MeshValidationHandler::is_running,  nullptr, (ScreenHandler.DGUSLCD_SendIconValue<MESHPATTERN_BUTTON_CANCEL, MESHPATTERN_BUTTON_START>)),
 
-  VPHELPER(VP_MESHPATTERN_START_BUTTON, nullptr, MeshValidationHandler::HandleStartOrCancelButton, nullptr),
-  VPHELPER(VP_MESHPATTERN_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_MESH_VALIDATION, MeshValidationHandler>), nullptr),
-
+    VPHELPER(VP_MESHPATTERN_START_BUTTON, nullptr, MeshValidationHandler::HandleStartOrCancelButton, nullptr),
+    VPHELPER(VP_MESHPATTERN_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_MESH_VALIDATION, MeshValidationHandler>), nullptr),
+  #endif
 
   // Axis settings
   VPHELPER(VP_AXIS_SETTINGS_NAV_BUTTON, nullptr, AxisSettingsHandler::HandleNavigation, nullptr),
@@ -654,7 +655,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_TOGGLE_PROBE_PREHEAT_BED_TEMP, &probe.settings.preheat_bed_temp, ScreenHandler.HandleToggleProbePreheatTemp, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   #endif
 
-  VPHELPER(VP_LEVELING_FADE_HEIGHT, &planner.z_fade_height, ScreenHandler.HandleFadeHeight, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  #if HAS_MESH
+    VPHELPER(VP_LEVELING_FADE_HEIGHT, &planner.z_fade_height, ScreenHandler.HandleFadeHeight, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
+  #endif
 
   VPHELPER(VP_LEVELING_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_ZOFFSET_LEVEL>), nullptr),
   VPHELPER(VP_LEVELING_EDIT_NAV_BUTTON, nullptr, (ScreenHandler.DGUSLCD_NavigateToPage<DGUSLCD_SCREEN_LEVELING>), nullptr),
@@ -755,7 +758,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_DEVELOPMENT_HELPER_BUTTON, nullptr, ScreenHandler.HandleDevelopmentTestButton, nullptr),
 
   // Mesh override input
-#if MESH_INPUT_SUPPORTED_SIZE == GRID_MAX_POINTS
+#if MESH_INPUT_SUPPORTED_SIZE == GRID_MAX_POINTS && HAS_MESH
   //#define _VPHELPER_GP(N) VPHELPER((VP_MESH_INPUT_X0_Y0 + ( ##N## * MESH_INPUT_DATA_SIZE)), nullptr, ScreenHandler.HandleMeshPoint, nullptr),
   //REPEAT(MESH_INPUT_SUPPORTED_SIZE, _VPHELPER_GP)
 
