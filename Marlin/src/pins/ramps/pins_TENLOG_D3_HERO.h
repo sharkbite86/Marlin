@@ -88,16 +88,17 @@
  //#define Z2_CS_PIN                          40
 //#endif
 
-#define E0_STEP_PIN                           26
-#define E0_DIR_PIN                            28
-#define E0_ENABLE_PIN                         24
+
+#define E0_STEP_PIN                           57
+#define E0_DIR_PIN                            58
+#define E0_ENABLE_PIN                         59
 //#ifndef E0_CS_PIN
   //define E0_CS_PIN                          42
 //#endif
 
-#define E1_STEP_PIN                           57
-#define E1_DIR_PIN                            58
-#define E1_ENABLE_PIN                         59
+#define E1_STEP_PIN                           26
+#define E1_DIR_PIN                            28
+#define E1_ENABLE_PIN                         24
 //#ifndef E1_CS_PIN
   //define E1_CS_PIN                          44
 //#endif
