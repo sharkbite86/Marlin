@@ -134,8 +134,8 @@ namespace ExtUI {
 #define	BedPreheat			0x103A // Setpoint
 #define	Bedtemp				0x103C // Actual
 
-#define e2Temp      0x104E
-#define e2Preheat   0x1050
+#define e2Temp      0x1050
+#define e2Preheat   0x104E
 
 #define	AutoZeroIcon		0x1042
 #define	AutoLevelIcon		0x1045
