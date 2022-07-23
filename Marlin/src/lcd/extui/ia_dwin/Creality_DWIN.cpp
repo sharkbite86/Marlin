@@ -441,12 +441,6 @@ void onIdle()
 
 	if (NozzleTempStatus[0] || NozzleTempStatus[2]) //statuse of loadfilement and unloadfinement when temperature is less than
 	{
-		unsigned int IconTemp;
-
-		IconTemp = getActualTemp_celsius(getActiveTool()) * 100 / getTargetTemp_celsius(getActiveTool());
-		if (IconTemp >= 100)
-			IconTemp = 100;
-		rtscheck.RTS_SndData(IconTemp, HeatPercentIcon);
 		if (getActualTemp_celsius(getActiveTool()) > EXTRUDE_MINTEMP && NozzleTempStatus[0]!=0)
 		{
 			NozzleTempStatus[0] = 0;
@@ -841,7 +835,7 @@ void RTSSHOW::RTS_HandleData()
     case PowerLossToggle:
     case FanKeyIcon:
     case LedToggle:
-    case e2Preheat:
+    case e2Temp:
       Checkkey = ManualSetTemp;
     break;
   }
@@ -1135,7 +1129,7 @@ void RTSSHOW::RTS_HandleData()
       else if (recdat.addr == NozzlePreheat)
         setTargetTemp_celsius((float)recdat.data[0], H0);
       #if HAS_MULTI_HOTEND
-        else if (recdat.addr == e2Preheat)
+        else if (recdat.addr == e2Temp)
           setTargetTemp_celsius((float)recdat.data[0], H1);
       #endif
       else if (recdat.addr == BedPreheat)
@@ -1703,11 +1697,15 @@ void RTSSHOW::RTS_HandleData()
     }
 
     case Filement:
-
-      unsigned int IconTemp;
       if (recdat.addr == Exchfilement)
       {
-        if (getActualTemp_celsius(getActiveTool()) < EXTRUDE_MINTEMP && recdat.data[0] < 5)
+        extruder_t tmpTool;
+        if (recdat.data[0]<=2)
+          tmpTool = E0;
+        else if (recdat.data[0]<=4)
+          tmpTool = E1;
+
+        if (getActualTemp_celsius(tmpTool) < EXTRUDE_MINTEMP && recdat.data[0] < 5)
         {
           RTS_SndData((int)EXTRUDE_MINTEMP, 0x1020);
           delay_ms(5);
@@ -1742,22 +1740,12 @@ void RTSSHOW::RTS_HandleData()
             NozzleTempStatus[0] = 1;
             //InforShowoStatus = true;
 
-            setTargetTemp_celsius((PREHEAT_1_TEMP_HOTEND+10), getActiveTool());
-            IconTemp = getActualTemp_celsius(getActiveTool()) * 100 / getTargetTemp_celsius(getActiveTool());
-            if (IconTemp >= 100)
-              IconTemp = 100;
-            RTS_SndData(IconTemp, HeatPercentIcon);
+            setTargetTemp_celsius((PREHEAT_1_TEMP_HOTEND+10), E0);
 
-            RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
-            RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
             #if HAS_MULTI_HOTEND
-              rtscheck.RTS_SndData(getActualTemp_celsius(H1), e2Temp);
-              rtscheck.RTS_SndData(getTargetTemp_celsius(H1), e2Preheat);
-            #else
-              rtscheck.RTS_SndData(0, e2Temp);
-              rtscheck.RTS_SndData(0, e2Preheat);
+              setTargetTemp_celsius((PREHEAT_1_TEMP_HOTEND+10), E1);
             #endif
-            delay_ms(5);
+
             RTS_SndData(ExchangePageBase + 68, ExchangepageAddr);
             break;
           }
