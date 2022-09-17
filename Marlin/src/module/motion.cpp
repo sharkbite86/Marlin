@@ -1084,7 +1084,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     if (!position_is_reachable(destination)) return true;
 
     // Get the linear distance in XYZ
-    float cartesian_mm = diff.magnitude();
+    float cartesian_mm = xyz_float_t(diff).magnitude();
 
     // If the move is very short, check the E move distance
     TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
@@ -1991,6 +1991,17 @@ void prepare_line_to_destination() {
         const float backoff_length = -ABS(backoff[axis]) * axis_home_dir;
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Sensorless backoff: ", backoff_length, "mm");
         do_homing_move(axis, backoff_length, homing_feedrate(axis));
+      }
+    #endif
+
+    //
+    // Back away to prevent opposite endstop damage
+    //
+    #if !defined(SENSORLESS_BACKOFF_MM) && XY_COUNTERPART_BACKOFF_MM
+      if (!(axis_was_homed(X_AXIS) || axis_was_homed(Y_AXIS)) && (axis == X_AXIS || axis == Y_AXIS)) {
+        const AxisEnum opposite_axis = axis == X_AXIS ? Y_AXIS : X_AXIS;
+        const float backoff_length = -ABS(XY_COUNTERPART_BACKOFF_MM) * home_dir(opposite_axis);
+        do_homing_move(opposite_axis, backoff_length, homing_feedrate(opposite_axis));
       }
     #endif
 

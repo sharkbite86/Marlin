@@ -30,7 +30,25 @@
  *
  * Basic settings can be found in Configuration.h
  */
-#define CONFIGURATION_ADV_H_VERSION 02010100
+#define CONFIGURATION_ADV_H_VERSION 02010200
+
+// @section develop
+
+/**
+ * Configuration Export
+ *
+ * Export the configuration as part of the build. (See signature.py)
+ * Output files are saved with the build (e.g., .pio/build/mega2560).
+ *
+ * See `build_all_examples --ini` as an example of config.ini archiving.
+ *
+ *  1 = marlin_config.json - Dictionary containing the configuration.
+ *      This file is also generated for CONFIGURATION_EMBEDDING.
+ *  2 = config.ini - File format for PlatformIO preprocessing.
+ *  3 = schema.json - The entire configuration schema. (13 = pattern groups)
+ *  4 = schema.yml - The entire configuration schema.
+ */
+//#define CONFIG_EXPORT 2 // :[1:'JSON', 2:'config.ini', 3:'schema.json', 4:'schema.yml']
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -463,18 +481,22 @@
 // before a min_temp_error is triggered. (Shouldn't be more than 10.)
 //#define MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED 0
 
-// The number of milliseconds a hotend will preheat before starting to check
-// the temperature. This value should NOT be set to the time it takes the
-// hot end to reach the target temperature, but the time it takes to reach
-// the minimum temperature your thermistor can read. The lower the better/safer.
-// This shouldn't need to be more than 30 seconds (30000)
+/**
+ * The number of milliseconds a hotend will preheat before starting to check
+ * the temperature. This value should NOT be set to the time it takes the
+ * hot end to reach the target temperature, but the time it takes to reach
+ * the minimum temperature your thermistor can read. The lower the better/safer.
+ * This shouldn't need to be more than 30 seconds (30000)
+ */
 //#define MILLISECONDS_PREHEAT_TIME 0
 
 // @section extruder
 
-// Extruder runout prevention.
-// If the machine is idle and the temperature over MINTEMP
-// then extrude some filament every couple of SECONDS.
+/**
+ * Extruder runout prevention.
+ * If the machine is idle and the temperature over MINTEMP
+ * then extrude some filament every couple of SECONDS.
+ */
 //#define EXTRUDER_RUNOUT_PREVENT
 #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
   #define EXTRUDER_RUNOUT_MINTEMP 190
@@ -885,7 +907,8 @@
 #define HOMING_BUMP_MM      { 5, 5, 2 }       // (linear=mm, rotational=°) Backoff from endstops after first bump
 #define HOMING_BUMP_DIVISOR { 2, 2, 4 }       // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 
-//#define HOMING_BACKOFF_POST_MM { 2, 2, 2 }  // (linear=mm, rotational=°) Backoff from endstops after homing
+//#define HOMING_BACKOFF_POST_MM { 8, 8, 2 }  // (linear=mm, rotational=°) Backoff from endstops after homing
+//#define XY_COUNTERPART_BACKOFF_MM 0         // (mm) Backoff X after homing Y, and vice-versa
 
 #define QUICK_HOME                          // If G28 contains XY do a diagonal move first
 //#define HOME_Y_BEFORE_X                     // If G28 contains XY home Y before X
@@ -973,9 +996,12 @@
   #define Z_STEPPER_AUTO_ALIGN
 #endif
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-  // Define probe X and Y positions for Z1, Z2 [, Z3 [, Z4]]
-  // If not defined, probe limits will be used.
-  // Override with 'M422 S<index> X<pos> Y<pos>'
+  /**
+   * Define probe X and Y positions for Z1, Z2 [, Z3 [, Z4]]
+   * These positions are machine-relative and do not shift with the M206 home offset!
+   * If not defined, probe limits will be used.
+   * Override with 'M422 S<index> X<pos> Y<pos>'.
+   */
   //#define Z_STEPPER_ALIGN_XY { {  10, 190 }, { 100,  10 }, { 190, 190 } }
 
   /**
@@ -1336,7 +1362,7 @@
 //
 // LCD Backlight Timeout
 //
-//#define LCD_BACKLIGHT_TIMEOUT 30 // (s) Timeout before turning off the backlight
+//#define LCD_BACKLIGHT_TIMEOUT_MINS 1  // (minutes) Timeout before turning off the backlight
 
 #if HAS_BED_PROBE && EITHER(HAS_MARLINUI_MENU, HAS_TFT_LVGL_UI)
   //#define PROBE_OFFSET_WIZARD       // Add a Probe Z Offset calibration option to the LCD menu
@@ -1388,7 +1414,7 @@
 
 #endif // HAS_MARLINUI_MENU
 
-#if EITHER(HAS_DISPLAY, DWIN_LCD_PROUI)
+#if ANY(HAS_DISPLAY, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
   //#define SOUND_MENU_ITEM   // Add a mute option to the LCD menu
   #define SOUND_ON_DEFAULT    // Buzzer/speaker default enabled state
 #endif
@@ -1593,6 +1619,7 @@
 
   #define LONG_FILENAME_HOST_SUPPORT    // Get the long filename of a file/folder with 'M33 <dosname>' and list long filenames with 'M20 L'
   //#define LONG_FILENAME_WRITE_SUPPORT   // Create / delete files with long filenames via M28, M30, and Binary Transfer Protocol
+  //#define M20_TIMESTAMP_SUPPORT         // Include timestamps by adding the 'T' flag to M20 commands
 
   //#define SCROLL_LONG_FILENAMES         // Scroll long filenames in the SD card menu
 
@@ -1604,6 +1631,9 @@
    * Endstops must be activated for this option to work.
    */
   //#define SD_ABORT_ON_ENDSTOP_HIT
+  #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
+    //#define SD_ABORT_ON_ENDSTOP_HIT_GCODE "G28XY" // G-code to run on endstop hit (e.g., "G28XY" or "G27")
+  #endif
 
   //#define SD_REPRINT_LAST_SELECTED_FILE // On print completion open the LCD Menu and select the same file
 
@@ -1637,6 +1667,8 @@
      */
     //#define USE_UHS2_USB
     //#define USE_UHS3_USB
+
+    #define DISABLE_DUE_SD_MMC // Disable USB Host access to USB Drive to prevent hangs on block access for DUE platform
 
     /**
      * Native USB Host supported by some boards (USB OTG)
@@ -1749,7 +1781,7 @@
    * Adds the menu item Configuration > LCD Timeout (m) to set a wait period
    * from 0 (disabled) to 99 minutes.
    */
-  //#define DISPLAY_SLEEP_MINUTES 2  // (minutes) Timeout before turning off the screen
+  //#define DISPLAY_SLEEP_MINUTES 2  // (minutes) Timeout before turning off the screen. Set with M255 S.
 
   /**
    * ST7920-based LCDs can emulate a 16 x 4 character display using
@@ -2071,15 +2103,14 @@
  *
  * See https://marlinfw.org/docs/features/lin_advance.html for full instructions.
  */
-#if DISABLED(Driver2208)
-  #define LIN_ADVANCE
-#endif
+#define LIN_ADVANCE
 #if ENABLED(LIN_ADVANCE)
-  //#define EXTRA_LIN_ADVANCE_K // Enable for second linear advance constants
+  //#define EXTRA_LIN_ADVANCE_K // Add a second linear advance constant, configurable with M900.
   #define LIN_ADVANCE_K 0.0    // Unit: mm compression per 1mm/s extruder speed
-  //#define LA_DEBUG            // If enabled, this will generate debug information output over USB.
-  //#define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
+  //#define LA_DEBUG            // Print debug information to serial during operation. Disable for production use.
+  #define EXPERIMENTAL_SCURVE // Allow S-Curve Acceleration to be used with LA.
   #define ALLOW_LOW_EJERK     // Allow a DEFAULT_EJERK value of <10. Recommended for direct drive hotends.
+  //#define EXPERIMENTAL_I2S_LA // Allow I2S_STEPPER_STREAM to be used with LA. Performance degrades as the LA step rate reaches ~20kHz.
 #endif
 
 // @section leveling
@@ -2537,7 +2568,7 @@
     // Longer prime to clean out a SINGLENOZZLE
     #define TOOLCHANGE_FS_EXTRA_PRIME          0  // (mm) Extra priming length
     #define TOOLCHANGE_FS_PRIME_SPEED    (4.6*60) // (mm/min) Extra priming feedrate
-    #define TOOLCHANGE_FS_WIPE_RETRACT         0  // (mm) Retract before cooling for less stringing, better wipe, etc.
+    #define TOOLCHANGE_FS_WIPE_RETRACT         0  // (mm) Cutting retraction out of park, for less stringing, better wipe, etc. Adjust with LCD or M217 G.
 
     // Cool after prime to reduce stringing
     #define TOOLCHANGE_FS_FAN                 -1  // Fan index or -1 to skip
@@ -2582,6 +2613,8 @@
     //#define TOOLCHANGE_PARK_Y_ONLY          // Y axis only move
   #endif
 #endif // HAS_MULTI_EXTRUDER
+
+// @section advanced pause
 
 /**
  * Advanced Pause for Filament Change
@@ -2641,13 +2674,12 @@
   #define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
 #endif
 
-// @section tmc
-
 /**
  * TMC26X Stepper Driver options
  *
  * The TMC26XStepper library is required for this stepper driver.
  * https://github.com/trinamic/TMC26XStepper
+ * @section tmc/tmc26x
  */
 #if HAS_DRIVER(TMC26X)
 
@@ -2785,8 +2817,6 @@
 
 #endif // TMC26X
 
-// @section tmc_smart
-
 /**
  * To use TMC2130, TMC2160, TMC2660, TMC5130, TMC5160 stepper drivers in SPI mode
  * connect your SPI pins to the hardware SPI interface on your board and define
@@ -2802,6 +2832,7 @@
  *
  * TMCStepper library is required to use TMC stepper drivers.
  * https://github.com/teemuatlut/TMCStepper
+ * @section tmc/config
  */
 #if HAS_TRINAMIC_CONFIG
 
@@ -3025,6 +3056,8 @@
     //#define E7_HOLD_MULTIPLIER 0.5
   #endif
 
+  // @section tmc/spi
+
   /**
    * Override default SPI pins for TMC2130, TMC2160, TMC2660, TMC5130 and TMC5160 drivers here.
    * The default pins can be found in your board's pins file.
@@ -3062,6 +3095,8 @@
   //#define TMC_SW_MISO       -1
   //#define TMC_SW_SCK        -1
 
+  // @section tmc/serial
+
   /**
    * Four TMC2209 drivers can use the same HW/SW serial port with hardware configured addresses.
    * Set the address using jumpers on pins MS1 and MS2.
@@ -3097,6 +3132,8 @@
   //#define E6_SLAVE_ADDRESS 0
   //#define E7_SLAVE_ADDRESS 0
 
+  // @section tmc/smart
+
   /**
    * Software enable
    *
@@ -3104,6 +3141,8 @@
    * function through a communication line such as SPI or UART.
    */
   //#define SOFTWARE_DRIVER_ENABLE
+
+  // @section tmc/stealthchop
 
   /**
    * TMC2130, TMC2160, TMC2208, TMC2209, TMC5130 and TMC5160 only
@@ -3159,6 +3198,8 @@
   //#define CHOPPER_TIMING_E6 CHOPPER_TIMING_E
   //#define CHOPPER_TIMING_E7 CHOPPER_TIMING_E
 
+  // @section tmc/status
+
   /**
    * Monitor Trinamic drivers
    * for error conditions like overtemperature and short to ground.
@@ -3177,6 +3218,8 @@
     #define REPORT_CURRENT_CHANGE
     #define STOP_ON_ERROR
   #endif
+
+  // @section tmc/hybrid
 
   /**
    * TMC2130, TMC2160, TMC2208, TMC2209, TMC5130 and TMC5160 only
@@ -3234,6 +3277,7 @@
    * homing and adds a guard period for endstop triggering.
    *
    * Comment *_STALL_SENSITIVITY to disable sensorless homing for that axis.
+   * @section tmc/stallguard
    */
   //#define SENSORLESS_HOMING // StallGuard capable drivers only
 
@@ -3256,6 +3300,8 @@
     //#define SPI_ENDSTOPS              // TMC2130 only
     //#define IMPROVE_HOMING_RELIABILITY
   #endif
+
+  // @section tmc/config
 
   /**
    * TMC Homing stepper phase.
@@ -3295,7 +3341,6 @@
   #define TMC_ADV() {  }
 
 #endif // HAS_TRINAMIC_CONFIG
-
 
 // @section i2cbus
 
@@ -3338,7 +3383,7 @@
   #define I2C_SLAVE_ADDRESS  0  // Set a value from 8 to 127 to act as a slave
 #endif
 
-// @section extras
+// @section photo
 
 /**
  * Photo G-code
@@ -3380,6 +3425,8 @@
     #define PHOTO_PULSE_DELAY_US 13 // (µs) Approximate duration of each HIGH and LOW pulse in the oscillation
   #endif
 #endif
+
+// @section cnc
 
 /**
  * Spindle & Laser control
@@ -3584,6 +3631,8 @@
   #define COOLANT_FLOOD_INVERT false  // Set "true" if the on/off function is reversed
 #endif
 
+// @section filament width
+
 /**
  * Filament Width Sensor
  *
@@ -3617,6 +3666,8 @@
   //#define FILAMENT_LCD_DISPLAY
 #endif
 
+// @section power
+
 /**
  * Power Monitor
  * Monitor voltage (V) and/or current (A), and -when possible- power (W)
@@ -3640,6 +3691,8 @@
   #define POWER_MONITOR_VOLTAGE_OFFSET  0         // Offset (in volts) applied to the calculated voltage
 #endif
 
+// @section safety
+
 /**
  * Stepper Driver Anti-SNAFU Protection
  *
@@ -3649,6 +3702,8 @@
  */
 //#define DISABLE_DRIVER_SAFE_POWER_PROTECT
 
+// @section cnc
+
 /**
  * CNC Coordinate Systems
  *
@@ -3656,6 +3711,8 @@
  * and G92.1 to reset the workspace to native machine space.
  */
 //#define CNC_COORDINATE_SYSTEMS
+
+// @section reporting
 
 /**
  * Auto-report fan speed with M123 S<seconds>
@@ -3684,12 +3741,16 @@
   //#define M115_GEOMETRY_REPORT
 #endif
 
+// @section security
+
 /**
  * Expected Printer Check
  * Add the M16 G-code to compare a string to the MACHINE_NAME.
  * M16 with a non-matching string causes the printer to halt.
  */
 //#define EXPECTED_PRINTER_CHECK
+
+// @section volumetrics
 
 /**
  * Disable all Volumetric extrusion options
@@ -3719,14 +3780,7 @@
   #endif
 #endif
 
-/**
- * Enable this option for a leaner build of Marlin that removes all
- * workspace offsets, simplifying coordinate transformations, leveling, etc.
- *
- *  - M206 and M428 are disabled.
- *  - G92 will revert to its behavior from Marlin 1.0.
- */
-//#define NO_WORKSPACE_OFFSETS
+// @section reporting
 
 // Extra options for the M114 "Current Position" report
 //#define M114_DETAIL         // Use 'M114` for details to check planner calculations
@@ -3734,6 +3788,8 @@
 //#define M114_LEGACY         // M114 used to synchronize on every call. Enable if needed.
 
 //#define REPORT_FAN_CHANGE   // Report the new fan speed when changed by M106 (and others)
+
+// @section gcode
 
 /**
  * Spend 28 bytes of SRAM to optimize the G-code parser
@@ -3753,6 +3809,15 @@
 //#define REPETIER_GCODE_M360     // Add commands originally from Repetier FW
 
 /**
+ * Enable this option for a leaner build of Marlin that removes all
+ * workspace offsets, simplifying coordinate transformations, leveling, etc.
+ *
+ *  - M206 and M428 are disabled.
+ *  - G92 will revert to its behavior from Marlin 1.0.
+ */
+//#define NO_WORKSPACE_OFFSETS
+
+/**
  * CNC G-code options
  * Support CNC-style G-code dialects used by laser cutters, drawing machine cams, etc.
  * Note that G0 feedrates should be used with care for 3D printing (if used at all).
@@ -3766,6 +3831,8 @@
 #ifdef G0_FEEDRATE
   //#define VARIABLE_G0_FEEDRATE // The G0 feedrate is set by F in G0 motion mode
 #endif
+
+// @section gcode
 
 /**
  * Startup commands
@@ -3828,6 +3895,8 @@
   //#define MAIN_MENU_ITEM_5_CONFIRM
 #endif
 
+// @section custom config menu
+
 // Custom Menu: Configuration Menu
 //#define CUSTOM_MENU_CONFIG
 #if ENABLED(CUSTOM_MENU_CONFIG)
@@ -3857,6 +3926,8 @@
   //#define CONFIG_MENU_ITEM_5_GCODE "M118 ????"
   //#define CONFIG_MENU_ITEM_5_CONFIRM
 #endif
+
+// @section custom buttons
 
 /**
  * User-defined buttons to run custom G-code.
@@ -3889,6 +3960,8 @@
   #endif
 #endif
 
+// @section host
+
 /**
  * Host Action Commands
  *
@@ -3914,6 +3987,8 @@
   //#define HOST_SHUTDOWN_MENU_ITEM       // Add a menu item that tells the host to shut down
 #endif
 
+// @section extras
+
 /**
  * Cancel Objects
  *
@@ -3935,6 +4010,7 @@
  * Alternative Supplier: https://reliabuild3d.com/
  *
  * Reliabuild encoders have been modified to improve reliability.
+ * @section i2c encoders
  */
 
 //#define I2C_POSITION_ENCODERS
@@ -4006,6 +4082,7 @@
 
 /**
  * Analog Joystick(s)
+ * @section joystick
  */
 //#define JOYSTICK
 #if ENABLED(JOYSTICK)
@@ -4030,6 +4107,7 @@
  * Modern replacement for the Prusa TMC_Z_CALIBRATION.
  * Adds capability to work with any adjustable current drivers.
  * Implemented as G34 because M915 is deprecated.
+ * @section calibrate
  */
 //#define MECHANICAL_GANTRY_CALIBRATION
 #if ENABLED(MECHANICAL_GANTRY_CALIBRATION)
@@ -4047,6 +4125,7 @@
 /**
  * Instant freeze / unfreeze functionality
  * Potentially useful for emergency stop that allows being resumed.
+ * @section interface
  */
 //#define FREEZE_FEATURE
 #if ENABLED(FREEZE_FEATURE)
@@ -4059,6 +4138,7 @@
  *
  * Add support for a low-cost 8x8 LED Matrix based on the Max7219 chip as a realtime status display.
  * Requires 3 signal wires. Some useful debug options are included to demonstrate its usage.
+ * @section debug matrix
  */
 //#define MAX7219_DEBUG
 #if ENABLED(MAX7219_DEBUG)
@@ -4097,6 +4177,7 @@
  * Support for Synchronized Z moves when used with NanoDLP. G0/G1 axis moves will
  * output a "Z_move_comp" string to enable synchronization with DLP projector exposure.
  * This feature allows you to use [[WaitForDoneMessage]] instead of M400 commands.
+ * @section nanodlp
  */
 //#define NANODLP_Z_SYNC
 #if ENABLED(NANODLP_Z_SYNC)
@@ -4105,6 +4186,7 @@
 
 /**
  * Ethernet. Use M552 to enable and set the IP address.
+ * @section network
  */
 #if HAS_ETHERNET
   #define MAC_ADDRESS { 0xDE, 0xAD, 0xBE, 0xEF, 0xF0, 0x0D }  // A MAC address unique to your network
@@ -4113,7 +4195,7 @@
 /**
  * WiFi Support (Espressif ESP32 WiFi)
  */
-//#define WIFISUPPORT         // Marlin embedded WiFi managenent
+//#define WIFISUPPORT         // Marlin embedded WiFi management
 //#define ESP3D_WIFISUPPORT   // ESP3D Library WiFi management (https://github.com/luc-github/ESP3DLib)
 
 #if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
@@ -4131,6 +4213,8 @@
    */
   //#include "Configuration_Secure.h" // External file with WiFi SSID / Password
 #endif
+
+// @section multi-material
 
 /**
  * Průša Multi-Material Unit (MMU)
@@ -4237,6 +4321,7 @@
 
 /**
  * Advanced Print Counter settings
+ * @section stats
  */
 #if ENABLED(PRINTCOUNTER)
   #define SERVICE_WARNING_BUZZES  3
@@ -4265,6 +4350,9 @@
 // M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
 //
 //#define PINS_DEBUGGING
+
+// Enable Tests that will run at startup and produce a report
+//#define MARLIN_TEST_BUILD
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE

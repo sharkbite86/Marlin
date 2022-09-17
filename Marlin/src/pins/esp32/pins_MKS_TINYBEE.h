@@ -128,23 +128,23 @@
  *                 EXP1                                   EXP2
  */
 
-#define EXP1_08_PIN                           17
-#define EXP1_07_PIN                           15
-#define EXP1_06_PIN                           16
-#define EXP1_05_PIN                            0
-#define EXP1_04_PIN                            4
-#define EXP1_03_PIN                           21
-#define EXP1_02_PIN                           13
 #define EXP1_01_PIN                          149
+#define EXP1_02_PIN                           13
+#define EXP1_03_PIN                           21
+#define EXP1_04_PIN                            4
+#define EXP1_05_PIN                            0
+#define EXP1_06_PIN                           16
+#define EXP1_07_PIN                           15
+#define EXP1_08_PIN                           17
 
-#define EXP2_08_PIN                           -1  // RESET
-#define EXP2_07_PIN                           34
-#define EXP2_06_PIN                           23
-#define EXP2_05_PIN                           12
-#define EXP2_04_PIN                            5
-#define EXP2_03_PIN                           14
-#define EXP2_02_PIN                           18
 #define EXP2_01_PIN                           19
+#define EXP2_02_PIN                           18
+#define EXP2_03_PIN                           14
+#define EXP2_04_PIN                            5
+#define EXP2_05_PIN                           12
+#define EXP2_06_PIN                           23
+#define EXP2_07_PIN                           34
+#define EXP2_08_PIN                           -1  // RESET
 
 //
 // MicroSD card
@@ -166,18 +166,21 @@
   #define LCD_BACKLIGHT_PIN                   -1
 
   #if ENABLED(MKS_MINI_12864)
-  // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
+    // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
     #define DOGLCD_CS                EXP1_06_PIN
     #define DOGLCD_A0                EXP1_07_PIN
     #define LCD_RESET_PIN                     -1
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-  // MKS_MINI_12864_V3, BTT_MINI_12864_V1, FYSETC_MINI_12864_2_1
+    // MKS_MINI_12864_V3, BTT_MINI_12864_V1, FYSETC_MINI_12864_2_1
     #define DOGLCD_CS                EXP1_03_PIN
     #define DOGLCD_A0                EXP1_04_PIN
     #define LCD_RESET_PIN            EXP1_05_PIN
     #define NEOPIXEL_PIN             EXP1_06_PIN
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
+    #endif
+    #if BOTH(MKS_MINI_12864_V3, SDSUPPORT)
+      #define PAUSE_LCD_FOR_BUSY_SD
     #endif
   #else
    #define LCD_PINS_D4               EXP1_05_PIN

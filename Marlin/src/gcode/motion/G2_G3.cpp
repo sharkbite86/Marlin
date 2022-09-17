@@ -364,6 +364,8 @@ void plan_arc(
 
       if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints))
         break;
+
+      hints.curve_radius = radius;
     }
   }
 

@@ -409,11 +409,12 @@ void onIdle()
     rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(Z)*100), Jerk_Z);
     rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(E0)*100), Jerk_E);
 
-    rtscheck.RTS_SndData(((unsigned int)getNozzleOffset_mm(X, E1)*10), T2Offset_X);
-    rtscheck.RTS_SndData(((unsigned int)getNozzleOffset_mm(Y, E1)*10), T2Offset_Y);
-    rtscheck.RTS_SndData(((unsigned int)getNozzleOffset_mm(Z, E1)*10), T2Offset_Z);
-    rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E1) * 10), T2StepMM_E);
-
+    #if HAS_HOTEND_OFFSET
+      rtscheck.RTS_SndData(((unsigned int)getNozzleOffset_mm(X, E1)*10), T2Offset_X);
+      rtscheck.RTS_SndData(((unsigned int)getNozzleOffset_mm(Y, E1)*10), T2Offset_Y);
+      rtscheck.RTS_SndData(((unsigned int)getNozzleOffset_mm(Z, E1)*10), T2Offset_Z);
+      rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E1) * 10), T2StepMM_E);
+    #endif
 
     #if HAS_BED_PROBE
       rtscheck.RTS_SndData(getProbeOffset_mm(X) * 100, ProbeOffset_X);
@@ -2146,6 +2147,7 @@ void SetTouchScreenConfiguration() {
   if (Settings.display_standby) cfg_bits |= 1UL << 2; // 2: backlight on standby
   if(Settings.screen_rotation==10) cfg_bits |= 1UL << 1; // 1 & 0: Inversion
   cfg_bits |= 1UL << 0; // Portrait Mode or 800x480 display has 0 point rotated 90deg from 480x272 display
+
 
 
 
