@@ -585,7 +585,7 @@ static void mmu2_not_responding() {
       command(MMU_CMD_T0 + index);
       manage_response(true, true);
       mmu_continue_loading();
-      command(MMU_CMD_C0);
+      //command(MMU_CMD_C0);
       extruder = index;
       active_extruder = 0;
 
@@ -653,13 +653,34 @@ static void mmu2_not_responding() {
   }
 
   void MMU2::mmu_continue_loading() {
+    // Try to load the filament a limited number of times
+    bool fil_present = 0;
     for (uint8_t i = 0; i < MMU_LOADING_ATTEMPTS_NR; i++) {
-      DEBUG_ECHOLNPGM("Additional load attempt #", i);
-      if (FILAMENT_PRESENT()) break;
+      DEBUG_ECHOLNPGM("Load attempt #", i + 1);
+
+      // Done as soon as filament is present
+      fil_present = FILAMENT_PRESENT();
+      if (fil_present) break;
+
+      // Attempt to load the filament, 1mm at a time, for 3s
       command(MMU_CMD_C0);
+      stepper.enable_extruder();
+      const millis_t expire_ms = millis() + 3000;
+      do {
+        current_position.e += 1;
+        line_to_current_position(MMU_LOAD_FEEDRATE);
+        planner.synchronize();
+        // When (T0 rx->ok) load is ready, but in fact it did not load
+        // successfully or an overload created pressure in the extruder.
+        // Send (C0) to load more and move E_AXIS a little to release pressure.
+        if ((fil_present = FILAMENT_PRESENT())) MMU2_COMMAND("A");
+      } while (!fil_present && PENDING(millis(), expire_ms));
+      stepper.disable_extruder();
       manage_response(true, true);
     }
-    if (!FILAMENT_PRESENT()) {
+
+    // Was the filament still missing in the last check?
+    if (!fil_present) {
       DEBUG_ECHOLNPGM("Filament never reached sensor, runout");
       filament_runout();
     }
@@ -682,7 +703,7 @@ static void mmu2_not_responding() {
       command(MMU_CMD_T0 + index);
       manage_response(true, true);
       command(MMU_CMD_C0);
-      extruder = index; //filament change is finished
+      extruder = index; // Filament change is finished
       active_extruder = 0;
       stepper.enable_extruder();
       SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, extruder);
@@ -939,7 +960,7 @@ bool MMU2::load_filament_to_nozzle(const uint8_t index) {
  * Load filament to nozzle of multimaterial printer
  *
  * This function is used only after T? (user select filament) and M600 (change filament).
- * It is not used after T0 .. T4 command (select filament), in such case, gcode is responsible for loading
+ * It is not used after T0 .. T4 command (select filament), in such case, G-code is responsible for loading
  * filament to nozzle.
  */
 void MMU2::load_to_nozzle() {
@@ -1031,8 +1052,7 @@ void MMU2::execute_extruder_sequence(const E_Step * sequence, int steps) {
     const float es = pgm_read_float(&(step->extrude));
     const feedRate_t fr_mm_m = pgm_read_float(&(step->feedRate));
 
-    DEBUG_ECHO_START();
-    DEBUG_ECHOLNPGM("E step ", es, "/", fr_mm_m);
+    DEBUG_ECHO_MSG("E step ", es, "/", fr_mm_m);
 
     current_position.e += es;
     line_to_current_position(MMM_TO_MMS(fr_mm_m));
