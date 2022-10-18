@@ -1464,6 +1464,7 @@
   #define SOUND_ON_DEFAULT    // Buzzer/speaker default enabled state
 #endif
 
+  #define LCD_TIMEOUT_TO_STATUS 15000   // (ms)
 #if EITHER(HAS_DISPLAY, DWIN_LCD_PROUI)
   // The timeout to return to the status screen from sub-menus
   #define LCD_TIMEOUT_TO_STATUS 15000   // (ms)
