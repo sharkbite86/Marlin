@@ -31,7 +31,7 @@
 #include "../../module/temperature.h"
 #include "../../gcode/queue.h"
 
-#if HAS_BUZZER
+#if HAS_SOUND
   #include "../../libs/buzzer.h"
 #endif
 
@@ -175,7 +175,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 
     TERN_(HAS_TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
 
-    TERN_(LCD_SET_PROGRESS_MANUALLY, progress_reset());
+    TERN_(SET_PROGRESS_PERCENT, progress_reset());
 
     #if BOTH(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
       static millis_t doubleclick_expire_ms = 0;
@@ -191,7 +191,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
         else {
           #if ENABLED(MOVE_Z_WHEN_IDLE)
             ui.manual_move.menu_scale = MOVE_Z_IDLE_MULTIPLICATOR;
-            screen = lcd_move_z;
+            screen = []{ lcd_move_axis(Z_AXIS); };
           #endif
         }
       }
@@ -272,7 +272,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     encoderTopLine = encoderLine;
 }
 
-#if HAS_BUZZER
+#if HAS_SOUND
   void MarlinUI::completion_feedback(const bool good/*=true*/) {
     TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up on rotary encoder click...
     if (good) OKAY_BUZZ(); else ERR_BUZZ();

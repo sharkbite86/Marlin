@@ -47,8 +47,7 @@
 #include "../shared/servo.h"
 #include "../shared/servo_private.h"
 
-static int8_t Channel[_Nbr_16timers];       // counter for the servo being pulsed for each timer (or -1 if refresh interval)
-static bool DisablePending[_Nbr_16timers];  // Instructs ISR to disable the timer at the next timer reset
+static Flags<_Nbr_16timers> DisablePending; // ISR should disable the timer at the next timer reset
 
 // ------------------------
 /// Interrupt handler for the TC0 channel 1.
@@ -72,13 +71,14 @@ void Servo_Handler(const timer16_Sequence_t, Tc*, const uint8_t);
 #endif
 
 void Servo_Handler(const timer16_Sequence_t timer, Tc *tc, const uint8_t channel) {
+  static int8_t Channel[_Nbr_16timers];                               // Servo counters to pulse (or -1 for refresh interval)
   int8_t cho = Channel[timer];                                        // Handle the prior Channel[timer] first
   if (cho < 0) {                                                      // Channel -1 indicates the refresh interval completed...
     tc->TC_CHANNEL[channel].TC_CCR |= TC_CCR_SWTRG;                   // ...so reset the timer
     if (DisablePending[timer]) {
       // Disabling only after the full servo period expires prevents
       // pulses being too close together if immediately re-enabled.
-      DisablePending[timer] = false;
+      DisablePending.clear(timer);
       TC_Stop(tc, channel);
       tc->TC_CHANNEL[channel].TC_SR;                                  // clear interrupt
       return;
@@ -127,34 +127,35 @@ static void _initISR(Tc *tc, uint32_t channel, uint32_t id, IRQn_Type irqn) {
   TC_Start(tc, channel);
 }
 
-void initISR(const timer16_Sequence_t timer) {
+void initISR(const timer16_Sequence_t timer_index) {
   CRITICAL_SECTION_START();
-  bool needsInit = !DisablePending[timer];
-  DisablePending[timer] = false;
+  const bool disable_soon = DisablePending[timer_index];
+  DisablePending.clear(timer_index);
   CRITICAL_SECTION_END();
 
-  if (needsInit) {
+  if (!disable_soon) switch (timer_index) {
+    default: break;
     #ifdef _useTimer1
-      if (timer == _timer1) _initISR(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1, ID_TC_FOR_TIMER1, IRQn_FOR_TIMER1);
+      case _timer1: return _initISR(TC_FOR_TIMER1, CHANNEL_FOR_TIMER1, ID_TC_FOR_TIMER1, IRQn_FOR_TIMER1);
     #endif
     #ifdef _useTimer2
-      if (timer == _timer2) _initISR(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2, ID_TC_FOR_TIMER2, IRQn_FOR_TIMER2);
+      case _timer2: return _initISR(TC_FOR_TIMER2, CHANNEL_FOR_TIMER2, ID_TC_FOR_TIMER2, IRQn_FOR_TIMER2);
     #endif
     #ifdef _useTimer3
-      if (timer == _timer3) _initISR(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3, ID_TC_FOR_TIMER3, IRQn_FOR_TIMER3);
+      case _timer3: return _initISR(TC_FOR_TIMER3, CHANNEL_FOR_TIMER3, ID_TC_FOR_TIMER3, IRQn_FOR_TIMER3);
     #endif
     #ifdef _useTimer4
-      if (timer == _timer4) _initISR(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4, ID_TC_FOR_TIMER4, IRQn_FOR_TIMER4);
+      case _timer4: return _initISR(TC_FOR_TIMER4, CHANNEL_FOR_TIMER4, ID_TC_FOR_TIMER4, IRQn_FOR_TIMER4);
     #endif
     #ifdef _useTimer5
-      if (timer == _timer5) _initISR(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5, ID_TC_FOR_TIMER5, IRQn_FOR_TIMER5);
+      case _timer5: return _initISR(TC_FOR_TIMER5, CHANNEL_FOR_TIMER5, ID_TC_FOR_TIMER5, IRQn_FOR_TIMER5);
     #endif
   }
 }
 
-void finISR(timer16_Sequence_t timer) {
+void finISR(const timer16_Sequence_t timer_index) {
   // Timer is disabled from the ISR, to ensure proper final pulse length.
-  DisablePending[timer] = true;
+  DisablePending.set(timer_index);
 }
 
 #endif // HAS_SERVOS
