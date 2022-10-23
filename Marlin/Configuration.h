@@ -30,7 +30,7 @@
 
 #define tallVersion
 
-//#define ABL_Bilinear
+#define ABL_Bilinear
 /*
  * Enables a filament sensor plugged into the laser pin. Disables the laser
  */
@@ -2685,6 +2685,7 @@
  * SD Card support is disabled by default. If your controller has an SD slot,
  * you must uncomment the following option or it won't work.
  */
+#define SD_SPI_SPEED        SPI_HALF_SPEED
 #define SDSUPPORT
 
 /**
