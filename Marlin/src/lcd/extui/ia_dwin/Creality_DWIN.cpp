@@ -410,9 +410,9 @@ void onIdle()
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(E0)*100), Jerk_E);
 
     #if HAS_HOTEND_OFFSET
-      WriteVariable(T2Offset_X, (uint32_t)(getNozzleOffset_mm(X, E1)*1000), sizeof(uint32_t));
-      WriteVariable(T2Offset_Y, (uint32_t)(getNozzleOffset_mm(Y, E1)*1000), sizeof(uint32_t));
-      WriteVariable(T2Offset_Z, (uint32_t)(getNozzleOffset_mm(Z, E1)*1000), sizeof(uint32_t));
+      rtscheck.WriteVariable(T2Offset_X, (uint32_t)(getNozzleOffset_mm(X, E1)*1000), sizeof(uint32_t));
+      rtscheck.WriteVariable(T2Offset_Y, (uint32_t)(getNozzleOffset_mm(Y, E1)*1000), sizeof(uint32_t));
+      rtscheck.WriteVariable(T2Offset_Z, (uint32_t)(getNozzleOffset_mm(Z, E1)*1000), sizeof(uint32_t));
       rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E1) * 10), T2StepMM_E);
     #endif
 
@@ -761,6 +761,26 @@ void RTSSHOW::RTS_SndData(unsigned long n, unsigned long addr, unsigned char cmd
 	snddat.command = cmd;
 	snddat.addr = addr;
 	RTS_SndData();
+}
+
+void RTSSHOW::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false, char fillChar = ' ') {
+  const char* myvalues = static_cast<const char*>(values);
+  bool strend = !myvalues;
+  DWIN_SERIAL.write(FHONE);
+  DWIN_SERIAL.write(FHTWO);
+  DWIN_SERIAL.write(valueslen + 3);
+  DWIN_SERIAL.write(0x82);
+  DWIN_SERIAL.write(adr >> 8);
+  DWIN_SERIAL.write(adr & 0xFF);
+  while (valueslen--) {
+    char x;
+    if (!strend) x = *myvalues++;
+    if ((isstr && !x) || strend) {
+      strend = true;
+      x = fillChar;
+    }
+    DWIN_SERIAL.write(x);
+  }
 }
 
 void RTSSHOW::RTS_HandleData()
@@ -2111,25 +2131,6 @@ void RTSSHOW::RTS_HandleData()
 	recdat.head[1] = FHTWO;
 }
 
- void WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false, char fillChar = ' ') {
-  const char* myvalues = static_cast<const char*>(values);
-  bool strend = !myvalues;
-  DWIN_SERIAL.write(FHONE);
-  DWIN_SERIAL.write(FHTWO);
-  DWIN_SERIAL.write(valueslen + 3);
-  DWIN_SERIAL.write(0x82);
-  DWIN_SERIAL.write(adr >> 8);
-  DWIN_SERIAL.write(adr & 0xFF);
-  while (valueslen--) {
-    char x;
-    if (!strend) x = *myvalues++;
-    if ((isstr && !x) || strend) {
-      strend = true;
-      x = fillChar;
-    }
-    DWIN_SERIAL.write(x);
-  }
-}
 
 void SetTouchScreenConfiguration() {
   // Main configuration (System_Config)
@@ -2156,7 +2157,7 @@ void SetTouchScreenConfiguration() {
   #else
     const unsigned char config_set[] = { 0x5A, 0x00, 0xFF, cfg_bits };
   #endif
-  WriteVariable(0x80 /*System_Config*/, config_set, sizeof(config_set));
+  rtscheck.WriteVariable(0x80 /*System_Config*/, config_set, sizeof(config_set));
 
   // Standby brightness (LED_Config)
   uint16_t dwinStandbyTimeSeconds = 100 * Settings.standby_time_seconds;  /* milliseconds, but divided by 10 (not 5 like the docs say) */
@@ -2166,7 +2167,7 @@ void SetTouchScreenConfiguration() {
     static_cast<uint8_t>(dwinStandbyTimeSeconds >> 8),
     static_cast<uint8_t>(dwinStandbyTimeSeconds)
   };
-  WriteVariable(0x82 /*LED_Config*/, brightness_set, sizeof(brightness_set));
+  rtscheck.WriteVariable(0x82 /*LED_Config*/, brightness_set, sizeof(brightness_set));
 
   if (!Settings.display_sound)
   {

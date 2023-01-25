@@ -240,6 +240,7 @@ class RTSSHOW {
     void RTS_SndData(unsigned int,unsigned long, unsigned char = VarAddr_W);
     void RTS_SndData(long,unsigned long, unsigned char = VarAddr_W);
     void RTS_SndData(unsigned long,unsigned long, unsigned char = VarAddr_W);
+    void WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false, char fillChar = ' ');
     void RTS_SDcard_Stop();
     void RTS_HandleData();
     void RTS_Init();
