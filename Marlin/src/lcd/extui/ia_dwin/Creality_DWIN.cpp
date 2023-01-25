@@ -394,25 +394,25 @@ void onIdle()
     rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Z) * 10), StepMM_Z);
     rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E0) * 10), StepMM_E);
 
-    rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(X)/100), Accel_X);
-    rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(Y)/100), Accel_Y);
-    rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(Z)/10), Accel_Z);
-    rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(E0)), Accel_E);
+    rtscheck.RTS_SndData((unsigned int)(getAxisMaxAcceleration_mm_s2(X)/100), Accel_X);
+    rtscheck.RTS_SndData((unsigned int)(getAxisMaxAcceleration_mm_s2(Y)/100), Accel_Y);
+    rtscheck.RTS_SndData((unsigned int)(getAxisMaxAcceleration_mm_s2(Z)/10), Accel_Z);
+    rtscheck.RTS_SndData((unsigned int)(getAxisMaxAcceleration_mm_s2(E0)), Accel_E);
 
-    rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(X)), Feed_X);
-    rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(Y)), Feed_Y);
-    rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(Z)), Feed_Z);
-    rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(E0)), Feed_E);
+    rtscheck.RTS_SndData((unsigned int)(getAxisMaxFeedrate_mm_s(X)), Feed_X);
+    rtscheck.RTS_SndData((unsigned int)(getAxisMaxFeedrate_mm_s(Y)), Feed_Y);
+    rtscheck.RTS_SndData((unsigned int)(getAxisMaxFeedrate_mm_s(Z)), Feed_Z);
+    rtscheck.RTS_SndData((unsigned int)(getAxisMaxFeedrate_mm_s(E0)), Feed_E);
 
-    rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(X)*100), Jerk_X);
-    rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(Y)*100), Jerk_Y);
-    rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(Z)*100), Jerk_Z);
-    rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(E0)*100), Jerk_E);
+    rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(X)*100), Jerk_X);
+    rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(Y)*100), Jerk_Y);
+    rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(Z)*100), Jerk_Z);
+    rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(E0)*100), Jerk_E);
 
     #if HAS_HOTEND_OFFSET
-      rtscheck.RTS_SndData(((unsigned int)getNozzleOffset_mm(X, E1)*10), T2Offset_X);
-      rtscheck.RTS_SndData(((unsigned int)getNozzleOffset_mm(Y, E1)*10), T2Offset_Y);
-      rtscheck.RTS_SndData(((unsigned int)getNozzleOffset_mm(Z, E1)*10), T2Offset_Z);
+      WriteVariable(T2Offset_X, (uint32_t)(getNozzleOffset_mm(X, E1)*1000), sizeof(uint32_t));
+      WriteVariable(T2Offset_Y, (uint32_t)(getNozzleOffset_mm(Y, E1)*1000), sizeof(uint32_t));
+      WriteVariable(T2Offset_Z, (uint32_t)(getNozzleOffset_mm(Z, E1)*1000), sizeof(uint32_t));
       rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E1) * 10), T2StepMM_E);
     #endif
 
@@ -1209,15 +1209,15 @@ void RTSSHOW::RTS_HandleData()
           }
           else if (recdat.addr == T2Offset_X)
           {
-            setNozzleOffset_mm(tmp_float_handling*10, X, E1);
+            setNozzleOffset_mm(tmp_float_handling*1000, X, E1);
           }
           else if (recdat.addr == T2Offset_Y)
           {
-            setNozzleOffset_mm(tmp_float_handling*10, Y, E1);
+            setNozzleOffset_mm(tmp_float_handling*1000, Y, E1);
           }
           else if (recdat.addr == T2Offset_Z)
           {
-            setNozzleOffset_mm(tmp_float_handling*10, Z, E1);
+            setNozzleOffset_mm(tmp_float_handling*1000, Z, E1);
           }
         #endif
         #if HAS_BED_PROBE

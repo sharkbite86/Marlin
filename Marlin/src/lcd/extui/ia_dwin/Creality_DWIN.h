@@ -93,9 +93,9 @@ namespace ExtUI {
 #define ProbeOffset_Z  0x1026
 
 #define T2Offset_X    0x1090
-#define T2Offset_Y    0x1092
-#define T2Offset_Z    0x1094
-#define T2StepMM_E    0x1096
+#define T2Offset_Y    0x1094
+#define T2Offset_Z    0x1098
+#define T2StepMM_E    0x109C
 
 #define ActiveToolVP  0x1014
 
