@@ -410,9 +410,9 @@ void onIdle()
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(E0)*100), Jerk_E);
 
     #if HAS_HOTEND_OFFSET
-      rtscheck.WriteVariable(T2Offset_X, (uint32_t)(getNozzleOffset_mm(X, E1)*1000), sizeof(uint32_t));
-      rtscheck.WriteVariable(T2Offset_Y, (uint32_t)(getNozzleOffset_mm(Y, E1)*1000), sizeof(uint32_t));
-      rtscheck.WriteVariable(T2Offset_Z, (uint32_t)(getNozzleOffset_mm(Z, E1)*1000), sizeof(uint32_t));
+      rtscheck.WriteVariable(T2Offset_X, (uint32_t)(getNozzleOffset_mm(X, E1)*1000));
+      rtscheck.WriteVariable(T2Offset_Y, (uint32_t)(getNozzleOffset_mm(Y, E1)*1000));
+      rtscheck.WriteVariable(T2Offset_Z, (uint32_t)(getNozzleOffset_mm(Z, E1)*1000));
       rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E1) * 10), T2StepMM_E);
     #endif
 
@@ -761,6 +761,17 @@ void RTSSHOW::RTS_SndData(unsigned long n, unsigned long addr, unsigned char cmd
 	snddat.command = cmd;
 	snddat.addr = addr;
 	RTS_SndData();
+}
+
+void RTSSHOW::WriteVariable(uint16_t adr, long value) {
+  union { long l; char lb[4]; } endian;
+  char tmp[4];
+  endian.l = value;
+  tmp[0] = endian.lb[3];
+  tmp[1] = endian.lb[2];
+  tmp[2] = endian.lb[1];
+  tmp[3] = endian.lb[0];
+  WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
 }
 
 void RTSSHOW::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false, char fillChar = ' ') {
