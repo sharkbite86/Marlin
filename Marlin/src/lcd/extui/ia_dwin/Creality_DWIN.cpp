@@ -847,9 +847,6 @@ void RTSSHOW::RTS_HandleData()
     case BedPID_P :
     case BedPID_I :
     case BedPID_D :
-    case T2Offset_X:
-    case T2Offset_Y:
-    case T2Offset_Z:
     case T2StepMM_E:
     case Accel_X:
     case Accel_Y:
@@ -874,16 +871,17 @@ void RTSSHOW::RTS_HandleData()
 
   if(recdat.addr == VolumeDisplay)
     Checkkey = VolumeDisplay;
-  if(recdat.addr == DisplayBrightness)
+  else if(recdat.addr == T2Offset_X || recdat.addr == T2Offset_Y || recdat.addr == T2Offset_Z)
+    Checkkey = IdexSettings;
+  else if(recdat.addr == DisplayBrightness)
     Checkkey = DisplayBrightness;
-  if(recdat.addr == DisplayStandbyBrightness)
+  else if(recdat.addr == DisplayStandbyBrightness)
     Checkkey = DisplayStandbyBrightness;
-  if(recdat.addr == DisplayStandbySeconds)
+  else if(recdat.addr == DisplayStandbySeconds)
     Checkkey = DisplayStandbySeconds;
-  if(recdat.addr >= AutolevelVal && recdat.addr <=  4400)  // ((int)AutolevelVal+(GRID_MAX_POINTS_X*GRID_MAX_POINTS_Y*2)) = 4400 with 5x5 mesh
+  else if(recdat.addr >= AutolevelVal && recdat.addr <=  4400)  // ((int)AutolevelVal+(GRID_MAX_POINTS_X*GRID_MAX_POINTS_Y*2)) = 4400 with 5x5 mesh
     Checkkey = AutolevelVal;
-
-	if (recdat.addr >= SDFILE_ADDR && recdat.addr <= (SDFILE_ADDR + 10 * (FileNum + 1)))
+	else if (recdat.addr >= SDFILE_ADDR && recdat.addr <= (SDFILE_ADDR + 10 * (FileNum + 1)))
 		Checkkey = Filename;
 
   SERIAL_ECHOLNPGM_P(PSTR("== Checkkey=="));
@@ -896,8 +894,6 @@ void RTSSHOW::RTS_HandleData()
 		recdat.head[1] = FHTWO;
 		return;
   }
-
-
 
   constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
   SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
@@ -981,6 +977,35 @@ void RTSSHOW::RTS_HandleData()
       }
 
       break;
+    #if ENABLED(DUAL_X_CARRIAGE)
+      case IdexSettings:
+        if (recdat.addr == T2Offset_X)
+        {
+          SERIAL_ECHOLNPGM("T2Offset_X Set 0 : ", recdat.data[0]);
+          SERIAL_ECHOLNPGM("T2Offset_X Set 1 : ", recdat.data[1]);
+
+          union { long l; short lb[2]; } tmpLongBuff;
+          tmpLongBuff.lb[0] = recdat.data[1];
+          tmpLongBuff.lb[1] = recdat.data[0];
+          SERIAL_ECHOLNPGM("T2Offset_X L : ", tmpLongBuff.l);
+          setNozzleOffset_mm(tmpLongBuff.l/1000, X, E1);
+        }
+        else if (recdat.addr == T2Offset_Y)
+        {
+          union { long l; short lb[2]; } tmpLongBuff;
+          tmpLongBuff.lb[0] = recdat.data[1];
+          tmpLongBuff.lb[1] = recdat.data[0];
+          setNozzleOffset_mm(tmpLongBuff.l/1000, Y, E1);
+        }
+        else if (recdat.addr == T2Offset_Z)
+        {
+          union { long l; short lb[2]; } tmpLongBuff;
+          tmpLongBuff.lb[0] = recdat.data[1];
+          tmpLongBuff.lb[1] = recdat.data[0];
+          setNozzleOffset_mm(tmpLongBuff.l/1000, Z, E1);
+        }
+      break;
+    #endif
 
     case Feedrate:
       setFeedrate_percent(recdat.data[0]);
@@ -1205,9 +1230,6 @@ void RTSSHOW::RTS_HandleData()
         else if (recdat.addr == FanKeyIcon) {
           setTargetFan_percent((uint16_t)recdat.data[0], (fan_t)getActiveTool());
         }
-
-
-
       else {
         float tmp_float_handling;
         if (recdat.data[0] >= 32768)
@@ -1237,18 +1259,6 @@ void RTSSHOW::RTS_HandleData()
           else if (recdat.addr == T2StepMM_E)
           {
             setAxisSteps_per_mm(tmp_float_handling*10, E1);
-          }
-          else if (recdat.addr == T2Offset_X)
-          {
-            setNozzleOffset_mm(tmp_float_handling*1000, X, E1);
-          }
-          else if (recdat.addr == T2Offset_Y)
-          {
-            setNozzleOffset_mm(tmp_float_handling*1000, Y, E1);
-          }
-          else if (recdat.addr == T2Offset_Z)
-          {
-            setNozzleOffset_mm(tmp_float_handling*1000, Z, E1);
           }
         #endif
         #if HAS_BED_PROBE
@@ -2148,7 +2158,7 @@ void SetTouchScreenConfiguration() {
   LIMIT(Settings.screen_brightness, 10, 100); // Prevent a possible all-dark screen
   LIMIT(Settings.standby_time_seconds, 10, 655); // Prevent a possible all-dark screen for standby, yet also don't go higher than the DWIN limitation
 
-
+#define LOWRES_DWIN
   unsigned char cfg_bits = 0x0;
   //#if ENABLED(DWINOS_4)
     cfg_bits |= 1UL << 7; // 7: Enable Control
@@ -2158,8 +2168,9 @@ void SetTouchScreenConfiguration() {
   if (Settings.display_sound) cfg_bits |= 1UL << 3; // 3: audio
   if (Settings.display_standby) cfg_bits |= 1UL << 2; // 2: backlight on standby
   if(Settings.screen_rotation==10) cfg_bits |= 1UL << 1; // 1 & 0: Inversion
-  cfg_bits |= 1UL << 0; // Portrait Mode or 800x480 display has 0 point rotated 90deg from 480x272 display
-
+  #if DISABLED(LOWRES_DWIN)
+    cfg_bits |= 1UL << 0; // Portrait Mode or 800x480 display has 0 point rotated 90deg from 480x272 display
+  #endif
 
 
 
