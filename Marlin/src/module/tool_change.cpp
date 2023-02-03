@@ -115,7 +115,8 @@
 
   void move_extruder_servo(const uint8_t e) {
     planner.synchronize();
-    if ((EXTRUDERS & 1) && e < EXTRUDERS - 1) {
+    constexpr bool evenExtruders = !(EXTRUDERS & 1);
+    if (evenExtruders || e < EXTRUDERS - 1) {
       servo[_SERVO_NR(e)].move(servo_angles[_SERVO_NR(e)][e & 1]);
       safe_delay(500);
     }
@@ -440,6 +441,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     }
   }
 
+
+#endif // TOOL_SENSOR
+
+#if ENABLED(SWITCHING_TOOLHEAD)
+
   inline void switching_toolhead_lock(const bool locked) {
     #ifdef SWITCHING_TOOLHEAD_SERVO_ANGLES
       const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
@@ -451,8 +457,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       #error "No toolhead locking mechanism configured."
     #endif
   }
-
-  #include <bitset>
 
   void swt_init() {
     switching_toolhead_lock(true);
@@ -493,10 +497,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       LCD_MESSAGE_F("TC Success");
     #endif // TOOL_SENSOR
   }
-
-#endif // TOOL_SENSOR
-
-#if ENABLED(SWITCHING_TOOLHEAD)
 
   inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (no_move) return;
@@ -918,7 +918,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
       thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
       gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
-      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = 0;
+      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = FAN_OFF_PWM;
     #endif
   }
 
@@ -929,7 +929,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    * Returns FALSE if able to  move.
    */
   bool too_cold(uint8_t toolID){
-    if (TERN0(PREVENT_COLD_EXTRUSION, !DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID))) {
+    if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID)) {
       SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
       return true;
     }
@@ -1157,8 +1157,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     const uint8_t old_tool = active_extruder;
     const bool can_move_away = !no_move && !idex_full_control;
 
-    #if HAS_LEVELING
-      // Set current position to the physical position
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      // Workaround for UBL mesh boundary, possibly?
       TEMPORARY_BED_LEVELING_STATE(false);
     #endif
 
@@ -1429,12 +1429,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
   bool extruder_migration() {
 
-    #if ENABLED(PREVENT_COLD_EXTRUSION)
-      if (thermalManager.targetTooColdToExtrude(active_extruder)) {
-        DEBUG_ECHOLNPGM("Migration Source Too Cold");
-        return false;
-      }
-    #endif
+    if (thermalManager.targetTooColdToExtrude(active_extruder)) {
+      DEBUG_ECHOLNPGM("Migration Source Too Cold");
+      return false;
+    }
 
     // No auto-migration or specified target?
     if (!migration.target && active_extruder >= migration.last) {
