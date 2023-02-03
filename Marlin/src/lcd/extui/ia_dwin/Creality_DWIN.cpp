@@ -576,7 +576,7 @@ int RTSSHOW::RTS_RecData()
           const uint16_t vp = tmp[0] << 8 | tmp[1];
 
          const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
-          //SERIAL_ECHOLNPGM(" vp=", vp, " dlen=", dlen);
+          SERIAL_ECHOLNPGM(" vp=", vp, " dlen=", dlen);
           recdat.addr = vp;
           recdat.len = tmp[2];
           for(unsigned int i = 0;i < dlen; i+=2)
@@ -869,10 +869,12 @@ void RTSSHOW::RTS_HandleData()
     break;
   }
 
-  if(recdat.addr == VolumeDisplay)
+  if(Checkkey == ManualSetTemp)
+    Checkkey = ManualSetTemp;
+  else if(recdat.addr == VolumeDisplay)
     Checkkey = VolumeDisplay;
   else if(recdat.addr == T2Offset_X || recdat.addr == T2Offset_Y || recdat.addr == T2Offset_Z)
-    Checkkey = IdexSettings;
+    Checkkey = Idex_Settings;
   else if(recdat.addr == DisplayBrightness)
     Checkkey = DisplayBrightness;
   else if(recdat.addr == DisplayStandbyBrightness)
@@ -978,31 +980,31 @@ void RTSSHOW::RTS_HandleData()
 
       break;
     #if ENABLED(DUAL_X_CARRIAGE)
-      case IdexSettings:
+      case Idex_Settings:
         if (recdat.addr == T2Offset_X)
         {
-          SERIAL_ECHOLNPGM("T2Offset_X Set 0 : ", recdat.data[0]);
-          SERIAL_ECHOLNPGM("T2Offset_X Set 1 : ", recdat.data[1]);
+          //SERIAL_ECHOLNPGM("T2Offset_X Set 0 : ", recdat.data[0]);
+          //SERIAL_ECHOLNPGM("T2Offset_X Set 1 : ", recdat.data[1]);
 
           union { long l; short lb[2]; } tmpLongBuff;
           tmpLongBuff.lb[0] = recdat.data[1];
           tmpLongBuff.lb[1] = recdat.data[0];
-          SERIAL_ECHOLNPGM("T2Offset_X L : ", tmpLongBuff.l);
-          setNozzleOffset_mm(tmpLongBuff.l/1000, X, E1);
+          //SERIAL_ECHOLNPGM("T2Offset_X L : ", tmpLongBuff.l);
+          setNozzleOffset_mm((float)tmpLongBuff.l/1000, X, E1);
         }
         else if (recdat.addr == T2Offset_Y)
         {
           union { long l; short lb[2]; } tmpLongBuff;
           tmpLongBuff.lb[0] = recdat.data[1];
           tmpLongBuff.lb[1] = recdat.data[0];
-          setNozzleOffset_mm(tmpLongBuff.l/1000, Y, E1);
+          setNozzleOffset_mm((float)tmpLongBuff.l/1000, Y, E1);
         }
         else if (recdat.addr == T2Offset_Z)
         {
           union { long l; short lb[2]; } tmpLongBuff;
           tmpLongBuff.lb[0] = recdat.data[1];
           tmpLongBuff.lb[1] = recdat.data[0];
-          setNozzleOffset_mm(tmpLongBuff.l/1000, Z, E1);
+          setNozzleOffset_mm((float)tmpLongBuff.l/1000, Z, E1);
         }
       break;
     #endif

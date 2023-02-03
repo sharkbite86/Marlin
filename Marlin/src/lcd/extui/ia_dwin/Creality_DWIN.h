@@ -96,7 +96,6 @@ namespace ExtUI {
 #define T2Offset_Y    0x1094
 #define T2Offset_Z    0x1098
 #define T2StepMM_E    0x109C
-#define IdexSettings  0x9999
 
 #define ActiveToolVP  0x1014
 
@@ -266,9 +265,10 @@ static RTSSHOW rtscheck;
   #define	Filement_Value		(15+Addvalue)
   #define	Language_Value		(18+Addvalue)
   #define	Filename_Value		(22+Addvalue)
+  #define	Idex_Settings_Value		(26+Addvalue)
 
   enum PROC_COM {Printfile=0,Ajust,Feedrate,PrintChoice=PrintChoice_Value,Zoffset=Zoffset_Value,TempControl,ManualSetTemp,Setting=Setting_Value,
-  ReturnBack,Bedlevel,Autohome,XYZEaxis=XYZEaxis_Value,Filement=Filement_Value,LanguageChoice=Language_Value,No_Filement,PwrOffNoF,Volume,Filename=Filename_Value};
+  ReturnBack,Bedlevel,Autohome,XYZEaxis=XYZEaxis_Value,Filement=Filement_Value,LanguageChoice=Language_Value,No_Filement,PwrOffNoF,Volume,Filename=Filename_Value,Idex_Settings=Idex_Settings_Value};
 
   const unsigned long Addrbuf[] = {0x1002, 0x1004, 0x1006, 0x1008, 0x100A, 0x100C,  0x1026, 0x1030, 0x1032, 0x1034, 0x103A,
                 0x103E, 0x1040, 0x1044, 0x1046, 0x1048, 0x104A, 0x104C, 0x1054, 0x1056, 0x1058,
