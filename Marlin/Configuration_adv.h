@@ -334,7 +334,11 @@
   /**
    * As described above, except for the bed (M140/M190/M303).
    */
-  #define WATCH_BED_TEMP_PERIOD                60 // Seconds
+  #if ENABLED(MachineTLD6)
+    #define WATCH_BED_TEMP_PERIOD                240 // Seconds
+  #else
+    #define WATCH_BED_TEMP_PERIOD                60 // Seconds
+  #endif
   #define WATCH_BED_TEMP_INCREASE               2 // Degrees Celsius
 #endif
 
