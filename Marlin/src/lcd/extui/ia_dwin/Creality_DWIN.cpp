@@ -2160,7 +2160,7 @@ void SetTouchScreenConfiguration() {
   LIMIT(Settings.screen_brightness, 10, 100); // Prevent a possible all-dark screen
   LIMIT(Settings.standby_time_seconds, 10, 655); // Prevent a possible all-dark screen for standby, yet also don't go higher than the DWIN limitation
 
-#define LOWRES_DWIN
+  //#define LOWRES_DWIN
   unsigned char cfg_bits = 0x0;
   //#if ENABLED(DWINOS_4)
     cfg_bits |= 1UL << 7; // 7: Enable Control
