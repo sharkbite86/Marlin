@@ -1367,7 +1367,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-//#define S_CURVE_ACCELERATION
+#define S_CURVE_ACCELERATION
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -1598,13 +1598,13 @@
   #if ENABLED(BMGExtruderV2)
     #define NOZZLE_TO_PROBE_OFFSET { -1.75, -42, -1.125 }
   #elif ENABLED(BMGExtruderV3)
-    #define NOZZLE_TO_PROBE_OFFSET { -1.75, -42, -2.3837 }
+    #define NOZZLE_TO_PROBE_OFFSET { -43.0, -4.0, -1 }
   #elif ENABLED(TitanExtruder)
     #define NOZZLE_TO_PROBE_OFFSET { 7, -47, -1.34 }
   #elif ENABLED(H2Extruder)
     #define NOZZLE_TO_PROBE_OFFSET { -34.5, -3, -1.34 }
   #else
-    #define NOZZLE_TO_PROBE_OFFSET { 34.5, -3, -2 }
+    #define NOZZLE_TO_PROBE_OFFSET { -43.0, -4.0, -1 }
   #endif
 
 // Most probes should stay away from the edges of the bed, but
