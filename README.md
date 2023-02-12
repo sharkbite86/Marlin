@@ -1,74 +1,28 @@
-﻿## Creality Touch/TFT Screen supported firmware
+﻿## Dwin Touch/TFT Screen supported firmware
 
-This branch adds support for the Creality touchscreen machines and was split off from the standard Creality branches due to specific custom changes not found upstream. This includes extensions to the EXTui framework among other smaller tweaks that we have been working towards getting submitted upstream. Machines supported here are :
-
-- [CR10S Pro / V2](https://www.tinymachines3d.com/products/cr-10s-pro-v2-3d-printer?rfsn=3419592.cc302fe)
-- [CR10 Max](https://www.tinymachines3d.com/products/creality-cr-10-max-3d-printer?rfsn=3419592.cc302fe)
-- [Ender 5 Plus](https://www.tinymachines3d.com/products/ender-5-plus-silent-board-custom-dual-z-3d-printer?rfsn=3419592.cc302fe)
-- [Ender 6](https://amzn.to/3JRyOhi)
-- [CR-X / Pro](https://www.tinymachines3d.com/products/creality-cr-x-pro-3d-printer-with-dual-extruder-and-bl-touch?rfsn=3419592.cc302fe)
-- [CR10 V2 ](https://www.tinymachines3d.com/products/creality-cr-10-v2-3d-printer?rfsn=3419592.cc302fe)
-- [CR10 V3 ](https://www.tinymachines3d.com/products/creality-cr-10-v3-plus-3d-printer-with-genuine-e3d-direct-drive-extruder-and-bl-touch?rfsn=3419592.cc302fe)
-- [Ender 3 / Pro 4.2.2 and 4.2.7](https://amzn.to/3BRHlxY)
-- [Ender 3 V2](https://www.tinymachines3d.com/products/ender-3-v2?rfsn=3419592.cc302fe)
-- [Ender 3 Max](https://www.tinymachines3d.com/products/ender-3-max-3d-printer?rfsn=3419592.cc302fe)
-- [Ender 5 / Pro 4.2.2 and 4.2.7](https://amzn.to/3gMb2Yu)
-- [CR10S5 500mm](https://www.tinymachines3d.com/products/creality-cr-10-s5-3d-printer?rfsn=3419592.cc302fe)
-- [CR6 SE](https://www.tinymachines3d.com/products/creality-cr-6-se-3d-printer?rfsn=3419592.cc302fe)
-- [CR6 Max](https://www.tinymachines3d.com/products/creality-cr-6-max-3d-printer?rfsn=3419592.cc302fe)
-- [CR10 Smart](https://www.tinymachines3d.com/products/creality-cr-10-smart-3d-printer?rfsn=3419592.cc302fe)
-- [Ender 7](https://www.tinymachines3d.com/products/ender-7-3d-printer?rfsn=3419592.cc302fe)
-- [CR30](https://www.tinymachines3d.com/products/cr-30-infinite-z-belt-3d-printer?rfsn=3419592.cc302fe)
-- [Sermoon D1](https://amzn.to/3LXfZeD)
-- [CR5 / Pro HT](https://amzn.to/3gWvpBt)
-- [Ender 3 S1](https://www.tinymachines3d.com/products/ender-3-s1-3d-printer?rfsn=3419592.cc302fe)
-- [Ender 2 Pro](https://www.tinymachines3d.com/products/ender-2-pro-3d-printer?rfsn=3419592.cc302fe)
-
-- CR10S, CR10S4, CR20 and Pro, CR10, CR10Mini, CR2020, Ender 4, Ender 2 - Legacy support
-- These configurations exist however due to age and product availability are no longer actively tested
-
-## Coming Soon
-- [CR10 Smart Pro](https://www.tinymachines3d.com/products/cr-10-smart-pro-3d-printer?rfsn=3419592.cc302fe)
-- [CR200B]()
-
-## Resin machines below from Tiny Machines are listed simply as an additional way to help support the project. If youre considering buying one, please do so through the following links :
- - [Halot One CL-60](https://www.tinymachines3d.com/products/halot-one-cl-60-resin-3d-printer?rfsn=3419592.cc302fe)
- - [LD-002R](https://www.tinymachines3d.com/products/ld-002r-resin-printer?rfsn=3419592.cc302fe)
- - [LD-002H](https://www.tinymachines3d.com/products/ld-002h-resin-3d-printer?rfsn=3419592.cc302fe)
- - [LD-006](https://www.tinymachines3d.com/products/ld-006-resin-3d-printer?rfsn=3419592.cc302fe)
- - [UW-02 Washer](https://www.tinymachines3d.com/products/uw-02-washing-curing-machine?rfsn=3419592.cc302fe)
-
-
-Ender 3V2 has a dedicated file set. CR10 Smart has a dedicated high resolution screen set. Portrait displays use the CR6/E3 Touch variant and landscape use the combined set.
-
-Screen files are archived with [7-Zip](https://www.7-zip.org/) simply because it came out 1/5 the file size of a zip file. That added up fast!
-
-There is a limitation with Windows systems and path depth so the file names need to be shorter than we would prefer. If you get an error compiling due to the path limit, move the folder to the root of your hard drive. Here is a legend to help decode the files:
-
-- BLT = BLTouch
-- BIL = Bilinear Leveling
-- UBL - Unified Bed Leveling
-- DZ = Dual Z Steppers
-- Fil = FilamentRunout
-- Slnt = Creality Silent Board
-- H = E3D Hemera Extruder
-- MC = Mosquito Creality mount
-- ME = Mosquito E3D mount
-- Melzi Host option disables local SD card to allow more features and buffer for Octoprint control
-- NF = Noise filtering for machines with cable extensions - reduces homing accuracy!
-- LR = Stock runout replaced with Lerdge
-- ZM = BLTouch connected to ZMin port instead of Probe pin 5 connector harness
+- Info screen Version Code Reference
+- - Char 1 - Driver (A-4988, T-TMC220X)
+- - Char 2 - Z Stop(B-BLTouch, E-Endstop)
+- - Char 3 - Screen(L-LowRes, H-THighRes)
+- - Char 4 - Bed (A-AC, D-DC)
+- - Char 5 - Endstop(O-Optical Y, M-Mechanical Y)
+- - Char 6 - Extruder (T-Titan, B-BMG, L-LGX, S-Basic)
 
 ## Support
 
-This firmware is provided to the public as-is with no warranty or guarantee. It's based on a large open source project and there is no entitlement to support. That said, Tiny Machines 3D customers may obtain
-support through their normal support queue. I will provide support to Patreons as I am able. If you require more immediate support and are not a Tiny Machines 3D customer, you may contact them at
-support@tinymachines3d.com about purchasing support hours. Aside from this, we are active on many Facebook groups as well as several discord channels and typically help anyone we can when we come across them.
+This firmware is provided to the public as-is with no warranty or guarantee. It's based on a large open source project and there is no entitlement to support. That said, LNL Solutions customers may obtain support through their normal support queue. I will provide support to Patreons as I am able. Aside from this, we are active on many discord channels and typically help anyone we can when we come across them.
 
 We have now created a dedicated Discord server to handle support and archive relevant guides and instructions. Patreon supporters will get priority assistance.
 
 Insanity Automation Discord - https://discord.gg/TKmJ85PyG4
 Marlin Firmware Discord - https://discord.gg/n5NJ59y
+
+## Primary Notes for DW7.4.7
+   - Added IDEX screens
+   - Added Branch / support for Tenlog IDEX machines with LNL Solutions
+   - Fan adjustment now numeric instead of simple on/off
+   - Tap Z offset on adjustment screen to type numeric value
+   - Sync to 2.1.2 with LA now on for all builds, Silent specific builds eliminated
 
 ## Primary Notes for DW7.4.6
   - Added Support for the Ender 2 Pro
@@ -173,11 +127,8 @@ Please keep in mind when flashing the Creality 32 bit boards with the binary fil
 
 For this branch, we still have some active goals open that we plan to continue working on provided there is continued interest in the project.
 - CR10 Smart Power controls and network reset pin output to web interface device
-- Add temp reporting to leveling screens so preheat is less of a mystery
-- Revise aux leveling to use probe and deviation reporting when present
-- Determine cause of clicking on Sermoon (need to get hands on a machine)
-- Add CR5 Support
-- Add Ender 3 S1 support
+- Screens for IS and LA adjustment
+
 
 
 ## Creality Firmware Branches
@@ -201,10 +152,8 @@ For this branch, we still have some active goals open that we plan to continue w
 
 [Marlin Commit History](https://github.com/MarlinFirmware/Marlin/pulls?q=is%3Apr+is%3Aclosed+author%3AInsanityAutomation)
 
-
 ## Marlin
-This is just one of many forks of Marlin. We don't try to bury that behind fancy marketting or anything else. As you can see from the links above, most of the work done here is submitted back to the mainstream Marlin
-branches. The end goal of every project is to get it to the point where it is merged and maintained there. See marlin resources, including how to contribute to the Marlin Project as well, down below.
+This is just one of many forks of Marlin. We don't try to bury that behind fancy marketting or anything else.
 
 <p align="center"><img src="buildroot/share/pixmaps/logo/marlin-outrun-nf-500.png" height="250" alt="MarlinFirmware's logo" /></p>
 
@@ -212,134 +161,7 @@ branches. The end goal of every project is to get it to the point where it is me
 
 <p align="center">
     <a href="/LICENSE"><img alt="GPL-V3.0 License" src="https://img.shields.io/github/license/marlinfirmware/marlin.svg"></a>
-    <a href="https://github.com/MarlinFirmware/Marlin/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/marlinfirmware/marlin.svg"></a>
-    <a href="https://github.com/MarlinFirmware/Marlin/releases"><img alt="Last Release Date" src="https://img.shields.io/github/release-date/MarlinFirmware/Marlin"></a>
-    <a href="https://github.com/MarlinFirmware/Marlin/actions"><img alt="CI Status" src="https://github.com/MarlinFirmware/Marlin/actions/workflows/test-builds.yml/badge.svg"></a>
-    <a href="https://github.com/sponsors/thinkyhead"><img alt="GitHub Sponsors" src="https://img.shields.io/github/sponsors/thinkyhead?color=db61a2"></a>
-    <br />
-    <a href="https://fosstodon.org/@marlinfirmware"><img alt="Follow MarlinFirmware on Mastodon" src="https://img.shields.io/mastodon/follow/109450200866020466?domain=https%3A%2F%2Ffosstodon.org&logoColor=%2300B&style=social"></a>
 </p>
-
-## Example Configurations
-
-Before you can build Marlin for your machine you'll need a configuration for your specific hardware. Upon request, your vendor will be happy to provide you with the complete source code and configurations for your machine, but you'll need to get updated configuration files if you want to install a newer version of Marlin. Fortunately, Marlin users have contributed dozens of tested configurations to get you started. Visit the [MarlinFirmware/Configurations](https://github.com/MarlinFirmware/Configurations) repository to find the right configuration for your hardware.
-
-## Building Marlin 2.0
-
-To build and upload Marlin you will use one of these tools:
-
-- The free [Visual Studio Code](https://code.visualstudio.com/download) using the [Auto Build Marlin](https://marlinfw.org/docs/basics/auto_build_marlin.html) extension.
-- The free [Arduino IDE](https://www.arduino.cc/en/main/software) : See [Building Marlin with Arduino](https://marlinfw.org/docs/basics/install_arduino.html)
-
-Marlin is optimized to build with the **PlatformIO IDE** extension for **Visual Studio Code**. You can still build Marlin with **Arduino IDE**, and we hope to improve the Arduino build experience, but at this time PlatformIO is the better choice.
-
-## Hardware Abstraction Layer (HAL)
-
-Marlin includes an abstraction layer to provide a common API for all the platforms it targets. This allows Marlin code to address the details of motion and user interface tasks at the lowest and highest levels with no system overhead, tying all events directly to the hardware clock.
-
-Every new HAL opens up a world of hardware. At this time we need HALs for RP2040 and the Duet3D family of boards. A HAL that wraps an RTOS is an interesting concept we would can explore. Did you know that Marlin includes a Simulator that can run on Windows, macOS, and Linux? Join the Discord to help move these sub-projects forward!
-
-## 8-Bit AVR Boards
-
-A core tenet of this project is to keep supporting 8-bit AVR boards while also maintaining a single codebase that applies equally to all machines. We want casual hobbyists to benefit from the community's innovations as much as possible just as much as those with fancier machines. Plus, those old AVR-based machines are often the best for your testing and feedback!
-
-### Supported Platforms
-
-  Platform|MCU|Example Boards
-  --------|---|-------
-  [Arduino AVR](https://www.arduino.cc/)|ATmega|RAMPS, Melzi, RAMBo
-  [Teensy++ 2.0](https://www.microchip.com/en-us/product/AT90USB1286)|AT90USB1286|Printrboard
-  [Arduino Due](https://www.arduino.cc/en/Guide/ArduinoDue)|SAM3X8E|RAMPS-FD, RADDS, RAMPS4DUE
-  [ESP32](https://github.com/espressif/arduino-esp32)|ESP32|FYSETC E4, E4d@BOX, MRR
-  [LPC1768](https://www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc1700-cortex-m3/512-kb-flash-64-kb-sram-ethernet-usb-lqfp100-package:LPC1768FBD100)|ARM® Cortex-M3|MKS SBASE, Re-ARM, Selena Compact
-  [LPC1769](https://www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc1700-cortex-m3/512-kb-flash-64-kb-sram-ethernet-usb-lqfp100-package:LPC1769FBD100)|ARM® Cortex-M3|Smoothieboard, Azteeg X5 mini, TH3D EZBoard
-  [STM32F103](https://www.st.com/en/microcontrollers-microprocessors/stm32f103.html)|ARM® Cortex-M3|Malyan M200, GTM32 Pro, MKS Robin, BTT SKR Mini
-  [STM32F401](https://www.st.com/en/microcontrollers-microprocessors/stm32f401.html)|ARM® Cortex-M4|ARMED, Rumba32, SKR Pro, Lerdge, FYSETC S6, Artillery Ruby
-  [STM32F7x6](https://www.st.com/en/microcontrollers-microprocessors/stm32f7x6.html)|ARM® Cortex-M7|The Borg, RemRam V1
-  [SAMD51P20A](https://www.adafruit.com/product/4064)|ARM® Cortex-M4|Adafruit Grand Central M4
-  [Teensy 3.5](https://www.pjrc.com/store/teensy35.html)|ARM® Cortex-M4|
-  [Teensy 3.6](https://www.pjrc.com/store/teensy36.html)|ARM® Cortex-M4|
-  [Teensy 4.0](https://www.pjrc.com/store/teensy40.html)|ARM® Cortex-M7|
-  [Teensy 4.1](https://www.pjrc.com/store/teensy41.html)|ARM® Cortex-M7|
-  Linux Native|x86/ARM/etc.|Raspberry Pi
-
-## Submitting Patches
-
-Proposed patches should be submitted as a Pull Request against the ([bugfix-2.1.x](https://github.com/MarlinFirmware/Marlin/tree/bugfix-2.1.x)) branch.
-
-- This branch is for fixing bugs and integrating any new features for the duration of the Marlin 2.1.x life-cycle.
-- Follow the [Coding Standards](https://marlinfw.org/docs/development/coding_standards.html) to gain points with the maintainers.
-- Please submit Feature Requests and Bug Reports to the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues/new/choose). Support resources are also listed there.
-- Whenever you add new features, be sure to add tests to `buildroot/tests` and then run your tests locally, if possible.
-  - It's optional: Running all the tests on Windows might take a long time, and they will run anyway on GitHub.
-  - If you're running the tests on Linux (or on WSL with the code on a Linux volume) the speed is much faster.
-  - You can use `make tests-all-local` or `make tests-single-local TEST_TARGET=...`.
-  - If you prefer Docker you can use `make tests-all-local-docker` or `make tests-all-local-docker TEST_TARGET=...`.
-
-## Marlin Support
-
-The Issue Queue is reserved for Bug Reports and Feature Requests. To get help with configuration and troubleshooting, please use the following resources:
-
-- [Marlin Documentation](https://marlinfw.org) - Official Marlin documentation
-- [Marlin Discord](https://discord.gg/n5NJ59y) - Discuss issues with Marlin users and developers
-- Facebook Group ["Marlin Firmware"](https://www.facebook.com/groups/1049718498464482/)
-- RepRap.org [Marlin Forum](https://forums.reprap.org/list.php?415)
-- Facebook Group ["Marlin Firmware for 3D Printers"](https://www.facebook.com/groups/3Dtechtalk/)
-- [Marlin Configuration](https://www.youtube.com/results?search_query=marlin+configuration) on YouTube
-
-## Contributors
-
-Marlin is constantly improving thanks to a huge number of contributors from all over the world bringing their specialties and talents. Huge thanks are due to [all the contributors](https://github.com/MarlinFirmware/Marlin/graphs/contributors) who regularly patch up bugs, help direct traffic, and basically keep Marlin from falling apart. Marlin's continued existence would not be possible without them.
-
-## Administration
-
-Regular users can open and close their own issues, but only the administrators can do project-related things like add labels, merge changes, set milestones, and kick trolls. The current Marlin admin team consists of:
-
-<table align="center">
-<tr><td>Project Maintainer</td></tr>
-<tr><td>
-
- 🇺🇸  **Scott Lahteine**
-       [@thinkyhead](https://github.com/thinkyhead)
-       [<kbd>  Donate 💸  </kbd>](https://www.thinkyhead.com/donate-to-marlin)
-
-</td><td>
-
- 🇺🇸  **Roxanne Neufeld**
-       [@Roxy-3D](https://github.com/Roxy-3D)
-
- 🇺🇸  **Keith Bennett**
-       [@thisiskeithb](https://github.com/thisiskeithb)
-       [<kbd>  Donate 💸  </kbd>](https://github.com/sponsors/thisiskeithb)
-
- 🇺🇸  **Jason Smith**
-       [@sjasonsmith](https://github.com/sjasonsmith)
-
-</td><td>
-
- 🇧🇷  **Victor Oliveira**
-       [@rhapsodyv](https://github.com/rhapsodyv)
-
- 🇬🇧  **Chris Pepper**
-       [@p3p](https://github.com/p3p)
-
-🇳🇿  **Peter Ellens**
-       [@ellensp](https://github.com/ellensp)
-       [<kbd>  Donate 💸  </kbd>](https://ko-fi.com/ellensp)
-
-</td><td>
-
- 🇺🇸  **Bob Kuhn**
-       [@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)
-
- 🇳🇱  **Erik van der Zalm**
-       [@ErikZalm](https://github.com/ErikZalm)
-       [<kbd>  Donate 💸  </kbd>](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
-
-</td></tr>
-</table>
-
-## License
 
 Marlin is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
 
