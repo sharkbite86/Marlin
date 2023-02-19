@@ -161,8 +161,8 @@ void onStartup()
 void onIdle()
 {
 
-   while (rtscheck.RTS_RecData() > 0 && (rtscheck.recdat.data[0]!=0 || rtscheck.recdat.addr!=0))
-		rtscheck.RTS_HandleData();
+  int dataRec;
+   do { dataRec = rtscheck.RTS_RecData(); } while (dataRec > 0);
 
   if (reEntryPrevent && reEntryCount < 120) {
     reEntryCount++;
@@ -591,6 +591,7 @@ int RTSSHOW::RTS_RecData()
           SERIAL_ECHOLNPGM("d3: ", tmp[5] , " - d4 ", tmp[6]);
 
           rx_datagram_state = DGUS_IDLE;
+          RTS_HandleData();
           return 2;
           break;
         }
@@ -774,7 +775,7 @@ void RTSSHOW::WriteVariable(uint16_t adr, long value) {
   WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
 }
 
-void RTSSHOW::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false, char fillChar = ' ') {
+void RTSSHOW::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr, char fillChar) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
   DWIN_SERIAL.write(FHONE);
@@ -1895,7 +1896,7 @@ void RTSSHOW::RTS_HandleData()
           //PrinterStatusKey[1] = 3;
           //pause_resume_selected = true;
         }
-        else if (ExtUI::pauseModeStatus == PAUSE_MESSAGE_PURGE || ExtUI::pauseModeStatus == PAUSE_MESSAGE_OPTION) {
+        else {
           #if ENABLED(FILAMENT_RUNOUT_SENSOR)
             if(getFilamentRunoutState() && getFilamentRunoutEnabled(getActiveTool()))
               ExtUI::setFilamentRunoutEnabled(false, getActiveTool());
