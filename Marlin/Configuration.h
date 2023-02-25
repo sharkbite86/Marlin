@@ -115,9 +115,8 @@
 #elif ENABLED(OCTOPUS)
   #define SERIAL_PORT -1
   #define LCD_SERIAL_PORT 1
-  #define SERIAL_PORT_3 2
+  #define SERIAL_PORT_2 2
   #define BAUDRATE_2 115200
-  #define BAUDRATE_3 115200
 #else
   #define SERIAL_PORT 0
   #define LCD_SERIAL_PORT 2
