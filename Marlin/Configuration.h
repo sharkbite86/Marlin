@@ -3,6 +3,12 @@
 
 #define INSANITYAUTOMATION_DWIN
 
+#if ENABLED(VULCAN)
+  #define VULCAN_OFFSET 4
+#else
+  #define VULCAN_OFFSET 0
+#endif
+
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -1597,7 +1603,7 @@
  *     O-- FRONT --+
  */
   #if ENABLED(BMGExtruderV2)
-    #define NOZZLE_TO_PROBE_OFFSET { -1.75, -42, -1.125 }
+    #define NOZZLE_TO_PROBE_OFFSET { 7, -47, -1.34 }
   #elif ENABLED(BMGExtruderV3)
     #define NOZZLE_TO_PROBE_OFFSET { -43.0, -4.0, -1 }
   #elif ENABLED(TitanExtruder)
@@ -1841,42 +1847,42 @@
 #endif
 
 #if ENABLED(MachineTLD3P)
-  #define X_BED_SIZE 310
+  #define X_BED_SIZE 310 - VULCAN_OFFSET
   #define Y_BED_SIZE 310
   #define Y_MAX_POS 333 + Y_OFFSET
   #define Z_MAX_POS 350
 #elif ENABLED(MachineTLD4)
-  #define X_BED_SIZE 405
+  #define X_BED_SIZE 405 - VULCAN_OFFSET
   #define Y_BED_SIZE 420
   #define Y_MAX_POS 433 + Y_OFFSET
   #define Z_MAX_POS 410
 #elif ENABLED(MachineTLD5)
-  #define X_BED_SIZE 505
+  #define X_BED_SIZE 505 - VULCAN_OFFSET
   #define Y_BED_SIZE 520
   #define Y_MAX_POS 533 + Y_OFFSET
   #define Z_MAX_POS 610
 #elif ENABLED(MachineTLD6)
-  #define X_BED_SIZE 605
+  #define X_BED_SIZE 605 - VULCAN_OFFSET
   #define Y_BED_SIZE 620
   #define Y_MAX_POS 633 + Y_OFFSET
   #define Z_MAX_POS 610
 #elif ENABLED(MachineTLD2P)
-  #define X_BED_SIZE 220
+  #define X_BED_SIZE 220 - VULCAN_OFFSET
   #define Y_BED_SIZE 225
   #define Y_MAX_POS 238 + Y_OFFSET
   #define Z_MAX_POS 260
 #elif ENABLED(MachineTLH2P)
-  #define X_BED_SIZE 235
+  #define X_BED_SIZE 235 - VULCAN_OFFSET
   #define Y_BED_SIZE 240
   #define Y_MAX_POS 253 + Y_OFFSET
   #define Z_MAX_POS 260
 #endif
 
 // Travel limits (linear=mm, rotational=°) after homing, corresponding to endstop positions.
-#define X_MIN_POS -50 + X_OFFSET
+#define X_MIN_POS -50 + X_OFFSET  + VULCAN_OFFSET
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS X_BED_SIZE
+#define X_MAX_POS X_BED_SIZE + VULCAN_OFFSET
 //#define Y_MAX_POS Y_BED_SIZE
 //#define Z_MAX_POS 200
 //#define I_MIN_POS 0

@@ -809,17 +809,17 @@
   #define X2_OFFSET -3
 #endif
   #if ENABLED(MachineTLD3P)
-  #define X2_MAX_POS 359 + X2_OFFSET          // The max position of the X2 carriage, typically also the home position
+  #define X2_MAX_POS 359 + X2_OFFSET - VULCAN_OFFSET          // The max position of the X2 carriage, typically also the home position
 #elif ENABLED(MachineTLD4)
-  #define X2_MAX_POS 454 + X2_OFFSET
+  #define X2_MAX_POS 454 + X2_OFFSET - VULCAN_OFFSET
 #elif ENABLED(MachineTLD5)
-  #define X2_MAX_POS 554 + X2_OFFSET
+  #define X2_MAX_POS 554 + X2_OFFSET - VULCAN_OFFSET
 #elif ENABLED(MachineTLD6)
-  #define X2_MAX_POS 654 + X2_OFFSET
+  #define X2_MAX_POS 654 + X2_OFFSET - VULCAN_OFFSET
 #elif ENABLED(MachineTLD2P)
-  #define X2_MAX_POS 264 + X2_OFFSET
+  #define X2_MAX_POS 264 + X2_OFFSET - VULCAN_OFFSET
 #elif ENABLED(MachineTLH2P)
-  #define X2_MAX_POS 279 + X2_OFFSET
+  #define X2_MAX_POS 279 + X2_OFFSET - VULCAN_OFFSET
 #endif
 #define X2_HOME_DIR    1        // Set to 1. The X2 carriage always homes to the max endstop position
   #define X2_HOME_POS X2_MAX_POS  // Default X2 home position. Set to X2_MAX_POS.
