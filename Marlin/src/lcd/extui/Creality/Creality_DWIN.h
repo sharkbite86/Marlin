@@ -92,6 +92,14 @@ namespace ExtUI {
 #define ProbeOffset_Y  0x123A
 #define ProbeOffset_Z  0x1026
 
+#define T2Offset_X    0x1090
+#define T2Offset_Y    0x1094
+#define T2Offset_Z    0x1098
+#define T2StepMM_E    0x109C
+#define IdexSettings  0x9999
+
+#define ActiveToolVP  0x1014
+
 #define HotendPID_AutoTmp 0x1252
 #define BedPID_AutoTmp    0x1254
 
@@ -121,11 +129,14 @@ namespace ExtUI {
 
 #define	HeatPercentIcon		0x1024
 
-#define	NzBdSet				0x1032
-#define	NozzlePreheat		0x1034
-#define	NozzleTemp			0x1036
-#define	BedPreheat			0x103A
-#define	Bedtemp				0x103C
+#define	NzBdSet				0x1032 // cooldown Hotend and Bed
+#define	NozzlePreheat		0x1034 // setpoint
+#define	NozzleTemp			0x1036 // Actual
+#define	BedPreheat			0x103A // Setpoint
+#define	Bedtemp				0x103C // Actual
+
+#define e2Temp      0x1050
+#define e2Preheat   0x104E
 
 #define	AutoZeroIcon		0x1042
 #define	AutoLevelIcon		0x1045
@@ -166,11 +177,6 @@ namespace ExtUI {
 #define DisplayStandbyEnableIndicator 0x1146
 #define DisplayStandbySeconds 0x1148
 
-//#if ANY(MachineCR10SPro, MachineEnder5Plus, MachineCR10Max) || ENABLED(FORCE10SPRODISPLAY)
-//  #define StatusMessageString 0x3000
-//#else
-//  #define StatusMessageString 0x20E8
-//#endif
 #define StatusMessageString 0x2064
 
 #if defined(TARGET_STM32F4)
@@ -235,6 +241,8 @@ class RTSSHOW {
     void RTS_SndData(unsigned int,unsigned long, unsigned char = VarAddr_W);
     void RTS_SndData(long,unsigned long, unsigned char = VarAddr_W);
     void RTS_SndData(unsigned long,unsigned long, unsigned char = VarAddr_W);
+    void WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false, char fillChar = ' ');
+    void WriteVariable(uint16_t adr, long);
     void RTS_SDcard_Stop();
     void RTS_HandleData();
     void RTS_Init();

@@ -153,6 +153,9 @@ class PrintJobRecovery {
     static void prepare();
 
     static void setup() {
+      #if PIN_EXISTS(OUTAGECON)
+        OUT_WRITE(OUTAGECON_PIN, HIGH);
+      #endif
       #if PIN_EXISTS(POWER_LOSS)
         #if ENABLED(POWER_LOSS_PULLUP)
           SET_INPUT_PULLUP(POWER_LOSS_PIN);
@@ -176,11 +179,11 @@ class PrintJobRecovery {
     static void open(const bool read) { card.openJobRecoveryFile(read); }
     static void close() { file.close(); }
 
-    static void check();
+    static bool check();
     static void resume();
     static void purge();
 
-    static void cancel() { purge(); IF_DISABLED(NO_SD_AUTOSTART, card.autofile_begin()); }
+    static void cancel() { purge(); }
 
     static void load();
     static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=POWER_LOSS_ZRAISE, const bool raised=false);

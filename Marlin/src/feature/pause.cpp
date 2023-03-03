@@ -35,9 +35,12 @@
 #include "../gcode/gcode.h"
 #include "../module/motion.h"
 #include "../module/planner.h"
-#include "../module/stepper.h"
 #include "../module/printcounter.h"
 #include "../module/temperature.h"
+
+#if HAS_EXTRUDERS
+  #include "../module/stepper.h"
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "bedlevel/bedlevel.h"
@@ -63,7 +66,7 @@
 
 #include "../lcd/marlinui.h"
 
-#if HAS_BUZZER
+#if HAS_SOUND
   #include "../libs/buzzer.h"
 #endif
 
@@ -98,7 +101,7 @@ fil_change_settings_t fc_settings[EXTRUDERS];
   #define _PMSG(L) L##_LCD
 #endif
 
-#if HAS_BUZZER
+#if HAS_SOUND
   static void impatient_beep(const int8_t max_beep_count, const bool restart=false) {
 
     if (TERN0(HAS_MARLINUI_MENU, pause_mode == PAUSE_MODE_PAUSE_PRINT)) return;
@@ -416,7 +419,6 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
   #endif
 
   TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("Pause"), FPSTR(DISMISS_STR)));
-  TERN_(DWIN_LCD_PROUI, DWIN_Print_Pause());
 
   // Indicate that the printer is paused
   ++did_pause_print;
@@ -467,6 +469,7 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
 
   // If axes don't need to home then the nozzle can park
   if (do_park) nozzle.park(0, park_point); // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
+  TERN_(DWIN_LCD_PROUI, if (!do_park) ui.set_status(GET_TEXT_F(MSG_PARK_FAILED)));
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
@@ -478,9 +481,7 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
   if (unload_length)
     unload_filament(unload_length, show_lcd, PAUSE_MODE_CHANGE_FILAMENT);
 
-  #if ENABLED(DUAL_X_CARRIAGE)
-    set_duplication_enabled(saved_ext_dup_mode, saved_ext);
-  #endif
+  TERN_(DUAL_X_CARRIAGE, set_duplication_enabled(saved_ext_dup_mode, saved_ext));
 
   // Disable the Extruder for manual change
   disable_active_extruder();
@@ -586,9 +587,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     }
     idle_no_sleep();
   }
-  #if ENABLED(DUAL_X_CARRIAGE)
-    set_duplication_enabled(saved_ext_dup_mode, saved_ext);
-  #endif
+  TERN_(DUAL_X_CARRIAGE, set_duplication_enabled(saved_ext_dup_mode, saved_ext));
 }
 
 /**
@@ -681,8 +680,9 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
 
   // If resume_position is negative
   //if (resume_position.e < 0) unscaled_e_move(resume_position.e, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
-  #if ADVANCED_PAUSE_RESUME_PRIME != 0
-    unscaled_e_move(ADVANCED_PAUSE_RESUME_PRIME, feedRate_t(ADVANCED_PAUSE_PURGE_FEEDRATE));
+  #ifdef ADVANCED_PAUSE_RESUME_PRIME
+    if (ADVANCED_PAUSE_RESUME_PRIME != 0)
+      unscaled_e_move(ADVANCED_PAUSE_RESUME_PRIME, feedRate_t(ADVANCED_PAUSE_PURGE_FEEDRATE));
   #endif
 
   // Now all extrusion positions are resumed and ready to be confirmed
@@ -719,9 +719,8 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
 
   TERN_(HAS_FILAMENT_SENSOR, runout.reset());
 
-  TERN(DWIN_LCD_PROUI, DWIN_Print_Resume(), ui.reset_status());
-  TERN_(HAS_MARLINUI_MENU, ui.return_to_status());
-  TERN_(DWIN_LCD_PROUI, HMI_ReturnScreen());
+  ui.reset_status();
+  ui.return_to_status();
 }
 
 #endif // ADVANCED_PAUSE_FEATURE

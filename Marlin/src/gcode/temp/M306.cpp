@@ -25,6 +25,7 @@
 #if ENABLED(MPCTEMP)
 
 #include "../gcode.h"
+#include "../../lcd/marlinui.h"
 #include "../../module/temperature.h"
 
 /**
@@ -36,50 +37,51 @@
  *  C<joules/kelvin>          Block heat capacity.
  *  E<extruder>               Extruder number to set. (Default: E0)
  *  F<watts/kelvin>           Ambient heat transfer coefficient (fan on full).
+ *  H<joules/kelvin/mm>       Filament heat capacity per mm.
  *  P<watts>                  Heater power.
  *  R<kelvin/second/kelvin>   Sensor responsiveness (= transfer coefficient / heat capcity).
  */
 
 void GcodeSuite::M306() {
-  if (parser.seen_test('T')) { thermalManager.MPC_autotune(); return; }
-
-  if (parser.seen("ACFPR")) {
-    const heater_id_t hid = (heater_id_t)parser.intval('E', 0);
-    MPC_t &constants = thermalManager.temp_hotend[hid].constants;
-    if (parser.seenval('P')) constants.heater_power = parser.value_float();
-    if (parser.seenval('C')) constants.block_heat_capacity = parser.value_float();
-    if (parser.seenval('R')) constants.sensor_responsiveness = parser.value_float();
-    if (parser.seenval('A')) constants.ambient_xfer_coeff_fan0 = parser.value_float();
-    #if ENABLED(MPC_INCLUDE_FAN)
-      if (parser.seenval('F')) constants.fan255_adjustment = parser.value_float() - constants.ambient_xfer_coeff_fan0;
-    #endif
+  if (parser.seen_test('T')) {
+    LCD_MESSAGE(MSG_MPC_AUTOTUNE);
+    thermalManager.MPC_autotune();
+    ui.reset_status();
     return;
   }
 
-  HOTEND_LOOP() {
-    SERIAL_ECHOLNPGM("MPC constants for hotend ", e);
-    MPC_t& constants = thermalManager.temp_hotend[e].constants;
-    SERIAL_ECHOLNPGM("Heater power: ", constants.heater_power);
-    SERIAL_ECHOLNPGM("Heatblock heat capacity: ", constants.block_heat_capacity);
-    SERIAL_ECHOLNPAIR_F("Sensor responsivness: ", constants.sensor_responsiveness, 4);
-    SERIAL_ECHOLNPAIR_F("Ambient heat transfer coeff. (no fan): ", constants.ambient_xfer_coeff_fan0, 4);
+  if (parser.seen("ACFPRH")) {
+    const heater_id_t hid = (heater_id_t)parser.intval('E', 0);
+    MPC_t &mpc = thermalManager.temp_hotend[hid].mpc;
+    if (parser.seenval('P')) mpc.heater_power = parser.value_float();
+    if (parser.seenval('C')) mpc.block_heat_capacity = parser.value_float();
+    if (parser.seenval('R')) mpc.sensor_responsiveness = parser.value_float();
+    if (parser.seenval('A')) mpc.ambient_xfer_coeff_fan0 = parser.value_float();
     #if ENABLED(MPC_INCLUDE_FAN)
-      SERIAL_ECHOLNPAIR_F("Ambient heat transfer coeff. (full fan): ", constants.ambient_xfer_coeff_fan0 + constants.fan255_adjustment, 4);
+      if (parser.seenval('F')) mpc.applyFanAdjustment(parser.value_float());
     #endif
+    if (parser.seenval('H')) mpc.filament_heat_capacity_permm = parser.value_float();
+    return;
   }
+
+  M306_report(true);
 }
 
 void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
   report_heading(forReplay, F("Model predictive control"));
   HOTEND_LOOP() {
     report_echo_start(forReplay);
-    MPC_t& constants = thermalManager.temp_hotend[e].constants;
+    MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
     SERIAL_ECHOPGM("  M306 E", e);
-    SERIAL_ECHOPAIR_F(" P", constants.heater_power, 2);
-    SERIAL_ECHOPAIR_F(" C", constants.block_heat_capacity, 2);
-    SERIAL_ECHOPAIR_F(" R", constants.sensor_responsiveness, 4);
-    SERIAL_ECHOPAIR_F(" A", constants.ambient_xfer_coeff_fan0, 4);
-    SERIAL_ECHOLNPAIR_F(" F", constants.ambient_xfer_coeff_fan0 + constants.fan255_adjustment, 4);
+    SERIAL_ECHOPAIR_F(" P", mpc.heater_power, 2);
+    SERIAL_ECHOPAIR_F(" C", mpc.block_heat_capacity, 2);
+    SERIAL_ECHOPAIR_F(" R", mpc.sensor_responsiveness, 4);
+    SERIAL_ECHOPAIR_F(" A", mpc.ambient_xfer_coeff_fan0, 4);
+    #if ENABLED(MPC_INCLUDE_FAN)
+      SERIAL_ECHOPAIR_F(" F", mpc.fanCoefficient(), 4);
+    #endif
+    SERIAL_ECHOPAIR_F(" H", mpc.filament_heat_capacity_permm, 4);
+    SERIAL_EOL();
   }
 }
 

@@ -37,19 +37,19 @@ void EndstopStatesScreen::onExit() {
   BaseScreen::onExit();
 }
 
+#define GRID_COLS 6
+#define GRID_ROWS 7
+
+#define PIN_BTN(X,Y,PIN,LABEL)          button(BTN_POS(X,Y), BTN_SIZE(2,1), LABEL)
+#define PIN_ENABLED(X,Y,LABEL,PIN,INV)  cmd.enabled(1).colors(READ(PIN##_PIN) != INV ? action_btn : normal_btn).PIN_BTN(X,Y,PIN,LABEL);
+#define PIN_DISABLED(X,Y,LABEL,PIN)     cmd.enabled(0).PIN_BTN(X,Y,PIN,LABEL);
+
 void EndstopStatesScreen::onRedraw(draw_mode_t) {
   CommandProcessor cmd;
   cmd.cmd(CLEAR_COLOR_RGB(bg_color))
      .cmd(COLOR_RGB(bg_text_enabled))
      .cmd(CLEAR(true,true,true))
      .tag(0);
-
-  #define GRID_ROWS 7
-  #define GRID_COLS 6
-
-  #define PIN_BTN(X,Y,PIN,LABEL)          button(BTN_POS(X,Y), BTN_SIZE(2,1), LABEL)
-  #define PIN_ENABLED(X,Y,LABEL,PIN,INV)  cmd.enabled(1).colors(READ(PIN##_PIN) != INV ? action_btn : normal_btn).PIN_BTN(X,Y,PIN,LABEL);
-  #define PIN_DISABLED(X,Y,LABEL,PIN)     cmd.enabled(0).PIN_BTN(X,Y,PIN,LABEL);
 
   cmd.font(TERN(TOUCH_UI_PORTRAIT, font_large, font_medium))
   .text(BTN_POS(1,1), BTN_SIZE(6,1), GET_TEXT_F(MSG_LCD_ENDSTOPS))
@@ -85,12 +85,12 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
     PIN_DISABLED(5, 3, PSTR(STR_Z_MIN), Z_MIN)
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR) && PIN_EXISTS(FIL_RUNOUT)
-    PIN_ENABLED (1, 4, GET_TEXT_F(MSG_RUNOUT_1), FIL_RUNOUT, !runout.out_state())
+    PIN_ENABLED (1, 4, GET_TEXT_F(MSG_RUNOUT_1), FIL_RUNOUT, FIL_RUNOUT1_STATE)
   #else
     PIN_DISABLED(1, 4, GET_TEXT_F(MSG_RUNOUT_1), FIL_RUNOUT)
   #endif
   #if BOTH(HAS_MULTI_EXTRUDER, FILAMENT_RUNOUT_SENSOR) && PIN_EXISTS(FIL_RUNOUT2)
-    PIN_ENABLED (3, 4, GET_TEXT_F(MSG_RUNOUT_2), FIL_RUNOUT2, !runout.out_state(1))
+    PIN_ENABLED (3, 4, GET_TEXT_F(MSG_RUNOUT_2), FIL_RUNOUT2, FIL_RUNOUT2_STATE)
   #else
     PIN_DISABLED(3, 4, GET_TEXT_F(MSG_RUNOUT_2), FIL_RUNOUT2)
   #endif
@@ -115,8 +115,6 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
   cmd.font(font_medium)
      .colors(action_btn)
      .tag(1).button(BTN_POS(1,7), BTN_SIZE(6,1), GET_TEXT_F(MSG_BUTTON_DONE));
-  #undef GRID_COLS
-  #undef GRID_ROWS
 }
 
 bool EndstopStatesScreen::onTouchEnd(uint8_t tag) {
