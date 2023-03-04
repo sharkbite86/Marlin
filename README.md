@@ -84,7 +84,6 @@ Insanity Automation Discord - https://discord.gg/TKmJ85PyG4
    - Fan adjustment now numeric instead of simple on/off
    - Tap Z offset on adjustment screen to type numeric value
    - Sync to 2.1.2 with LA now on for all builds, Silent specific builds eliminated
-   - TODO note prior to building release batches - Primary outstanding bug is upstream issue causing M600 to fail to resume, verified on both DWIN and Standard full graphics displays.
 
 ## Primary Notes for DW7.4.6
   - Added Support for the Ender 2 Pro
