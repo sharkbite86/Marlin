@@ -29,9 +29,6 @@
 
 #if NUM_AXES == XYZ && EXTRUDERS >= 1
   #define HAS_M350_B_PARAM 1  // "5th axis" (after E0) for an original XYZEB setup.
-  #if AXIS_COLLISION('B')
-    #error "M350 parameter 'B' collision with axis name."
-  #endif
 #endif
 
 /**
@@ -41,7 +38,7 @@
  */
 void GcodeSuite::M350() {
   if (parser.seen('S')) LOOP_DISTINCT_AXES(i) stepper.microstep_mode(i, parser.value_byte());
-  LOOP_LOGICAL_AXES(i) if (parser.seen(AXIS_CHAR(i))) stepper.microstep_mode(i, parser.value_byte());
+  LOOP_LOGICAL_AXES(i) if (parser.seenval(AXIS_CHAR(i))) stepper.microstep_mode(i, parser.value_byte());
   TERN_(HAS_M350_B_PARAM, if (parser.seenval('B')) stepper.microstep_mode(E_AXIS + 1, parser.value_byte()));
   stepper.microstep_readings();
 }
