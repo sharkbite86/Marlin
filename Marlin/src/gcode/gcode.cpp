@@ -931,7 +931,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_FILAMENT_SENSOR
         case 412: M412(); break;                                  // Alias to M591
-        case 591: M591(); break;                                  // M591 Configure filament runout detection
+        case 591: M591(); break;
+      #endif                                  // M591 Configure filament runout detection
       #if HAS_SHAPING
         case 593: M593(); break;                                  // M593: Set Input Shaping parameters
       #endif

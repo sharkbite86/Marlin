@@ -49,13 +49,13 @@
 //#define BED_AC
 
 //#define HotendAllMetal
-//#define HotendMosquito // High Tenp Slice Thermistor
+//#define HotendMosquito // High Temp Slice Thermistor
 //#define HotendSemitec //E3D or SLice 300C Thermistor
 //#define HotendSlicePT1000
 //#define HotendCreality
 
 //#define HighPoweredHeater
-#define ExtruderDDX //DDX kit with Linear Rail
+//#define ExtruderDDX //DDX kit with Linear Rail
 //#define ExtruderBMG
 
 //#define FORCE_E_INVERT // Forces E to invert if you installed a DDX kit without the Tinymachines stepper reversal wire
@@ -298,13 +298,13 @@
  */
 #if ENABLED(X_2209_Uart)
   #define X_DRIVER_TYPE  TMC2209
-  #define X2_DRIVER_TYPE TMC2209
+  //#define X2_DRIVER_TYPE TMC2209
 #elif ENABLED(X_2208)
   #define X_DRIVER_TYPE  TMC2208_STANDALONE
-  #define X2_DRIVER_TYPE TMC2208_STANDALONE
+  //#define X2_DRIVER_TYPE TMC2208_STANDALONE
 #else
   #define X_DRIVER_TYPE  A4988
-  #define X2_DRIVER_TYPE A4988
+  //#define X2_DRIVER_TYPE A4988
 #endif
 #if ENABLED(Y_2209_Uart)
   #define Y_DRIVER_TYPE  TMC2209
