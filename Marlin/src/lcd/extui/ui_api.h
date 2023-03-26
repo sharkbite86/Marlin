@@ -250,6 +250,13 @@ namespace ExtUI {
     void setLinearAdvance_mm_mm_s(const_float_t, const extruder_t);
   #endif
 
+  #if HAS_SHAPING
+    float getShapingZeta(const axis_t);
+    void setShapingZeta(const float, const axis_t);
+    float getShapingFrequency(const axis_t);
+    void setShapingFrequency(const float, const axis_t);
+  #endif
+
   #if HAS_JUNCTION_DEVIATION
     float getJunctionDeviation_mm();
     void setJunctionDeviation_mm(const_float_t);
@@ -306,6 +313,8 @@ namespace ExtUI {
     void setFilamentRunoutState(const bool);
     float getFilamentRunoutDistance_mm();
     void setFilamentRunoutDistance_mm(const_float_t);
+    int getRunoutMode(const extruder_t extruder=E0);
+    void setRunoutMode(const int, const extruder_t extruder=E0);
   #endif
 
   #if ENABLED(CASE_LIGHT_ENABLE)
