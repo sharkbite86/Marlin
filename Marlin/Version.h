@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "2.1.2_Beta1"
+#define SHORT_BUILD_VERSION "2.1.2_Beta2"
 
 /**
  * Verbose version identifier which should contain a reference to the location
@@ -89,11 +89,11 @@
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
 #if(ENABLED(MachineTLD3P))
-  #define CUSTOM_MACHINE_NAME "TL D3P"
+  #define CUSTOM_MACHINE_NAME "LNL D3Pro"
 #elif(ENABLED(MachineTLD5))
-  #define CUSTOM_MACHINE_NAME "TL D5"
+  #define CUSTOM_MACHINE_NAME "LNL D5Pro"
 #elif(ENABLED(MachineTLD6))
-  #define CUSTOM_MACHINE_NAME "TL D6"
+  #define CUSTOM_MACHINE_NAME "LNL D6Pro"
 #endif
 
 /**
