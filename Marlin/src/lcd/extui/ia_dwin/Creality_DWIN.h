@@ -125,6 +125,16 @@ namespace ExtUI {
 #define Accel_Z 0x1284
 #define Accel_E 0x1286
 
+#define ShapingZetaX 0x10A0
+#define ShapingZetaY 0x10A2
+#define ShapingFreqX 0x10A4
+#define ShapingFreqY 0x10A8
+
+#define LinAdvKFactor 0x10AA
+
+#define RunoutMode 0x10AC
+
+#define BabystepIncrement 0x10AE
 
 #define	HeatPercentIcon		0x1024
 
