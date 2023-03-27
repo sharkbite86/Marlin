@@ -973,10 +973,7 @@ void RTSSHOW::RTS_HandleData()
         InforShowStatus = true;
         TPShowStatus = false;
         //SERIAL_ECHOLNPGM_P(PSTR("Handle Data PrintFile 3 Setting Screen "));
-        if (getTargetFan_percent((fan_t)getActiveTool())==0)
-          RTS_SndData(ExchangePageBase + 58, ExchangepageAddr); //exchange to 58 page, the fans off
-        else
-          RTS_SndData(ExchangePageBase + 57, ExchangepageAddr); //exchange to 57 page, the fans on
+        RTS_SndData(ExchangePageBase + 57, ExchangepageAddr); //exchange to 57 page, the fans on
       }
       else if (recdat.data[0] == 4) //Settings
         InforShowStatus = false;
@@ -1140,10 +1137,7 @@ void RTSSHOW::RTS_HandleData()
       }
       else if (recdat.data[0] == 1)
       {
-        if(getTargetFan_percent((fan_t)getActiveTool())==0)
-          RTS_SndData(ExchangePageBase + 60, ExchangepageAddr); //exchange to 60 page, the fans off
-        else
-          RTS_SndData(ExchangePageBase + 59, ExchangepageAddr); //exchange to 59 page, the fans on
+        RTS_SndData(ExchangePageBase + 59, ExchangepageAddr); //exchange to 59 page, the fans on
       }
       else if (recdat.data[0] == 2)
       {
@@ -1159,7 +1153,7 @@ void RTSSHOW::RTS_HandleData()
         else //turn off the fan
         {
           setTargetFan_percent(0, FAN0);
-          RTS_SndData(ExchangePageBase + 58, ExchangepageAddr); //exchange to 58 page, the fans on
+          RTS_SndData(ExchangePageBase + 57, ExchangepageAddr); //exchange to 57 page, the fans on
         }
       }
       else if (recdat.data[0] == 5) //PLA mode
@@ -1207,10 +1201,7 @@ void RTSSHOW::RTS_HandleData()
       {
         if (recdat.data[0] == 0)
         {
-          if (getTargetFan_percent((fan_t)getActiveTool())==0)
-            RTS_SndData(ExchangePageBase + 58, ExchangepageAddr); //exchange to 58 page, the fans off
-          else
-            RTS_SndData(ExchangePageBase + 57, ExchangepageAddr); //exchange to 57 page, the fans on
+          RTS_SndData(ExchangePageBase + 57, ExchangepageAddr); //exchange to 57 page, the fans on
         }
         else if (recdat.data[0] == 1)
         {
