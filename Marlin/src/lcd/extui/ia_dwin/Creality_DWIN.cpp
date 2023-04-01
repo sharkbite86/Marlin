@@ -47,6 +47,8 @@ namespace ExtUI
   const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
   uint8_t startprogress = 0;
 
+  uint8_t babystepIncrementIndex = 0;
+
   char waitway = 0;
   int recnum = 0;
   unsigned char Percentrecord = 0;
@@ -315,6 +317,51 @@ void onIdle()
     if(getRunoutMode(getActiveTool()) == 7)
       rtscheck.RTS_SndData(25, RunoutMode);
   #endif
+
+  switch(babystepIncrementIndex)
+  {
+    case 1:
+    {
+      rtscheck.RTS_SndData(12, BabystepIncrement);
+      break;
+    }
+    case 2:
+    {
+      rtscheck.RTS_SndData(13, BabystepIncrement);
+      break;
+    }
+    case 3:
+    {
+      rtscheck.RTS_SndData(14, BabystepIncrement);
+      break;
+    }
+    case 4:
+    {
+      rtscheck.RTS_SndData(15, BabystepIncrement);
+      break;
+    }
+    case 5:
+    {
+      rtscheck.RTS_SndData(16, BabystepIncrement);
+      break;
+    }
+    case 6:
+    {
+      rtscheck.RTS_SndData(17, BabystepIncrement);
+      break;
+    }
+    case 7:
+    {
+      rtscheck.RTS_SndData(18, BabystepIncrement);
+      break;
+    }
+    default :
+    {
+      rtscheck.RTS_SndData(11, BabystepIncrement);
+      break;
+    }
+  }
+
 
   #if ENABLED(CASE_LIGHT_ENABLE)
     if(getCaseLightState())
@@ -899,6 +946,7 @@ void RTSSHOW::RTS_HandleData()
     case LinAdvKFactor:
     case RunoutToggle:
     case RunoutMode:
+    case BabystepIncrement:
     case PowerLossToggle:
     case FanKeyIcon:
     case LedToggle:
@@ -1357,6 +1405,12 @@ void RTSSHOW::RTS_HandleData()
           }
         #endif
 
+          else if (recdat.addr == BabystepIncrement) {
+            babystepIncrementIndex++;
+            if(babystepIncrementIndex>=8)
+              babystepIncrementIndex=0;
+          }
+
         #if ENABLED(POWER_LOSS_RECOVERY)
           else if(recdat.addr == PowerLossToggle){
             if(getPowerLossRecoveryEnabled())
@@ -1498,6 +1552,50 @@ void RTSSHOW::RTS_HandleData()
 
     case Bedlevel:
       SERIAL_ECHOLNPGM("Bed Level Option ",  recdat.data[0]);
+      float tmp_zprobe_adjust;
+      switch (babystepIncrementIndex)
+      {
+      case 1:
+      {
+        tmp_zprobe_adjust = 0.02;
+        break;
+      }
+      case 2:
+      {
+        tmp_zprobe_adjust = 0.05;
+        break;
+      }
+      case 3:
+      {
+        tmp_zprobe_adjust = 0.1;
+        break;
+      }
+      case 4:
+      {
+        tmp_zprobe_adjust = 0.2;
+        break;
+      }
+      case 5:
+      {
+        tmp_zprobe_adjust = 0.25;
+        break;
+      }
+      case 6:
+      {
+        tmp_zprobe_adjust = 0.5;
+        break;
+      }
+      case 7:
+      {
+        tmp_zprobe_adjust = 1.0f;
+        break;
+      }
+      default:
+      {
+        tmp_zprobe_adjust = 0.01;
+        break;
+      }
+      }
       switch(recdat.data[0])
       {
         case 1: // Z-axis to home
@@ -1513,31 +1611,52 @@ void RTSSHOW::RTS_HandleData()
         }
         case 2: // Z-axis to Up
         {
-          if (WITHIN((getZOffset_mm() + 0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+          SERIAL_ECHOLNPGM("Requested Offset ", tmp_zprobe_offset);
+          if (WITHIN((getZOffset_mm()+tmp_zprobe_adjust), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
           {
-            smartAdjustAxis_steps((getAxisSteps_per_mm(Z) / 10), (axis_t)Z, false);
-            //SERIAL_ECHOLNPGM("Babystep Pos Steps : ", (int)(getAxisSteps_per_mm(Z) / 10));
-            //setZOffset_mm(getZOffset_mm() + 0.1);
-            RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
+            int16_t tmpSteps = mmToWholeSteps(tmp_zprobe_adjust, (axis_t)Z);
+            if(tmpSteps==0)
+            {
+              SERIAL_ECHOLNPGM_P(PSTR("Rounding to step"));
+              tmpSteps = 1;
+            }
+            smartAdjustAxis_steps(tmpSteps, (axis_t)Z, false);
             char zOffs[20], tmp1[11];
             sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
             onStatusChanged(zOffs);
           }
+          else
+          {
+            onStatusChanged("Requested Offset Beyond Limits");
+            RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
+          }
+
+          rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
           break;
         }
         case 3: // Z-axis to Down
         {
-          if (WITHIN((getZOffset_mm() - 0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+          SERIAL_ECHOLNPGM("Requested Offset ", tmp_zprobe_offset);
+          if (WITHIN((getZOffset_mm()-tmp_zprobe_adjust), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
           {
-            smartAdjustAxis_steps(((getAxisSteps_per_mm(Z) / 10) * -1), (axis_t)Z, false);
-            //SERIAL_ECHOLNPGM("Babystep Neg Steps : ", (int)((getAxisSteps_per_mm(Z) / 10) * -1));
-            //babystepAxis_steps((((int)getAxisSteps_per_mm(Z) / 10) * -1), (axis_t)Z);
-            //setZOffset_mm(getZOffset_mm() - 0.1);
-            RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
+            int16_t tmpSteps = mmToWholeSteps((tmp_zprobe_adjust), (axis_t)Z);
+            if(tmpSteps==0)
+            {
+              SERIAL_ECHOLNPGM_P(PSTR("Rounding to step"));
+              tmpSteps = 1;
+            }
+            smartAdjustAxis_steps(tmpSteps*-1, (axis_t)Z, false);
             char zOffs[20], tmp1[11];
             sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
             onStatusChanged(zOffs);
           }
+          else
+          {
+            onStatusChanged("Requested Offset Beyond Limits");
+            RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
+          }
+
+          rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
           break;
         }
         case 4: // Assitant Level
