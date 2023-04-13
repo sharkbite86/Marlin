@@ -377,7 +377,6 @@ void onIdle()
       rtscheck.RTS_SndData(2, PowerLossToggle); /*Off*/
   #endif
 
-
   if (startprogress == 0)
   {
     startprogress += 25;
@@ -385,10 +384,10 @@ void onIdle()
   }
   else if( startprogress < 250)
   {
-    if(isMediaInserted()) //Re init media as it happens too early on STM32 boards often
-      onMediaInserted();
-    else
-      injectCommands_P(PSTR("M22\nM21"));
+    //if(isMediaInserted()) //Re init media as it happens too early on STM32 boards often
+    //  onMediaInserted();
+    //else
+    //  injectCommands_P(PSTR("M22\nM21"));
     startprogress = 254;
     //SERIAL_ECHOLNPGM_P(PSTR("  startprogress "));
     InforShowStatus = true;
@@ -432,6 +431,7 @@ void onIdle()
 			rtscheck.RTS_SndData(0, PrintscheduleIcon + 1);
 		}
 		rtscheck.RTS_SndData((unsigned int)getProgress_percent(), Percentage);
+
 	}
   else { // Not printing settings
     rtscheck.RTS_SndData(map(constrain(Settings.display_volume, 0, 255), 0, 255, 0, 100), VolumeDisplay);
@@ -567,6 +567,11 @@ void onIdle()
 	  rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
 		rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Z), DisplayZaxis);
   }
+
+  #if ENABLED(DWINOS_4)
+    int dataRec2;
+    do { dataRec2 = rtscheck.RTS_RecData(); } while (dataRec2 > 0); // Since OS4 returns an ack on an 82 command, receive and purge it now
+  #endif
   reEntryPrevent = false;
 }
 
@@ -662,10 +667,10 @@ int RTSSHOW::RTS_RecData()
             recdat.data[i/2]= (recdat.data[i/2] << 8 )| tmp[4+i];
           }
 
-          SERIAL_ECHOLNPGM("VP received: ", vp , " - len ", tmp[2]);
+          //SERIAL_ECHOLNPGM("VP received: ", vp , " - len ", tmp[2]);
 
-          SERIAL_ECHOLNPGM("d1: ", tmp[3] , " - d2 ", tmp[4]);
-          SERIAL_ECHOLNPGM("d3: ", tmp[5] , " - d4 ", tmp[6]);
+          //SERIAL_ECHOLNPGM("d1: ", tmp[3] , " - d2 ", tmp[4]);
+          //SERIAL_ECHOLNPGM("d3: ", tmp[5] , " - d4 ", tmp[6]);
 
           rx_datagram_state = DGUS_IDLE;
           RTS_HandleData();
@@ -758,6 +763,23 @@ void RTSSHOW::RTS_SndData(const char *str, unsigned long addr, unsigned char cmd
 			DWIN_SERIAL.write(databuf[i]);
 			delay_us(1);
 		}
+
+    uint8_t expected_tx = 6 + len; // 6 bytes header + payload.
+    const millis_t try_until = ExtUI::safe_millis() + 1000;
+
+    while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
+      if (ELAPSED(ExtUI::safe_millis(), try_until)) return false; // Stop trying after 1 second
+
+      #ifdef ARDUINO_ARCH_STM32
+        LCD_SERIAL.flush();
+      #else
+        LCD_SERIAL.flushTX();
+      #endif
+      delay(50);
+    }
+
+    int dataRec2;
+    do { dataRec2 = rtscheck.RTS_RecData(); } while (dataRec2 > 0); // Since OS4 returns an ack on an 82 command, receive and purge it now
 		memset(databuf, 0, sizeof(databuf));
 	}
 }
@@ -871,6 +893,23 @@ void RTSSHOW::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen,
     }
     DWIN_SERIAL.write(x);
   }
+
+  uint8_t expected_tx = 6 + valueslen; // 6 bytes header + payload.
+    const millis_t try_until = ExtUI::safe_millis() + 1000;
+
+    while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
+      if (ELAPSED(ExtUI::safe_millis(), try_until)) return false; // Stop trying after 1 second
+
+      #ifdef ARDUINO_ARCH_STM32
+        LCD_SERIAL.flush();
+      #else
+        LCD_SERIAL.flushTX();
+      #endif
+      delay(50);
+    }
+
+  int dataRec2;
+  do { dataRec2 = rtscheck.RTS_RecData(); } while (dataRec2 > 0); // Since OS4 returns an ack on an 82 command, receive and purge it now
 }
 
 void RTSSHOW::RTS_HandleData()
@@ -885,8 +924,8 @@ void RTSSHOW::RTS_HandleData()
 		recdat.head[1] = FHTWO;
 		return;
 	}
-	SERIAL_ECHOLNPGM("recdat.data[0] ==", recdat.data[0]);
-	SERIAL_ECHOLNPGM("recdat.addr ==", recdat.addr);
+	//SERIAL_ECHOLNPGM("recdat.data[0] ==", recdat.data[0]);
+	//SERIAL_ECHOLNPGM("recdat.addr ==", recdat.addr);
 	for (int i = 0; Addrbuf[i] != 0; i++)
 	{
 		if (recdat.addr == Addrbuf[i])
@@ -972,8 +1011,8 @@ void RTSSHOW::RTS_HandleData()
 	else if (recdat.addr >= SDFILE_ADDR && recdat.addr <= (SDFILE_ADDR + 10 * (FileNum + 1)))
 		Checkkey = Filename;
 
-  SERIAL_ECHOLNPGM_P(PSTR("== Checkkey=="));
-	SERIAL_ECHOLN(Checkkey);
+  //SERIAL_ECHOLNPGM_P(PSTR("== Checkkey=="));
+	//SERIAL_ECHOLN(Checkkey);
 
 	if (Checkkey < 0)
 	{
@@ -1137,7 +1176,7 @@ void RTSSHOW::RTS_HandleData()
         NozzleTempStatus[2] = 1;
         PrinterStatusKey[1] = 0;
         InforShowStatus = true;
-        RTS_SndData(ExchangePageBase + 82, ExchangepageAddr);
+        RTS_SndData(ExchangePageBase + 68, ExchangepageAddr);
       }
       break;
 

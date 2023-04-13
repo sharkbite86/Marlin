@@ -100,7 +100,7 @@ extern DefaultSerial1 USBSerial;
   #else
     #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
-  #if HAS_DGUS_LCD
+  #if HAS_DGUS_LCD  || ENABLED(DWINOS_4)
     #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.available()
   #endif
 #endif

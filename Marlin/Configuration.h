@@ -2,6 +2,7 @@
 
 
 #define INSANITYAUTOMATION_DWIN
+#define DWINOS_4
 
 #if ENABLED(VULCAN)
   #define VULCAN_OFFSET 4
