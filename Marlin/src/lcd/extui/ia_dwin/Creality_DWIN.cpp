@@ -1382,9 +1382,12 @@ void RTSSHOW::RTS_HandleData()
         #if HAS_BED_PROBE
           else if (recdat.addr == ProbeOffset_X) {
             setProbeOffset_mm(tmp_float_handling, X);
+            injectCommands_P(PSTR("M422R"));
+
           }
           else if (recdat.addr == ProbeOffset_Y) {
             setProbeOffset_mm(tmp_float_handling, Y);
+            injectCommands_P(PSTR("M422R"));
           }
           else if (recdat.addr == ProbeOffset_Z) {
             setProbeOffset_mm(tmp_float_handling, Z);
