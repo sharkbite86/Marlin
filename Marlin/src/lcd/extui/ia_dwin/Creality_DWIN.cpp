@@ -62,8 +62,6 @@ namespace ExtUI
   unsigned char AxisPagenum = 0; //0 for 10mm, 1 for 1mm, 2 for 0.1mm
   bool InforShowStatus = true;
   bool TPShowStatus = false; // true for only opening time and percentage, false for closing time and percentage.
-  bool AutohomeKey = false;
-  unsigned char AutoHomeIconNum;
   int16_t userConfValidation = 0;
 
   uint8_t lastPauseMsgState = 0;
@@ -172,25 +170,27 @@ void onIdle()
   }
   reEntryCount = 0;
 
-  if(idleThrottling++ < 750){
+  if(idleThrottling++ < 50){
     return;
   }
 
-  // Always send temperature data
-  rtscheck.RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
-	rtscheck.RTS_SndData(getActualTemp_celsius(BED), Bedtemp);
-  rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
-	rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
-  #if HAS_MULTI_HOTEND
-	  rtscheck.RTS_SndData(getActualTemp_celsius(H1), e2Temp);
+  if(idleThrottling == 50) {
+    rtscheck.RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
+    rtscheck.RTS_SndData(getActualTemp_celsius(BED), Bedtemp);
+    rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
+    rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
+#if HAS_MULTI_HOTEND
+    rtscheck.RTS_SndData(getActualTemp_celsius(H1), e2Temp);
     rtscheck.RTS_SndData(getTargetTemp_celsius(H1), e2Preheat);
 
     rtscheck.RTS_SndData(((uint8_t)getActiveTool() + 1), ActiveToolVP);
-  #else
+#else
     rtscheck.RTS_SndData(0, e2Temp);
     rtscheck.RTS_SndData(0, e2Preheat);
-  #endif
+#endif
+  }
 
+if(idleThrottling == 100) {
   if(awaitingUserConfirm() && (lastPauseMsgState!=ExtUI::pauseModeStatus || userConfValidation > 99))
   {
     switch(ExtUI::pauseModeStatus)
@@ -231,9 +231,10 @@ void onIdle()
     userConfValidation = 100;
   }
 
+}
 
   reEntryPrevent = true;
-  idleThrottling = 0;
+if(idleThrottling == 150) {
   if(waitway && !commandsInQueue())
     waitway_lock++;
   else
@@ -270,13 +271,7 @@ void onIdle()
 			break;
 
 		case 4:
-			if (AutohomeKey && isPositionKnown() && !commandsInQueue())
-			{ //Manual Move Home Done
-        SERIAL_ECHOLNPGM_P(PSTR("==waitway 4=="));
-				//rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
-				AutohomeKey = false;
-				waitway = 0;
-			}
+			waitway = 0;
 			break;
 		case 5:
         if(isPositionKnown() && !commandsInQueue()) {
@@ -297,9 +292,10 @@ void onIdle()
         waitway = 0;
       break;
 		}
-
+}
   void yield();
 
+if(idleThrottling == 200) {
   #if HAS_MESH
     if (getLevelingActive())
       rtscheck.RTS_SndData(3, AutoLevelIcon); /*On*/
@@ -376,6 +372,7 @@ void onIdle()
     else
       rtscheck.RTS_SndData(2, PowerLossToggle); /*Off*/
   #endif
+}
 
   if (startprogress == 0)
   {
@@ -408,6 +405,7 @@ void onIdle()
 
   if (isPrinting())
 	{
+    if(idleThrottling == 250) {
     rtscheck.RTS_SndData(getActualFan_percent((fan_t)getActiveTool()), FanKeyIcon);
 		rtscheck.RTS_SndData(getProgress_seconds_elapsed() / 3600, Timehour);
 		rtscheck.RTS_SndData((getProgress_seconds_elapsed() % 3600) / 60, Timemin);
@@ -431,9 +429,10 @@ void onIdle()
 			rtscheck.RTS_SndData(0, PrintscheduleIcon + 1);
 		}
 		rtscheck.RTS_SndData((unsigned int)getProgress_percent(), Percentage);
-
+    }
 	}
   else { // Not printing settings
+  if(idleThrottling == 300) {
     rtscheck.RTS_SndData(map(constrain(Settings.display_volume, 0, 255), 0, 255, 0, 100), VolumeDisplay);
     rtscheck.RTS_SndData(Settings.screen_brightness, DisplayBrightness);
     rtscheck.RTS_SndData(Settings.standby_screen_brightness, DisplayStandbyBrightness);
@@ -442,34 +441,41 @@ void onIdle()
       rtscheck.RTS_SndData(3, DisplayStandbyEnableIndicator);
     else
       rtscheck.RTS_SndData(2, DisplayStandbyEnableIndicator);
-
+  }
+  if(idleThrottling == 350) {
     rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(X) * 10), StepMM_X);
     rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Y) * 10), StepMM_Y);
     rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Z) * 10), StepMM_Z);
     rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E0) * 10), StepMM_E);
-
+  }
+  if(idleThrottling == 400) {
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxAcceleration_mm_s2(X)/100), Accel_X);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxAcceleration_mm_s2(Y)/100), Accel_Y);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxAcceleration_mm_s2(Z)/10), Accel_Z);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxAcceleration_mm_s2(E0)), Accel_E);
-
+  }
+  if(idleThrottling == 500) {
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxFeedrate_mm_s(X)), Feed_X);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxFeedrate_mm_s(Y)), Feed_Y);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxFeedrate_mm_s(Z)), Feed_Z);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxFeedrate_mm_s(E0)), Feed_E);
-
+  }
+  if(idleThrottling == 550) {
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(X)*100), Jerk_X);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(Y)*100), Jerk_Y);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(Z)*100), Jerk_Z);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(E0)*100), Jerk_E);
-
+  }
     #if HAS_HOTEND_OFFSET
+    if(idleThrottling == 600) {
       rtscheck.WriteVariable(T2Offset_X, (uint32_t)(getNozzleOffset_mm(X, E1)*1000));
       rtscheck.WriteVariable(T2Offset_Y, (uint32_t)(getNozzleOffset_mm(Y, E1)*1000));
       rtscheck.WriteVariable(T2Offset_Z, (uint32_t)(getNozzleOffset_mm(Z, E1)*1000));
       rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E1) * 10), T2StepMM_E);
+    }
     #endif
 
+if(idleThrottling == 650) {
     #if HAS_BED_PROBE
       rtscheck.RTS_SndData(getProbeOffset_mm(X) * 100, ProbeOffset_X);
       rtscheck.RTS_SndData(getProbeOffset_mm(Y) * 100, ProbeOffset_Y);
@@ -487,7 +493,8 @@ void onIdle()
         rtscheck.RTS_SndData((unsigned int)(getBedPID_Kd() * 10), BedPID_D);
       #endif
     #endif
-
+}
+if(idleThrottling == 700) {
     #if HAS_SHAPING
       rtscheck.RTS_SndData((unsigned int)(getShapingZeta(X) * 1000), ShapingZetaX);
       rtscheck.RTS_SndData((unsigned int)(getShapingZeta(Y) * 1000), ShapingZetaY);
@@ -498,10 +505,10 @@ void onIdle()
     #if ENABLED(LIN_ADVANCE)
       rtscheck.RTS_SndData((unsigned int)(getLinearAdvance_mm_mm_s(getActiveTool()) * 1000), LinAdvKFactor);
     #endif
-
+}
   }
 
-
+if(idleThrottling == 750) {
 	rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
 	rtscheck.RTS_SndData((unsigned int)(getFlow_percent(E0)), Flowrate);
 
@@ -529,14 +536,17 @@ void onIdle()
 			//rtscheck.RTS_SndData((startprogress++) % 5, ExchFlmntIcon);
 		}
 	}
+}
 
-	if (AutohomeKey)
-	{
-		rtscheck.RTS_SndData(AutoHomeIconNum++, AutoZeroIcon);
-		if (AutoHomeIconNum > 9)
-			AutoHomeIconNum = 0;
-	}
+if(idleThrottling == 800) {
+  if(rtscheck.recdat.addr != DisplayZaxis && rtscheck.recdat.addr != DisplayYaxis && rtscheck.recdat.addr != DisplayZaxis) {
+		rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
+	  rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
+		rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Z), DisplayZaxis);
+  }
+}
 
+if(idleThrottling == 850) {
   if(isMediaInserted())
   {
     uint16_t currPage, maxPageAdd;
@@ -559,15 +569,14 @@ void onIdle()
     rtscheck.RTS_SndData(0, FilesCurentPage);
     rtscheck.RTS_SndData(0, FilesMaxPage);
   }
+}
 
   void yield();
 
-  if(rtscheck.recdat.addr != DisplayZaxis && rtscheck.recdat.addr != DisplayYaxis && rtscheck.recdat.addr != DisplayZaxis) {
-		rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
-	  rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
-		rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Z), DisplayZaxis);
-  }
 
+if(idleThrottling == 900) {
+  idleThrottling = 0;
+}
   #if ENABLED(DWINOS_4)
     int dataRec2;
     do { dataRec2 = rtscheck.RTS_RecData(); } while (dataRec2 > 0); // Since OS4 returns an ack on an 82 command, receive and purge it now
@@ -768,12 +777,12 @@ void RTSSHOW::RTS_SndData(const char *str, unsigned long addr, unsigned char cmd
     const millis_t try_until = ExtUI::safe_millis() + 1000;
 
     while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
-      if (ELAPSED(ExtUI::safe_millis(), try_until)) return false; // Stop trying after 1 second
+      if (ELAPSED(ExtUI::safe_millis(), try_until)) return; // Stop trying after 1 second
 
       #ifdef ARDUINO_ARCH_STM32
-        LCD_SERIAL.flush();
+        DWIN_SERIAL.flush();
       #else
-        LCD_SERIAL.flushTX();
+        DWIN_SERIAL.flushTX();
       #endif
       delay(50);
     }
@@ -898,12 +907,12 @@ void RTSSHOW::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen,
     const millis_t try_until = ExtUI::safe_millis() + 1000;
 
     while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
-      if (ELAPSED(ExtUI::safe_millis(), try_until)) return false; // Stop trying after 1 second
+      if (ELAPSED(ExtUI::safe_millis(), try_until)) return; // Stop trying after 1 second
 
       #ifdef ARDUINO_ARCH_STM32
-        LCD_SERIAL.flush();
+        DWIN_SERIAL.flush();
       #else
-        LCD_SERIAL.flushTX();
+        DWIN_SERIAL.flushTX();
       #endif
       delay(50);
     }
@@ -1046,14 +1055,16 @@ void RTSSHOW::RTS_HandleData()
         injectCommands_P(PSTR("M84"));
         RTS_SndData(11, FilenameIcon);
         RTS_SndData(0, PrintscheduleIcon);
+        delay_ms(2);
         RTS_SndData(0, PrintscheduleIcon + 1);
         RTS_SndData(0, Percentage);
         delay_ms(2);
         RTS_SndData(0, Timehour);
         RTS_SndData(0, Timemin);
+        delay_ms(2);
 
         //SERIAL_ECHOLNPGM_P(PSTR("Handle Data PrintFile 2 Setting Screen "));
-        RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); //exchange to 45 page
+        //RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); //exchange to 45 page
       }
       else if (recdat.data[0] == 3) // Temperature control
       {
@@ -1934,8 +1945,7 @@ void RTSSHOW::RTS_HandleData()
         {
           waitway = 4;
           injectCommands_P((PSTR("G28\nG1 F1000 Z10")));
-          InforShowStatus = AutohomeKey = true;
-          AutoHomeIconNum = 0;
+          InforShowStatus = true;
           RTS_SndData(10, FilenameIcon);
         }
         else
