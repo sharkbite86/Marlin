@@ -170,9 +170,7 @@ void onIdle()
   }
   reEntryCount = 0;
 
-  if(idleThrottling++ < 50){
-    return;
-  }
+  idleThrottling++;
 
   if(idleThrottling == 50) {
     rtscheck.RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
