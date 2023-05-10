@@ -1051,13 +1051,17 @@ void RTSSHOW::RTS_HandleData()
         TPShowStatus = false;
         stopPrint();
         injectCommands_P(PSTR("M84"));
+        delay_ms(2);
         RTS_SndData(11, FilenameIcon);
+        delay_ms(2);
         RTS_SndData(0, PrintscheduleIcon);
         delay_ms(2);
         RTS_SndData(0, PrintscheduleIcon + 1);
+        delay_ms(2);
         RTS_SndData(0, Percentage);
         delay_ms(2);
         RTS_SndData(0, Timehour);
+        delay_ms(2);
         RTS_SndData(0, Timemin);
         delay_ms(2);
 
