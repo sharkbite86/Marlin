@@ -2256,6 +2256,28 @@
 #endif
 #if _HAS_STOP(X,MAX)
   #define HAS_X_MAX 1
+#else
+  #if !PIN_EXISTS(X_MAX)
+    #error "X_MAX Pin Doesnt Exist."
+  #endif
+  #if IS_PROBE_PIN(X,MAX)
+    #error "X_MAX Pin Used for Probe."
+  #endif
+  #if IS_X2_ENDSTOP(X,MAX)
+    #error "X_MAX Pin Used for X2 ES."
+  #endif
+  #if IS_Y2_ENDSTOP(X,MAX)
+    #error "X_MAX Pin Used for Y2 ES."
+  #endif
+  #if IS_Z2_ENDSTOP(X,MAX)
+    #error "X_MAX Pin Used for Z2 ES."
+  #endif
+  #if IS_Z3_ENDSTOP(X,MAX)
+    #error "X_MAX Pin Used for Z3 ES."
+  #endif
+  #if IS_Z4_ENDSTOP(X,MAX)
+    #error "X_MAX Pin Used for Z4 ES."
+  #endif
 #endif
 #if _HAS_STOP(Y,MIN)
   #define HAS_Y_MIN 1

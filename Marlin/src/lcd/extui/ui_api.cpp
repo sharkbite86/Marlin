@@ -683,12 +683,23 @@ namespace ExtUI {
   }
 
   #if HAS_FILAMENT_SENSOR
-    bool getFilamentRunoutEnabled(const extruder_t extruder/*=E0*/)                 { return runout.enabled[extruder]; }
+    bool getFilamentRunoutEnabled(const extruder_t extruder/*=E0*/)                 { return (runout.enabled[extruder] && (runout.mode[extruder]!=0)); }
     void setFilamentRunoutEnabled(const bool value, const extruder_t extruder/*=E0*/) { runout.enabled[extruder] = value; }
     bool getFilamentRunoutState()                   { return runout.filament_ran_out; }
     void setFilamentRunoutState(const bool value)   { runout.filament_ran_out = value; }
     float getFilamentRunoutDistance_mm()                 { return runout.runout_distance(); }
     void setFilamentRunoutDistance_mm(const_float_t value) { runout.set_runout_distance(constrain(value, 0, 999)); }
+    int getRunoutMode(const extruder_t extruder/*=E0*/){
+      return (int)runout.mode[extruder];
+    }
+    void setRunoutMode(const int mode, const extruder_t extruder/*=E0*/){
+      if((mode >= 0 && mode <=2) || mode==7) {
+        runout.mode[extruder] = (RunoutMode)mode;
+        runout.setup();
+      }
+    }
+
+
   #endif
 
   #if ENABLED(CASE_LIGHT_ENABLE)
@@ -720,6 +731,26 @@ namespace ExtUI {
     void setLinearAdvance_mm_mm_s(const_float_t value, const extruder_t extruder) {
       if (extruder < EXTRUDERS)
         planner.extruder_advance_K[E_INDEX_N(extruder - E0)] = constrain(value, 0, 10);
+    }
+  #endif
+
+  #if HAS_SHAPING
+    float getShapingZeta(const axis_t axis) {
+      return stepper.get_shaping_damping_ratio(AxisEnum(axis));
+    }
+    void setShapingZeta(const float zeta, const axis_t axis) {
+      if (WITHIN(zeta, 0, 1)) {
+        stepper.set_shaping_damping_ratio(AxisEnum(axis), zeta);
+      }
+    }
+    float getShapingFrequency(const axis_t axis) {
+      return stepper.get_shaping_frequency(AxisEnum(axis));
+    }
+    void setShapingFrequency(const float freq, const axis_t axis) {
+      constexpr float min_freq = float(uint32_t(STEPPER_TIMER_RATE) / 2) / shaping_time_t(-2);
+      if (freq == 0.0f || freq > min_freq) {
+        stepper.set_shaping_frequency(AxisEnum(axis), freq);
+      }
     }
   #endif
 

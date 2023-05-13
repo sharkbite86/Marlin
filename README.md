@@ -1,69 +1,16 @@
-﻿## Creality Touch/TFT Screen supported firmware
+﻿## Dwin Touch/TFT Screen supported firmware
 
-This branch adds support for the Creality touchscreen machines and was split off from the standard Creality branches due to specific custom changes not found upstream. This includes extensions to the EXTui framework among other smaller tweaks that we have been working towards getting submitted upstream. Machines supported here are :
-
-- [CR10S Pro / V2](https://www.tinymachines3d.com/products/cr-10s-pro-v2-3d-printer?rfsn=3419592.cc302fe)
-- [CR10 Max](https://www.tinymachines3d.com/products/creality-cr-10-max-3d-printer?rfsn=3419592.cc302fe)
-- [Ender 5 Plus](https://www.tinymachines3d.com/products/ender-5-plus-silent-board-custom-dual-z-3d-printer?rfsn=3419592.cc302fe)
-- [Ender 6](https://amzn.to/3JRyOhi)
-- [CR-X / Pro](https://www.tinymachines3d.com/products/creality-cr-x-pro-3d-printer-with-dual-extruder-and-bl-touch?rfsn=3419592.cc302fe)
-- [CR10 V2 ](https://www.tinymachines3d.com/products/creality-cr-10-v2-3d-printer?rfsn=3419592.cc302fe)
-- [CR10 V3 ](https://www.tinymachines3d.com/products/creality-cr-10-v3-plus-3d-printer-with-genuine-e3d-direct-drive-extruder-and-bl-touch?rfsn=3419592.cc302fe)
-- [Ender 3 / Pro 4.2.2 and 4.2.7](https://amzn.to/3BRHlxY)
-- [Ender 3 V2](https://www.tinymachines3d.com/products/ender-3-v2?rfsn=3419592.cc302fe)
-- [Ender 3 Max](https://www.tinymachines3d.com/products/ender-3-max-3d-printer?rfsn=3419592.cc302fe)
-- [Ender 5 / Pro 4.2.2 and 4.2.7](https://amzn.to/3gMb2Yu)
-- [CR10S5 500mm](https://www.tinymachines3d.com/products/creality-cr-10-s5-3d-printer?rfsn=3419592.cc302fe)
-- [CR6 SE](https://www.tinymachines3d.com/products/creality-cr-6-se-3d-printer?rfsn=3419592.cc302fe)
-- [CR6 Max](https://www.tinymachines3d.com/products/creality-cr-6-max-3d-printer?rfsn=3419592.cc302fe)
-- [CR10 Smart](https://www.tinymachines3d.com/products/creality-cr-10-smart-3d-printer?rfsn=3419592.cc302fe)
-- [Ender 7](https://www.tinymachines3d.com/products/ender-7-3d-printer?rfsn=3419592.cc302fe)
-- [CR30](https://www.tinymachines3d.com/products/cr-30-infinite-z-belt-3d-printer?rfsn=3419592.cc302fe)
-- [Sermoon D1](https://amzn.to/3LXfZeD)
-- [CR5 / Pro HT](https://amzn.to/3gWvpBt)
-- [Ender 3 S1](https://www.tinymachines3d.com/products/ender-3-s1-3d-printer?rfsn=3419592.cc302fe)
-- [Ender 2 Pro](https://www.tinymachines3d.com/products/ender-2-pro-3d-printer?rfsn=3419592.cc302fe)
-
-- CR10S, CR10S4, CR20 and Pro, CR10, CR10Mini, CR2020, Ender 4, Ender 2 - Legacy support
-- These configurations exist however due to age and product availability are no longer actively tested
-
-## Coming Soon
-- [CR10 Smart Pro](https://www.tinymachines3d.com/products/cr-10-smart-pro-3d-printer?rfsn=3419592.cc302fe)
-- [CR200B]()
-
-## Resin machines below from Tiny Machines are listed simply as an additional way to help support the project. If youre considering buying one, please do so through the following links :
- - [Halot One CL-60](https://www.tinymachines3d.com/products/halot-one-cl-60-resin-3d-printer?rfsn=3419592.cc302fe)
- - [LD-002R](https://www.tinymachines3d.com/products/ld-002r-resin-printer?rfsn=3419592.cc302fe)
- - [LD-002H](https://www.tinymachines3d.com/products/ld-002h-resin-3d-printer?rfsn=3419592.cc302fe)
- - [LD-006](https://www.tinymachines3d.com/products/ld-006-resin-3d-printer?rfsn=3419592.cc302fe)
- - [UW-02 Washer](https://www.tinymachines3d.com/products/uw-02-washing-curing-machine?rfsn=3419592.cc302fe)
-
-
-Ender 3V2 has a dedicated file set. CR10 Smart has a dedicated high resolution screen set. Portrait displays use the CR6/E3 Touch variant and landscape use the combined set.
-
-Screen files are archived with [7-Zip](https://www.7-zip.org/) simply because it came out 1/5 the file size of a zip file. That added up fast!
-
-There is a limitation with Windows systems and path depth so the file names need to be shorter than we would prefer. If you get an error compiling due to the path limit, move the folder to the root of your hard drive. Here is a legend to help decode the files:
-
-- BLT = BLTouch
-- BIL = Bilinear Leveling
-- UBL - Unified Bed Leveling
-- DZ = Dual Z Steppers
-- Fil = FilamentRunout
-- Slnt = Creality Silent Board
-- H = E3D Hemera Extruder
-- MC = Mosquito Creality mount
-- ME = Mosquito E3D mount
-- Melzi Host option disables local SD card to allow more features and buffer for Octoprint control
-- NF = Noise filtering for machines with cable extensions - reduces homing accuracy!
-- LR = Stock runout replaced with Lerdge
-- ZM = BLTouch connected to ZMin port instead of Probe pin 5 connector harness
+- Info screen Version Code Reference
+- - Char 1 - Driver (A-4988, T-TMC220X)
+- - Char 2 - Z Stop(B-BLTouch, E-Endstop)
+- - Char 3 - Screen(L-LowRes, H-THighRes)
+- - Char 4 - Bed (A-AC, D-DC)
+- - Char 5 - Endstop(O-Optical Y, M-Mechanical Y)
+- - Char 6 - Extruder (T-Titan, B-BMG, L-LGX, S-Basic)
 
 ## Support
 
-This firmware is provided to the public as-is with no warranty or guarantee. It's based on a large open source project and there is no entitlement to support. That said, Tiny Machines 3D customers may obtain
-support through their normal support queue. I will provide support to Patreons as I am able. If you require more immediate support and are not a Tiny Machines 3D customer, you may contact them at
-support@tinymachines3d.com about purchasing support hours. Aside from this, we are active on many Facebook groups as well as several discord channels and typically help anyone we can when we come across them.
+This firmware is provided to the public as-is with no warranty or guarantee. It's based on a large open source project and there is no entitlement to support. That said, LNL Solutions customers may obtain support through their normal support queue. I will provide support to Patreons as I am able. Aside from this, we are active on many discord channels and typically help anyone we can when we come across them.
 
 We have now created a dedicated Discord server to handle support and archive relevant guides and instructions. Patreon supporters will get priority assistance.
 
@@ -81,6 +28,7 @@ Insanity Automation Discord - https://discord.gg/TKmJ85PyG4
 
 ## Primary Notes for DW7.4.7
    - Added IDEX screens
+   - Added Branch / support for Tenlog IDEX machines with LNL Solutions
    - Fan adjustment now numeric instead of simple on/off
    - Tap Z offset on adjustment screen to type numeric value
    - Sync to 2.1.2 with LA now on for all builds, Silent specific builds eliminated
