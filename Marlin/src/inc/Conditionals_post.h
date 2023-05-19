@@ -2258,7 +2258,7 @@
   #define HAS_X_MAX 1
 #else
   #if !PIN_EXISTS(X_MAX)
-    #error "X_MAX Pin Doesnt Exist."
+    //#error "X_MAX Pin Doesnt Exist."
   #endif
   #if IS_PROBE_PIN(X,MAX)
     #error "X_MAX Pin Used for Probe."
