@@ -172,11 +172,13 @@ void onIdle()
 
   idleThrottling++;
 
-  if(idleThrottling == 50) {
+  if(idleThrottling == 1) {
     rtscheck.RTS_SndData(getActualTemp_celsius(H0), NozzleTemp);
     rtscheck.RTS_SndData(getActualTemp_celsius(BED), Bedtemp);
     rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
     rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
+  }
+  if(idleThrottling == 100) {
 #if HAS_MULTI_HOTEND
     rtscheck.RTS_SndData(getActualTemp_celsius(H1), e2Temp);
     rtscheck.RTS_SndData(getTargetTemp_celsius(H1), e2Preheat);
@@ -188,7 +190,7 @@ void onIdle()
 #endif
   }
 
-if(idleThrottling == 100) {
+if(idleThrottling == 200) {
   if(awaitingUserConfirm() && (lastPauseMsgState!=ExtUI::pauseModeStatus || userConfValidation > 99))
   {
     switch(ExtUI::pauseModeStatus)
@@ -232,7 +234,7 @@ if(idleThrottling == 100) {
 }
 
   reEntryPrevent = true;
-if(idleThrottling == 150) {
+if(idleThrottling == 300) {
   if(waitway && !commandsInQueue())
     waitway_lock++;
   else
@@ -293,7 +295,7 @@ if(idleThrottling == 150) {
 }
   void yield();
 
-if(idleThrottling == 200) {
+if(idleThrottling == 400) {
   #if HAS_MESH
     if (getLevelingActive())
       rtscheck.RTS_SndData(3, AutoLevelIcon); /*On*/
@@ -355,7 +357,8 @@ if(idleThrottling == 200) {
       break;
     }
   }
-
+}
+  if(idleThrottling == 500) {
 
   #if ENABLED(CASE_LIGHT_ENABLE)
     if(getCaseLightState())
@@ -403,7 +406,7 @@ if(idleThrottling == 200) {
 
   if (isPrinting())
 	{
-    if(idleThrottling == 250) {
+    if(idleThrottling == 600) {
     rtscheck.RTS_SndData(getActualFan_percent((fan_t)getActiveTool()), FanKeyIcon);
 		rtscheck.RTS_SndData(getProgress_seconds_elapsed() / 3600, Timehour);
 		rtscheck.RTS_SndData((getProgress_seconds_elapsed() % 3600) / 60, Timemin);
@@ -430,7 +433,7 @@ if(idleThrottling == 200) {
     }
 	}
   else { // Not printing settings
-  if(idleThrottling == 300) {
+  if(idleThrottling == 700) {
     rtscheck.RTS_SndData(map(constrain(Settings.display_volume, 0, 255), 0, 255, 0, 100), VolumeDisplay);
     rtscheck.RTS_SndData(Settings.screen_brightness, DisplayBrightness);
     rtscheck.RTS_SndData(Settings.standby_screen_brightness, DisplayStandbyBrightness);
@@ -440,32 +443,32 @@ if(idleThrottling == 200) {
     else
       rtscheck.RTS_SndData(2, DisplayStandbyEnableIndicator);
   }
-  if(idleThrottling == 350) {
+  if(idleThrottling == 800) {
     rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(X) * 10), StepMM_X);
     rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Y) * 10), StepMM_Y);
     rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Z) * 10), StepMM_Z);
     rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E0) * 10), StepMM_E);
   }
-  if(idleThrottling == 400) {
+  if(idleThrottling == 900) {
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxAcceleration_mm_s2(X)/100), Accel_X);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxAcceleration_mm_s2(Y)/100), Accel_Y);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxAcceleration_mm_s2(Z)/10), Accel_Z);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxAcceleration_mm_s2(E0)), Accel_E);
   }
-  if(idleThrottling == 500) {
+  if(idleThrottling == 1000) {
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxFeedrate_mm_s(X)), Feed_X);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxFeedrate_mm_s(Y)), Feed_Y);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxFeedrate_mm_s(Z)), Feed_Z);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxFeedrate_mm_s(E0)), Feed_E);
   }
-  if(idleThrottling == 550) {
+  if(idleThrottling == 1100) {
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(X)*100), Jerk_X);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(Y)*100), Jerk_Y);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(Z)*100), Jerk_Z);
     rtscheck.RTS_SndData((unsigned int)(getAxisMaxJerk_mm_s(E0)*100), Jerk_E);
   }
     #if HAS_HOTEND_OFFSET
-    if(idleThrottling == 600) {
+    if(idleThrottling == 1200) {
       rtscheck.WriteVariable(T2Offset_X, (uint32_t)(getNozzleOffset_mm(X, E1)*1000));
       rtscheck.WriteVariable(T2Offset_Y, (uint32_t)(getNozzleOffset_mm(Y, E1)*1000));
       rtscheck.WriteVariable(T2Offset_Z, (uint32_t)(getNozzleOffset_mm(Z, E1)*1000));
@@ -473,26 +476,30 @@ if(idleThrottling == 200) {
     }
     #endif
 
-if(idleThrottling == 650) {
+if(idleThrottling == 1300) {
     #if HAS_BED_PROBE
       rtscheck.RTS_SndData(getProbeOffset_mm(X) * 100, ProbeOffset_X);
       rtscheck.RTS_SndData(getProbeOffset_mm(Y) * 100, ProbeOffset_Y);
     #endif
-
+}
     #if HAS_PID_HEATING
+    if(idleThrottling == 1400) {
       rtscheck.RTS_SndData(pid_hotendAutoTemp, HotendPID_AutoTmp);
       rtscheck.RTS_SndData(pid_bedAutoTemp, BedPID_AutoTmp);
       rtscheck.RTS_SndData((unsigned int)(getPID_Kp(E0) * 10), HotendPID_P);
       rtscheck.RTS_SndData((unsigned int)(getPID_Ki(E0) * 10), HotendPID_I);
+    }
+    if(idleThrottling == 1500) {
       rtscheck.RTS_SndData((unsigned int)(getPID_Kd(E0) * 10), HotendPID_D);
       #if ENABLED(PIDTEMPBED)
         rtscheck.RTS_SndData((unsigned int)(getBedPID_Kp() * 10), BedPID_P);
         rtscheck.RTS_SndData((unsigned int)(getBedPID_Ki() * 10), BedPID_I);
         rtscheck.RTS_SndData((unsigned int)(getBedPID_Kd() * 10), BedPID_D);
       #endif
+    }
     #endif
-}
-if(idleThrottling == 700) {
+
+if(idleThrottling == 1600) {
     #if HAS_SHAPING
       rtscheck.RTS_SndData((unsigned int)(getShapingZeta(X) * 1000), ShapingZetaX);
       rtscheck.RTS_SndData((unsigned int)(getShapingZeta(Y) * 1000), ShapingZetaY);
@@ -506,7 +513,7 @@ if(idleThrottling == 700) {
 }
   }
 
-if(idleThrottling == 750) {
+if(idleThrottling == 1700) {
 	rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
 	rtscheck.RTS_SndData((unsigned int)(getFlow_percent(E0)), Flowrate);
 
@@ -529,14 +536,10 @@ if(idleThrottling == 750) {
 			rtscheck.RTS_SndData(4, ExchFlmntIcon);
 			rtscheck.RTS_SndData(ExchangePageBase + 83, ExchangepageAddr);
 		}
-		else if (NozzleTempStatus[2])
-		{
-			//rtscheck.RTS_SndData((startprogress++) % 5, ExchFlmntIcon);
-		}
 	}
 }
 
-if(idleThrottling == 800) {
+if(idleThrottling == 1800) {
   if(rtscheck.recdat.addr != DisplayZaxis && rtscheck.recdat.addr != DisplayYaxis && rtscheck.recdat.addr != DisplayZaxis) {
 		rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
 	  rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)Y), DisplayYaxis);
@@ -544,7 +547,7 @@ if(idleThrottling == 800) {
   }
 }
 
-if(idleThrottling == 850) {
+if(idleThrottling == 1900) {
   if(isMediaInserted())
   {
     uint16_t currPage, maxPageAdd;
@@ -572,7 +575,7 @@ if(idleThrottling == 850) {
   void yield();
 
 
-if(idleThrottling == 900) {
+if(idleThrottling == 2000) {
   idleThrottling = 0;
 }
   #if ENABLED(DWINOS_4)
@@ -1051,19 +1054,19 @@ void RTSSHOW::RTS_HandleData()
         TPShowStatus = false;
         stopPrint();
         injectCommands_P(PSTR("M84"));
-        delay_ms(2);
+        delay_ms(50);
         RTS_SndData(11, FilenameIcon);
-        delay_ms(2);
+        delay_ms(5);
         RTS_SndData(0, PrintscheduleIcon);
-        delay_ms(2);
+        delay_ms(50);
         RTS_SndData(0, PrintscheduleIcon + 1);
-        delay_ms(2);
+        delay_ms(5);
         RTS_SndData(0, Percentage);
-        delay_ms(2);
+        delay_ms(50);
         RTS_SndData(0, Timehour);
-        delay_ms(2);
+        delay_ms(5);
         RTS_SndData(0, Timemin);
-        delay_ms(2);
+        delay_ms(10);
 
         //SERIAL_ECHOLNPGM_P(PSTR("Handle Data PrintFile 2 Setting Screen "));
         //RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); //exchange to 45 page
