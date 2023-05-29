@@ -79,6 +79,14 @@ Shout out to Tom Brazier, as nearly all notable improvements to the Marlin core 
 
 Insanity Automation Discord - https://discord.gg/TKmJ85PyG4
 
+## Primary Notes for DW7.4.8
+   - Added Linear Adv and Input Shaping Screens
+   - Signifigant improvement in response times following changes to new generation machines
+   -- The DWIN OS 3.5 had an option to enable NOACK with an addon bin file. 4.0 has a specific throttled response OS revision. 4.5 needed a totally different UI image flashed. No way it could all live together without completely confusing users so we set about figuring out how to keep universal support and found a balance in data send cycles that the 2560 buffers could still handle the replies without overunning.
+   - Added support for changing runout sensor type on the LCD
+   - Added toggle to change babystepping increment on the LCD
+   - Thanks to EvilGremlin for some of the icon and display graphics work
+
 ## Primary Notes for DW7.4.7
    - Added IDEX screens
    - Fan adjustment now numeric instead of simple on/off

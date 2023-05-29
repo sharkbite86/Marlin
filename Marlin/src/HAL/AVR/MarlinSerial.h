@@ -212,7 +212,7 @@
     static ring_buffer_pos_t available();
     static void write(const uint8_t c);
     static void flushTX();
-    #if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH) || ENABLED(DWINOS_4)
+    #if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH) || ENABLED(EXTENSIBLE_UI)
       static ring_buffer_pos_t get_tx_buffer_free();
     #endif
 

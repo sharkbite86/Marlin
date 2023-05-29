@@ -520,6 +520,10 @@
   #define DWINOS_4
 #endif
 
+#if NONE(MachineCR10Smart, MachineCR10SmartPro)
+  #define LOWRES_DWIN
+#endif
+
 #if ENABLED(MachineCR30)
   #define OrigLCD
   #define RET6_12864_LCD
