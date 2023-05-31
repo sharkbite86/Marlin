@@ -599,7 +599,7 @@ RTSSHOW::RTSSHOW()
 int RTSSHOW::RTS_RecData()
 {
   uint8_t receivedbyte;
-  //#if ENABLED(DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS)
+
     if (!DWIN_SERIAL.available() && DWIN_SERIAL.buffer_overruns()) {
       // Overrun, but reset the flag only when the buffer is empty
       // We want to extract as many as valid datagrams possible...
@@ -608,7 +608,7 @@ int RTSSHOW::RTS_RecData()
       //DWIN_SERIAL.reset_rx_overun();
       DWIN_SERIAL.flush();
     }
-  //#endif
+
 
   while (DWIN_SERIAL.available()) {
     switch (rx_datagram_state) {
