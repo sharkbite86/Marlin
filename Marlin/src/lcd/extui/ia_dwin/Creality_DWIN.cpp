@@ -599,7 +599,7 @@ RTSSHOW::RTSSHOW()
 int RTSSHOW::RTS_RecData()
 {
   uint8_t receivedbyte;
-
+    #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
     if (!DWIN_SERIAL.available() && DWIN_SERIAL.buffer_overruns()) {
       // Overrun, but reset the flag only when the buffer is empty
       // We want to extract as many as valid datagrams possible...
@@ -608,6 +608,7 @@ int RTSSHOW::RTS_RecData()
       //DWIN_SERIAL.reset_rx_overun();
       DWIN_SERIAL.flush();
     }
+    #endif
 
 
   while (DWIN_SERIAL.available()) {
@@ -777,16 +778,18 @@ void RTSSHOW::RTS_SndData(const char *str, unsigned long addr, unsigned char cmd
     uint8_t expected_tx = 6 + len; // 6 bytes header + payload.
     const millis_t try_until = ExtUI::safe_millis() + 1000;
 
-    while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
-      if (ELAPSED(ExtUI::safe_millis(), try_until)) return; // Stop trying after 1 second
+    #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+      while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
+        if (ELAPSED(ExtUI::safe_millis(), try_until)) return; // Stop trying after 1 second
 
-      #ifdef ARDUINO_ARCH_STM32
-        DWIN_SERIAL.flush();
-      #else
-        DWIN_SERIAL.flushTX();
-      #endif
-      delay(50);
-    }
+        #ifdef ARDUINO_ARCH_STM32
+          DWIN_SERIAL.flush();
+        #else
+          DWIN_SERIAL.flushTX();
+        #endif
+        delay(50);
+      }
+    #endif
 
     int dataRec2;
     do { dataRec2 = rtscheck.RTS_RecData(); } while (dataRec2 > 0); // Since OS4 returns an ack on an 82 command, receive and purge it now
@@ -907,16 +910,18 @@ void RTSSHOW::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen,
   uint8_t expected_tx = 6 + valueslen; // 6 bytes header + payload.
     const millis_t try_until = ExtUI::safe_millis() + 1000;
 
-    while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
-      if (ELAPSED(ExtUI::safe_millis(), try_until)) return; // Stop trying after 1 second
+    #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+      while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
+        if (ELAPSED(ExtUI::safe_millis(), try_until)) return; // Stop trying after 1 second
 
-      #ifdef ARDUINO_ARCH_STM32
-        DWIN_SERIAL.flush();
-      #else
-        DWIN_SERIAL.flushTX();
-      #endif
-      delay(50);
-    }
+        #ifdef ARDUINO_ARCH_STM32
+          DWIN_SERIAL.flush();
+        #else
+          DWIN_SERIAL.flushTX();
+        #endif
+        delay(50);
+      }
+    #endif
 
   int dataRec2;
   do { dataRec2 = rtscheck.RTS_RecData(); } while (dataRec2 > 0); // Since OS4 returns an ack on an 82 command, receive and purge it now
