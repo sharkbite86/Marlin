@@ -59,18 +59,20 @@
   #include "../../libs/buzzer.h"
 #endif
 
+#if ANY(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
+  #include "../lcdprint.h"
+  #define HAS_DEBUG_MENU 1
+#endif
+
+//#define DEBUG_OUT 1
 #include "../../core/debug_out.h"
 
-#define HAS_DEBUG_MENU EITHER(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
-
 void menu_advanced_settings();
-#if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+#if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
   void menu_delta_calibrate();
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR_TEST)
-
-  #include "../lcdprint.h"
 
   static void progress_bar_test() {
     static int8_t bar_percent = 0;
@@ -95,8 +97,6 @@ void menu_advanced_settings();
 #endif // LCD_PROGRESS_BAR_TEST
 
 #if ENABLED(LCD_ENDSTOP_TEST)
-
-  #include "../lcdprint.h"
 
   #define __STOP_ITEM(F,S) PSTRING_ITEM_F_P(F, TEST(stops, S) ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN), SS_FULL)
   #define _STOP_ITEM(L,S) __STOP_ITEM(F(L), S)
@@ -307,14 +307,11 @@ void menu_advanced_settings();
 
   #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
     void bltouch_report() {
-      PGMSTR(mode0, "OD");
-      PGMSTR(mode1, "5V");
-      DEBUG_ECHOPGM("BLTouch Mode: ");
-      DEBUG_ECHOPGM_P(bltouch.od_5v_mode ? mode1 : mode0);
-      DEBUG_ECHOLNPGM(" (Default " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD") ")");
+      FSTR_P const mode0 = F("OD"), mode1 = F("5V");
+      DEBUG_ECHOLNPGM("BLTouch Mode: ", bltouch.od_5v_mode ? mode1 : mode0, " (Default ", TERN(BLTOUCH_SET_5V_MODE, mode1, mode0), ")");
       char mess[21];
       strcpy_P(mess, PSTR("BLTouch Mode: "));
-      strcpy_P(&mess[15], bltouch.od_5v_mode ? mode1 : mode0);
+      strcpy_P(&mess[15], bltouch.od_5v_mode ? FTOP(mode1) : FTOP(mode0));
       ui.set_status(mess);
       ui.return_to_status();
     }
@@ -592,7 +589,7 @@ void menu_configuration() {
   #endif
 
   if (!busy) {
-    #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+    #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
       SUBMENU(MSG_DELTA_CALIBRATE, menu_delta_calibrate);
     #endif
 
@@ -657,7 +654,7 @@ void menu_configuration() {
 
   // Preheat configurations
   #if HAS_PREHEAT && DISABLED(SLIM_LCD_MENUS)
-    LOOP_L_N(m, PREHEAT_COUNT)
+    for (uint8_t m = 0; m < PREHEAT_COUNT; ++m)
       SUBMENU_N_f(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
   #endif
 
