@@ -594,8 +594,11 @@ int RTSSHOW::RTS_RecData()
   //if(!isPrinting())
     //SERIAL_ECHOLNPGM("Receiving...");
   uint8_t receivedbyte;
+  if(!DWIN_SERIAL.connected())
+    DWIN_SERIAL.begin(115200);
+
   //#if ENABLED(DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS)
-    if (!DWIN_SERIAL.available() && DWIN_SERIAL.buffer_overruns()) {
+    if ((!DWIN_SERIAL.available() && DWIN_SERIAL.buffer_overruns()) || DWIN_SERIAL.dropped() > 0) {
       // Overrun, but reset the flag only when the buffer is empty
       // We want to extract as many as valid datagrams possible...
       SERIAL_ECHOLNPGM("OVFL");
@@ -685,7 +688,7 @@ int RTSSHOW::RTS_RecData()
 
       // discard anything else
       rx_datagram_state = DGUS_IDLE;
-      if(!isPrinting())
+      //if(!isPrinting())
         SERIAL_ECHOLNPGM("Discard Return...");
       return -1;
     }
