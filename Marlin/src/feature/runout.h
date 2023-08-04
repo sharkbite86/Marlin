@@ -151,7 +151,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
         #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           if (runout_flags) {
             SERIAL_ECHOPGM("Runout Sensors: ");
-            LOOP_L_N(i, 8) SERIAL_ECHO('0' + TEST(runout_flags, i));
+            for(int i; i < 8; i++) SERIAL_ECHO('0' + TEST(runout_flags, i));
             SERIAL_ECHOPGM(" -> ", extruder);
             if (ran_out) SERIAL_ECHOPGM(" RUN OUT");
             SERIAL_EOL();
@@ -210,7 +210,7 @@ class FilamentSensorBase {
       #undef _INIT_RUNOUT_PIN
       #undef  INIT_RUNOUT_PIN
     }
-    
+
 
     // Return a bitmask of runout pin states
     static uint8_t poll_runout_pins() {
@@ -252,7 +252,7 @@ class FilamentSensorCore : public FilamentSensorBase {
       #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
         if (change) {
           SERIAL_ECHOPGM("Motion detected:");
-          LOOP_L_N(e, NUM_RUNOUT_SENSORS)
+          for(int e; e < NUM_RUNOUT_SENSORS; e++)
             if (TEST(change, e)) SERIAL_CHAR(' ', '0' + e);
           SERIAL_EOL();
         }
@@ -279,7 +279,7 @@ class FilamentSensorCore : public FilamentSensorBase {
         poll_motion_sensor();
       }
       else if (runout.mode[active_extruder] != RM_NONE) {
-        LOOP_L_N(s, NUM_RUNOUT_SENSORS) {
+        for(int s = 0; s < NUM_RUNOUT_SENSORS; s++) {
           const bool out = poll_runout_state(s);
           if (!out) filament_present(s);
           #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
@@ -308,7 +308,7 @@ class RunoutResponseDelayed {
     static float runout_distance_mm[NUM_RUNOUT_SENSORS];
 
     static void reset() {
-      LOOP_L_N(i, NUM_RUNOUT_SENSORS) filament_present(i);
+      for(int i = 0; i < NUM_RUNOUT_SENSORS; i++) filament_present(i);
     }
 
     static void run() {
@@ -317,7 +317,7 @@ class RunoutResponseDelayed {
         const millis_t ms = millis();
         if (ELAPSED(ms, t)) {
           t = millis() + 1000UL;
-          LOOP_L_N(i, NUM_RUNOUT_SENSORS)
+          for(int i; i < NUM_RUNOUT_SENSORS; i++)
             SERIAL_ECHOF(i ? F(", ") : F("Remaining mm: "), runout_mm_countdown[i]);
           SERIAL_EOL();
         }
@@ -326,7 +326,7 @@ class RunoutResponseDelayed {
 
     static uint8_t has_run_out() {
       uint8_t runout_flags = 0;
-      LOOP_L_N(i, NUM_RUNOUT_SENSORS) if (runout_mm_countdown[i] < 0) SBI(runout_flags, i);
+      for(int i = 0; i < NUM_RUNOUT_SENSORS; i++) if (runout_mm_countdown[i] < 0) SBI(runout_flags, i);
       return runout_flags;
     }
 

@@ -1517,7 +1517,7 @@ void RTSSHOW::RTS_HandleData()
           else
             RTS_SndData(2, AutoLevelIcon);
 
-          if (ExtUI::getMeshValid())
+          if (ExtUI::getLevelingIsValid())
           {
             uint8_t abl_probe_index = 0;
             for(uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
@@ -2779,7 +2779,7 @@ void onSettingsLoaded(bool success)
 {
 	//SERIAL_ECHOLNPGM_P(PSTR("==onConfigurationStoreRead=="));
   #if HAS_MESH
-    if (ExtUI::getMeshValid())
+    if (ExtUI::getLevelingIsValid())
     {
       uint8_t abl_probe_index = 0;
         for(uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
@@ -2841,7 +2841,7 @@ void onLevelingStart() {
 
 void onLevelingDone() {
   #if HAS_MESH
-    if (ExtUI::getMeshValid())
+    if (ExtUI::getLevelingIsValid())
     {
       uint8_t abl_probe_index = 0;
         for(uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
@@ -2896,6 +2896,15 @@ void onSteppersDisabled()
 void onPostprocessSettings()
 {
 
+}
+
+void onSetPowerLoss(const bool onoff)
+{
+
+}
+void onPowerLoss()
+{
+  
 }
 
 
