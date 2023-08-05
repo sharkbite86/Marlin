@@ -1197,8 +1197,8 @@
  * Endstop "Hit" State
  * Set to the state (HIGH or LOW) that applies to each endstop.
  */
-#define X_MIN_ENDSTOP_HIT_STATE HIGH
-#define X_MAX_ENDSTOP_HIT_STATE HIGH
+#define X_MIN_ENDSTOP_HIT_STATE LOW
+#define X_MAX_ENDSTOP_HIT_STATE LOW
 #if ENABLED(OpticalY)
   #define Y_MIN_ENDSTOP_HIT_STATE LOW
 #else
@@ -1210,7 +1210,7 @@
 #else
   #define Z_MIN_ENDSTOP_HIT_STATE LOW
 #endif
-#define Z_MAX_ENDSTOP_HIT_STATE HIGH
+#define Z_MAX_ENDSTOP_HIT_STATE LOW
 #define I_MIN_ENDSTOP_HIT_STATE HIGH
 #define I_MAX_ENDSTOP_HIT_STATE HIGH
 #define J_MIN_ENDSTOP_HIT_STATE HIGH

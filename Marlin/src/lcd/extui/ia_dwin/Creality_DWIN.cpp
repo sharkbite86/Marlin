@@ -47,6 +47,8 @@ namespace ExtUI
   const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
   uint8_t startprogress = 0;
 
+  uint16_t rcvdData;
+
   uint8_t babystepIncrementIndex = 0;
 
   char waitway = 0;
@@ -160,7 +162,7 @@ void onIdle()
 {
 
   int dataRec;
-   do { dataRec = rtscheck.RTS_RecData(); } while (dataRec > 0);
+   do { dataRec = rtscheck.RTS_RecData(); rcvdData++;} while (dataRec > 0);
 
   if (reEntryPrevent && reEntryCount < 120) {
     reEntryCount++;
@@ -567,14 +569,21 @@ if(idleThrottling == 1900) {
 
   void yield();
 
-
-if(idleThrottling == 2000) {
-  idleThrottling = 0;
-}
   #if ENABLED(DWINOS_4)
     int dataRec2;
-    do { dataRec2 = rtscheck.RTS_RecData(); } while (dataRec2 > 0); // Since OS4 returns an ack on an 82 command, receive and purge it now
+    do { dataRec2 = rtscheck.RTS_RecData(); rcvdData++;} while (dataRec2 > 0); // Since OS4 returns an ack on an 82 command, receive and purge it now
   #endif
+
+if(idleThrottling == 2000) {
+  if(rcvdData < 4010)
+  {
+    SERIAL_ECHOLNPGM("RX Halt Detected...");
+    RTSSHOW::rx_datagram_state = DGUS_IDLE;
+    DWIN_SERIAL.flush();
+  }
+  idleThrottling = 0;
+}
+
   reEntryPrevent = false;
 }
 
@@ -2904,7 +2913,7 @@ void onSetPowerLoss(const bool onoff)
 }
 void onPowerLoss()
 {
-  
+
 }
 
 

@@ -696,8 +696,8 @@
   #define E0_AUTO_FAN_PIN PA8
   #define E1_AUTO_FAN_PIN PE5
 #else
-  #define E0_AUTO_FAN_PIN FAN2_PIN
-  #define E1_AUTO_FAN_PIN FAN2_PIN
+  #define E0_AUTO_FAN_PIN FAN1_PIN
+  #define E1_AUTO_FAN_PIN FAN1_PIN
 #endif
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
@@ -2031,8 +2031,8 @@
 //
 // Additional options for DGUS / DWIN displays
 //
-  #define DGUS_RX_BUFFER_SIZE 128
-  #define DGUS_TX_BUFFER_SIZE 48
+  #define DGUS_RX_BUFFER_SIZE 256
+  #define DGUS_TX_BUFFER_SIZE 32
 #if HAS_DGUS_LCD
   #define LCD_SERIAL_PORT 3
   #define LCD_BAUDRATE 115200

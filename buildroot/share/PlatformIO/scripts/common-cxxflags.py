@@ -7,7 +7,7 @@ import pioutil
 if pioutil.is_pio_build():
     Import("env")
 
-    env.Replace(PROGNAME="%s_DW9" % (str(env["PIOENV"])))
+    env.Replace(PROGNAME="%s_DW7.4.9" % (str(env["PIOENV"])))
 
     cxxflags = [
         # "-Wno-incompatible-pointer-types",
