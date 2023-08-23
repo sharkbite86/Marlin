@@ -41,8 +41,8 @@
 
 // Check the integrity of data offsets.
 // Can be disabled for production build.
-//#define DEBUG_EEPROM_READWRITE
-//#define DEBUG_EEPROM_OBSERVE
+#define DEBUG_EEPROM_READWRITE
+#define DEBUG_EEPROM_OBSERVE
 
 #include "settings.h"
 
@@ -895,9 +895,9 @@ void MarlinSettings::postprocess() {
     #if HAS_FILAMENT_SENSOR
     {
       _FIELD_TEST(runout_enabled);
-      for(int e; e<NUM_RUNOUT_SENSORS; e++) EEPROM_WRITE(runout.enabled[e]);
-      for(int e; e<NUM_RUNOUT_SENSORS; e++) EEPROM_WRITE(runout.runout_distance(e));
-      for(int e; e<NUM_RUNOUT_SENSORS; e++) EEPROM_WRITE(runout.mode[e]);
+      for(uint8_t e=0; e<NUM_RUNOUT_SENSORS; ++e) EEPROM_WRITE(runout.enabled[e]);
+      for(uint8_t e=0; e<NUM_RUNOUT_SENSORS; ++e) EEPROM_WRITE(runout.runout_distance(e));
+      for(uint8_t e=0; e<NUM_RUNOUT_SENSORS; ++e) EEPROM_WRITE(runout.mode[e]);
     }
     #endif
 
@@ -1915,7 +1915,7 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(runout_mode);
 
         if (!validating) {
-          for(int e; e < NUM_RUNOUT_SENSORS; e++) {
+          for(uint8_t e=0; e < NUM_RUNOUT_SENSORS; ++e) {
             runout.enabled[e] = runout_enabled[e];
             runout.set_runout_distance(runout_distance_mm[e], e);
             runout.mode[e] = runout_mode[e];
@@ -3126,7 +3126,7 @@ void MarlinSettings::reset() {
     static_assert(COUNT(frd) == NUM_RUNOUT_SENSORS, "FIL_RUNOUT_DISTANCE_MM must have NUM_RUNOUT_SENSORS values.");
     COPY(runout.enabled, fred);
     COPY(runout.mode, frm);
-    for(int e; e<NUM_RUNOUT_SENSORS; e++) runout.set_runout_distance(frd[e], e);
+    for(uint8_t e = 0; e < NUM_RUNOUT_SENSORS; ++e) runout.set_runout_distance(frd[e], e);
     runout.reset();
   #endif
 

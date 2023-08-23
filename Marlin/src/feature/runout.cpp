@@ -82,7 +82,7 @@ void event_filament_runout(const uint8_t extruder) {
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFilamentRunout(ExtUI::getTool(extruder)));
-  TERN_(DWIN_LCD_PROUI, dwinFilamentRunout(extruder));
+  TERN_(DWIN_LCD_PROUI, DWIN_FilamentRunout(extruder));
 
   #if ANY(HOST_PROMPT_SUPPORT, HOST_ACTION_COMMANDS, MULTI_FILAMENT_SENSOR)
     const char tool = '0' + TERN0(MULTI_FILAMENT_SENSOR, extruder);
@@ -96,16 +96,12 @@ void event_filament_runout(const uint8_t extruder) {
   const bool run_runout_script = !runout.host_handling;
 
   #if ENABLED(HOST_ACTION_COMMANDS)
-
-    const bool park_or_pause = (false
-      #ifdef FILAMENT_RUNOUT_SCRIPT
-        || strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
+    if (run_runout_script
+      && ( strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
         || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
         || TERN0(ADVANCED_PAUSE_FEATURE, strstr(FILAMENT_RUNOUT_SCRIPT, "M25"))
-      #endif
-    );
-
-    if (run_runout_script && park_or_pause) {
+      )
+    ) {
       hostui.paused(false);
     }
     else {
@@ -122,27 +118,24 @@ void event_filament_runout(const uint8_t extruder) {
     SERIAL_ECHOPGM(" " ACTION_REASON_ON_FILAMENT_RUNOUT " ");
     SERIAL_CHAR(tool);
     SERIAL_EOL();
-
   #endif // HOST_ACTION_COMMANDS
 
-  #ifdef FILAMENT_RUNOUT_SCRIPT
-    if (run_runout_script) {
-      #if MULTI_FILAMENT_SENSOR
-        MString<strlen(FILAMENT_RUNOUT_SCRIPT)> script;
-        script.setf(F(FILAMENT_RUNOUT_SCRIPT), AS_CHAR(tool));
-        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
-          SERIAL_ECHOLNPGM("Runout Command: ", &script);
-        #endif
-        queue.inject(&script);
-      #else
-        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
-          SERIAL_ECHOPGM("Runout Command: ");
-          SERIAL_ECHOLNPGM(FILAMENT_RUNOUT_SCRIPT);
-        #endif
-        queue.inject(F(FILAMENT_RUNOUT_SCRIPT));
+  if (run_runout_script) {
+    #if MULTI_FILAMENT_SENSOR
+      char script[strlen(FILAMENT_RUNOUT_SCRIPT) + 1];
+      sprintf_P(script, PSTR(FILAMENT_RUNOUT_SCRIPT), tool);
+      #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
+        SERIAL_ECHOLNPGM("Runout Command: ", script);
       #endif
-    }
-  #endif
+      queue.inject(script);
+    #else
+      #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
+        SERIAL_ECHOPGM("Runout Command: ");
+        SERIAL_ECHOLNPGM(FILAMENT_RUNOUT_SCRIPT);
+      #endif
+      queue.inject(F(FILAMENT_RUNOUT_SCRIPT));
+    #endif
+  }
 }
 
 #endif // HAS_FILAMENT_SENSOR

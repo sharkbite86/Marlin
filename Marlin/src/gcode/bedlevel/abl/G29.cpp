@@ -997,7 +997,7 @@ G29_TYPE GcodeSuite::G29() {
 
   TERN_(HAS_DWIN_E3V2_BASIC, DWIN_LevelingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
-  TERN_(HAS_MULTI_HOTEND, if (abl.tool_index != 0) tool_change(abl.tool_index));
+  TERN_(HAS_MULTI_HOTEND, if (active_extruder != 0) tool_change(0));
   probe.use_probing_tool(false);
 
   report_current_position();
