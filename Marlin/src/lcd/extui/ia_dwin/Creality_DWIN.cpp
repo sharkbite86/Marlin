@@ -47,6 +47,8 @@ namespace ExtUI
   const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
   uint8_t startprogress = 0;
 
+  uint16_t rcvdData;
+
   uint8_t babystepIncrementIndex = 0;
 
   char waitway = 0;
@@ -60,8 +62,6 @@ namespace ExtUI
                   // PrinterStatusKey[0] value: 0 reprensents 3D printer ready
 
   unsigned char AxisPagenum = 0; //0 for 10mm, 1 for 1mm, 2 for 0.1mm
-  bool InforShowStatus = true;
-  bool TPShowStatus = false; // true for only opening time and percentage, false for closing time and percentage.
   int16_t userConfValidation = 0;
 
   uint8_t lastPauseMsgState = 0;
@@ -162,7 +162,7 @@ void onIdle()
 {
 
   int dataRec;
-   do { dataRec = rtscheck.RTS_RecData(); } while (dataRec > 0);
+   do { dataRec = rtscheck.RTS_RecData(); rcvdData++;} while (dataRec > 0);
 
   if (reEntryPrevent && reEntryCount < 120) {
     reEntryCount++;
@@ -249,7 +249,6 @@ if(idleThrottling == 300) {
 	{
 		case 1:
       if(isPositionKnown()) {
-        InforShowStatus = true;
         SERIAL_ECHOLNPGM_P(PSTR("==waitway 1=="));
         rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
         waitway = 0;
@@ -275,7 +274,6 @@ if(idleThrottling == 300) {
 			break;
 		case 5:
         if(isPositionKnown() && !commandsInQueue()) {
-        InforShowStatus = true;
         waitway = 0;
         SERIAL_ECHOLNPGM_P(PSTR("==waitway 5=="));
         rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); //exchange to 78 page
@@ -388,8 +386,6 @@ if(idleThrottling == 400) {
     //  injectCommands_P(PSTR("M22\nM21"));
     startprogress = 254;
     //SERIAL_ECHOLNPGM_P(PSTR("  startprogress "));
-    InforShowStatus = true;
-    TPShowStatus = false;
     rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
     reEntryPrevent = false;
 		return;
@@ -532,7 +528,6 @@ if(idleThrottling == 1700) {
 		{
 			//SERIAL_ECHOLNPGM("***NozzleTempStatus[2] =", (int)NozzleTempStatus[2]);
 			NozzleTempStatus[2] = 0;
-			TPShowStatus = true;
 			rtscheck.RTS_SndData(4, ExchFlmntIcon);
 			rtscheck.RTS_SndData(ExchangePageBase + 83, ExchangepageAddr);
 		}
@@ -574,14 +569,21 @@ if(idleThrottling == 1900) {
 
   void yield();
 
-
-if(idleThrottling == 2000) {
-  idleThrottling = 0;
-}
   #if ENABLED(DWINOS_4)
     int dataRec2;
-    do { dataRec2 = rtscheck.RTS_RecData(); } while (dataRec2 > 0); // Since OS4 returns an ack on an 82 command, receive and purge it now
+    do { dataRec2 = rtscheck.RTS_RecData(); rcvdData++;} while (dataRec2 > 0); // Since OS4 returns an ack on an 82 command, receive and purge it now
   #endif
+
+if(idleThrottling == 2000) {
+  if(rcvdData < 4010)
+  {
+    SERIAL_ECHOLNPGM("RX Halt Detected...");
+    RTSSHOW::rx_datagram_state = DGUS_IDLE;
+    DWIN_SERIAL.flush();
+  }
+  idleThrottling = 0;
+}
+
   reEntryPrevent = false;
 }
 
@@ -598,9 +600,14 @@ RTSSHOW::RTSSHOW()
 
 int RTSSHOW::RTS_RecData()
 {
+  //if(!isPrinting())
+    //SERIAL_ECHOLNPGM("Receiving...");
   uint8_t receivedbyte;
-    #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
-    if (!DWIN_SERIAL.available() && DWIN_SERIAL.buffer_overruns()) {
+  if(!DWIN_SERIAL.connected())
+    DWIN_SERIAL.begin(115200);
+
+  //#if ENABLED(DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS)
+    if ((!DWIN_SERIAL.available() && DWIN_SERIAL.buffer_overruns()) || DWIN_SERIAL.dropped() > 0) {
       // Overrun, but reset the flag only when the buffer is empty
       // We want to extract as many as valid datagrams possible...
       SERIAL_ECHOLNPGM("OVFL");
@@ -678,10 +685,10 @@ int RTSSHOW::RTS_RecData()
             recdat.data[i/2]= (recdat.data[i/2] << 8 )| tmp[4+i];
           }
 
-          //SERIAL_ECHOLNPGM("VP received: ", vp , " - len ", tmp[2]);
+          SERIAL_ECHOLNPGM("VP received: ", vp , " - len ", tmp[2]);
 
-          //SERIAL_ECHOLNPGM("d1: ", tmp[3] , " - d2 ", tmp[4]);
-          //SERIAL_ECHOLNPGM("d3: ", tmp[5] , " - d4 ", tmp[6]);
+          SERIAL_ECHOLNPGM("d1: ", tmp[3] , " - d2 ", tmp[4]);
+          SERIAL_ECHOLNPGM("d3: ", tmp[5] , " - d4 ", tmp[6]);
 
           rx_datagram_state = DGUS_IDLE;
           RTS_HandleData();
@@ -691,9 +698,15 @@ int RTSSHOW::RTS_RecData()
 
       // discard anything else
       rx_datagram_state = DGUS_IDLE;
+      //if(!isPrinting())
+        SERIAL_ECHOLNPGM("Discard Return...");
       return -1;
     }
+    //if(!isPrinting())
+      //SERIAL_ECHOLNPGM("No Case Match...");
   }
+  //if(!isPrinting())
+    //SERIAL_ECHOLNPGM("No Data...");
   return -1;
 }
 
@@ -1045,7 +1058,6 @@ void RTSSHOW::RTS_HandleData()
     case Printfile:
       if (recdat.data[0] == 1) // card
       {
-        InforShowStatus = false;
         //SERIAL_ECHOLNPGM_P(PSTR("Handle Data PrintFile Pre"));
         filenavigator.getFiles(0);
         fileIndex = 0;
@@ -1055,8 +1067,6 @@ void RTSSHOW::RTS_HandleData()
       }
       else if (recdat.data[0] == 2) // return after printing result.
       {
-        InforShowStatus = true;
-        TPShowStatus = false;
         stopPrint();
         injectCommands_P(PSTR("M84"));
         delay_ms(50);
@@ -1078,24 +1088,19 @@ void RTSSHOW::RTS_HandleData()
       }
       else if (recdat.data[0] == 3) // Temperature control
       {
-        InforShowStatus = true;
-        TPShowStatus = false;
         //SERIAL_ECHOLNPGM_P(PSTR("Handle Data PrintFile 3 Setting Screen "));
         RTS_SndData(ExchangePageBase + 57, ExchangepageAddr); //exchange to 57 page, the fans on
       }
       else if (recdat.data[0] == 4) //Settings
-        InforShowStatus = false;
       break;
 
     case Ajust:
       if (recdat.data[0] == 1)
       {
-        InforShowStatus = false;
       }
       else if (recdat.data[0] == 2)
       {
         //SERIAL_ECHOLNPGM_P(PSTR("Handle Data Adjust 2 Setting Screen "));
-        InforShowStatus = true;
         if (PrinterStatusKey[1] == 3) // during heating
         {
           RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
@@ -1187,7 +1192,6 @@ void RTSSHOW::RTS_HandleData()
         resumePrint();
 
         PrinterStatusKey[1] = 0;
-        InforShowStatus = true;
 
         RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
       }
@@ -1196,7 +1200,6 @@ void RTSSHOW::RTS_HandleData()
         resumePrint();
         NozzleTempStatus[2] = 1;
         PrinterStatusKey[1] = 0;
-        InforShowStatus = true;
         RTS_SndData(ExchangePageBase + 68, ExchangepageAddr);
       }
       break;
@@ -1240,8 +1243,6 @@ void RTSSHOW::RTS_HandleData()
     case TempControl:
       if (recdat.data[0] == 0)
       {
-        InforShowStatus = true;
-        TPShowStatus = false;
       }
       else if (recdat.data[0] == 1)
       {
@@ -1249,7 +1250,6 @@ void RTSSHOW::RTS_HandleData()
       }
       else if (recdat.data[0] == 2)
       {
-        InforShowStatus = true;
       }
       else if (recdat.data[0] == 3)
       {
@@ -1282,7 +1282,6 @@ void RTSSHOW::RTS_HandleData()
       }
       else if (recdat.data[0] == 0xF1)
       {
-        //InforShowStatus = true;
         #if FAN_COUNT > 0
               for (uint8_t i = 0; i < FAN_COUNT; i++)
                 setTargetFan_percent(0, (fan_t)i);
@@ -1523,8 +1522,6 @@ void RTSSHOW::RTS_HandleData()
     case Setting:
       if (recdat.data[0] == 0) // return to main page
       {
-        InforShowStatus = true;
-        TPShowStatus = false;
       }
       else if (recdat.data[0] == 1) //Bed Autoleveling
       {
@@ -1534,7 +1531,7 @@ void RTSSHOW::RTS_HandleData()
           else
             RTS_SndData(2, AutoLevelIcon);
 
-          if (ExtUI::getMeshValid())
+          if (ExtUI::getLevelingIsValid())
           {
             uint8_t abl_probe_index = 0;
             for(uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
@@ -1562,8 +1559,6 @@ void RTSSHOW::RTS_HandleData()
       }
       else if (recdat.data[0] == 2) // Exchange filement
       {
-        InforShowStatus = true;
-        TPShowStatus = false;
         memset(ChangeMaterialbuf, 0, sizeof(ChangeMaterialbuf));
         ChangeMaterialbuf[1] = ChangeMaterialbuf[0] = 10;
         RTS_SndData(10 * ChangeMaterialbuf[0], FilementUnit1); //It's ChangeMaterialbuf for show,instead of current_position[E_AXIS] in them.
@@ -1604,7 +1599,6 @@ void RTSSHOW::RTS_HandleData()
       SERIAL_ECHOPGM("Return : ", recdat.data[0]);
       if (recdat.data[0] == 1) // return to the tool page
       {
-        InforShowStatus = false;
         RTS_SndData(ExchangePageBase + 63, ExchangepageAddr);
       }
       if (recdat.data[0] == 2) // return to the Level mode page
@@ -1955,7 +1949,6 @@ void RTSSHOW::RTS_HandleData()
         {
           waitway = 4;
           injectCommands_P((PSTR("G28\nG1 F1000 Z10")));
-          InforShowStatus = true;
           RTS_SndData(10, FilenameIcon);
         }
         else
@@ -2250,7 +2243,6 @@ void RTSSHOW::RTS_HandleData()
           delay_ms(2);
           RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 
-          TPShowStatus = InforShowStatus = true;
           PrinterStatusKey[0] = 1;
           PrinterStatusKey[1] = 3;
           fileIndex = 0;
@@ -2283,11 +2275,6 @@ void RTSSHOW::RTS_HandleData()
         {
           //SERIAL_ECHOLNPGM_P(PSTR("Refresh"));
           injectCommands_P(PSTR("M22\nM21"));
-        }
-        else if (recdat.data[0] == 0) //	return to main page
-        {
-          InforShowStatus = true;
-          TPShowStatus = false;
         }
       }
       break;
@@ -2548,7 +2535,6 @@ void onPrintTimerStarted()
   if ( waitway == 7 )
     return;
 	PrinterStatusKey[1] = 3;
-	InforShowStatus = true;
 	delay_ms(1);
 	rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 }
@@ -2571,8 +2557,6 @@ void onPrintTimerStopped()
 #endif
 
 	PrinterStatusKey[0] = 0;
-	InforShowStatus = true;
-	TPShowStatus = false;
 	rtscheck.RTS_SndData(ExchangePageBase + 51, ExchangepageAddr);
 }
 
@@ -2580,20 +2564,17 @@ void onFilamentRunout()
 {
 	//SERIAL_ECHOLNPGM_P(PSTR("==onFilamentRunout=="));
 	PrinterStatusKey[1] = 4;
-	TPShowStatus = false;
   rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
 }
 void onFilamentRunout(extruder_t extruder)
 {
 	//SERIAL_ECHOLNPGM_P(PSTR("==onFilamentRunout=="));
   PrinterStatusKey[1] = 4;
-  TPShowStatus = false;
   rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
 }
 void onUserConfirmRequired(const char *const msg)
 {
   PrinterStatusKey[1] = 4;
-  TPShowStatus = false;
   if(lastPauseMsgState==ExtUI::pauseModeStatus && msg == (const char*)GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD))
     return;
 
@@ -2717,7 +2698,6 @@ void onFactoryReset()
   Settings.screen_rotation = 0;
   onStartup();
   startprogress = 0;
-  InforShowStatus = true;
 	//SERIAL_ECHOLNPGM_P(PSTR("==onFactoryReset=="));
 
 }
@@ -2813,7 +2793,7 @@ void onSettingsLoaded(bool success)
 {
 	//SERIAL_ECHOLNPGM_P(PSTR("==onConfigurationStoreRead=="));
   #if HAS_MESH
-    if (ExtUI::getMeshValid())
+    if (ExtUI::getLevelingIsValid())
     {
       uint8_t abl_probe_index = 0;
         for(uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
@@ -2848,8 +2828,6 @@ void onSettingsLoaded(bool success)
   void onPowerLossResume() {
     //SERIAL_ECHOLNPGM_P(PSTR("==OnPowerLossResume=="));
     startprogress = 254;
-    InforShowStatus = true;
-    TPShowStatus = false;
     reEntryPrevent = false;
     rtscheck.RTS_SndData(ExchangePageBase + 76, ExchangepageAddr);
   }
@@ -2877,7 +2855,7 @@ void onLevelingStart() {
 
 void onLevelingDone() {
   #if HAS_MESH
-    if (ExtUI::getMeshValid())
+    if (ExtUI::getLevelingIsValid())
     {
       uint8_t abl_probe_index = 0;
         for(uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
@@ -2930,6 +2908,15 @@ void onSteppersDisabled()
 }
 
 void onPostprocessSettings()
+{
+
+}
+
+void onSetPowerLoss(const bool onoff)
+{
+
+}
+void onPowerLoss()
 {
 
 }
