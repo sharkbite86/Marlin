@@ -148,7 +148,7 @@
 
 
 // Touchscreen options - only 32 bit boards have the open serial ports to use with graphics displays above
-//#define FORCE10SPRODISPLAY
+//#define INSANITYAUTOMATION_DWIN
 
 //#define AddonFilSensor //Adds a filament runout sensor to the CR20 or Ender 4
 //#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
@@ -349,7 +349,7 @@
 
 // Enable to show the bitmap in Marlin/_Bootscreen.h on startup.
 
-#if BOTH(PowerShutoffKit, EnclosureLight)
+#if ENABLED(PowerShutoffKit, EnclosureLight)
   #undef EnclosureLight
 #endif
 
@@ -368,7 +368,7 @@
 #if ANY(SKRMiniE3V2, SKRMiniE3V3, SKRE3Turbo)
   #define SKR_2209
   #define SKR_UART
-  #if NONE(FORCE10SPRODISPLAY, MachineEnder3Touchscreen, FORCEV2DISPLAY)
+  #if NONE(INSANITYAUTOMATION_DWIN, MachineEnder3Touchscreen, FORCEV2DISPLAY)
     #define OrigLCD
   #else
     #define NO_CONTROLLER_CUSTOM_WIRING_WARNING
@@ -512,8 +512,8 @@
 #endif
 
 #if ANY(MachineCRX, MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR5, MachineCR10Max, MachineEnder6, MachineSermoonD1, MachineEnder7, MachineCR10Smart, MachineCR10SmartPro)
-  #if NONE(GraphicLCD, OrigLCD, FORCE10SPRODISPLAY)
-    #define FORCE10SPRODISPLAY
+  #if NONE(GraphicLCD, OrigLCD, INSANITYAUTOMATION_DWIN)
+    #define INSANITYAUTOMATION_DWIN
   #endif
 #endif
 
@@ -561,8 +561,8 @@
   #define lerdgeFilSensor
 #endif
 
-#if (ANY(Creality422, Creality427, MachineEnder2Pro) && DISABLED(MachineEnder3V2)) || BOTH(OrigLCD, MachineEnder6)
-  #ifndef FORCE10SPRODISPLAY
+#if (ANY(Creality422, Creality427, MachineEnder2Pro) && DISABLED(MachineEnder3V2)) || ENABLED(OrigLCD, MachineEnder6)
+  #ifndef INSANITYAUTOMATION_DWIN
     #ifndef MachineEnder3Touchscreen
       #ifndef FORCEV2DISPLAY
         #define RET6_12864_LCD
@@ -578,7 +578,7 @@
   #define HotendStock
 #endif
 
-#if NONE(ABL_UBL, ABL_BI, FORCE10SPRODISPLAY)
+#if NONE(ABL_UBL, ABL_BI, INSANITYAUTOMATION_DWIN)
   #define ABL_BI
 #endif
 
@@ -641,7 +641,7 @@
   #define MachineLargeROM
 #endif
 
-#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus, MachineCR5, SKRMiniE3V2, FORCE10SPRODISPLAY) || ENABLED(GraphicLCD)
+#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus, MachineCR5, SKRMiniE3V2, INSANITYAUTOMATION_DWIN) || ENABLED(GraphicLCD)
   #define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
@@ -678,14 +678,14 @@
  * Currently Ethernet (-2) is only supported on Teensy 4.1 boards.
  * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRE3Turbo) && ENABLED(FORCE10SPRODISPLAY)
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRE3Turbo) && ENABLED(INSANITYAUTOMATION_DWIN)
   #define LCD_SERIAL_PORT 0
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL -1
 #elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && NONE(MachineEnder3V2, MachineEnder3S1, MachineEnder3Touchscreen, FORCEV2DISPLAY)
   #define SERIAL_PORT_2 0
 #elif ANY(SKRMiniE3V2, SKRMiniE3V3)
-  #if ANY(FORCE10SPRODISPLAY, MachineEnder3Touchscreen)
+  #if ANY(INSANITYAUTOMATION_DWIN, MachineEnder3Touchscreen)
     #define LCD_SERIAL_PORT 2
     #define LCD_BAUDRATE 115200
     #define SERIAL_CATCHALL -1
@@ -1446,11 +1446,11 @@
 #if ENABLED(HotendMosquito)
   #define HEATER_0_MAXTEMP 450
 #elif ENABLED(HotendAllMetal)
-	#define HEATER_0_MAXTEMP 315
+	#define HEATER_0_MAXTEMP 300
 #else
 	#define HEATER_0_MAXTEMP 255
 #endif
-#define HEATER_1_MAXTEMP 275
+#define HEATER_1_MAXTEMP HEATER_0_MAXTEMP
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275
@@ -2080,13 +2080,13 @@
 #define W_MAX_ENDSTOP_HIT_STATE HIGH
 
 #if NONE(ABL_EZABL, MachineCR2020)
-  #define Z_MIN_ENDSTOP_INVERTING HIGH  // set to true to invert the logic of the endstop.
-  #define Z_MIN_PROBE_ENDSTOP_INVERTING HIGH // set to true to invert the logic of the probe.
+  #define Z_MIN_ENDSTOP_HIT_STATE HIGH  // set to true to invert the logic of the endstop.
+  #define Z_MIN_PROBE_ENDSTOP_HIT_STATE HIGH // set to true to invert the logic of the probe.
 #else
-  #define Z_MIN_ENDSTOP_INVERTING LOW  // set to true to invert the logic of the endstop.
-  #define Z_MIN_PROBE_ENDSTOP_INVERTING LOW // set to true to invert the logic of the probe.
+  #define Z_MIN_ENDSTOP_HIT_STATE LOW  // set to true to invert the logic of the endstop.
+  #define Z_MIN_PROBE_ENDSTOP_HIT_STATE LOW // set to true to invert the logic of the probe.
 #endif
-#define Z_MAX_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_INVERTING
+#define Z_MAX_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
 
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
@@ -3394,9 +3394,9 @@
 //#define AUTO_BED_LEVELING_LINEAR
   #if ENABLED(ABL_UBL)
     #define AUTO_BED_LEVELING_UBL
-  #elif ENABLED(PROBE_MANUALLY) && ANY(MachineEnder3Touchscreen, FORCE10SPRODISPLAY)
+  #elif ENABLED(PROBE_MANUALLY) && ANY(MachineEnder3Touchscreen, INSANITYAUTOMATION_DWIN)
     #define MESH_BED_LEVELING
-  #elif !BOTH(OrigLA, MachineCR10Orig) && DISABLED(MachineCR30)
+  #elif !ENABLED(OrigLA, MachineCR10Orig) && DISABLED(MachineCR30)
     #define AUTO_BED_LEVELING_BILINEAR
   #endif
 /**
@@ -3533,7 +3533,7 @@
   //========================= Unified Bed Leveling ============================
   //===========================================================================
   #define MESH_INSET 1
-  #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder4, OrigLCD, MachineEnder3Touchscreen, FORCE10SPRODISPLAY) || ANY(GraphicLCD, OrigLCD)
+  #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder4, OrigLCD, MachineEnder3Touchscreen, INSANITYAUTOMATION_DWIN) || ANY(GraphicLCD, OrigLCD)
     #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
   #endif
 
@@ -3593,7 +3593,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineEnder7, MachineCR30, MachineCR10Smart, MachineCR10SmartPro, FORCEV2DISPLAY) && (NONE(MachineCRX, MachineEnder3Touchscreen) || ANY(GraphicLCD, OrigLCD))
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, INSANITYAUTOMATION_DWIN, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineEnder7, MachineCR30, MachineCR10Smart, MachineCR10SmartPro, FORCEV2DISPLAY) && (NONE(MachineCRX, MachineEnder3Touchscreen) || ANY(GraphicLCD, OrigLCD))
   #define LCD_BED_LEVELING
 #endif
 
@@ -3610,9 +3610,9 @@
   #define LCD_BED_TRAMMING
 #endif
 #if ENABLED(LCD_BED_TRAMMING)
-  //#define BED_TRAMMING_INSET_LFRB { 22, 22, 22, 22 } // (mm) Left, Front, Right, Back insets
-  //#define BED_TRAMMING_HEIGHT      0.0        // (mm) Z height of nozzle at tramming points
-  //#define BED_TRAMMING_Z_HOP       4.0        // (mm) Z height of nozzle between tramming points
+  #define BED_TRAMMING_INSET_LFRB { 22, 22, 22, 22 } // (mm) Left, Front, Right, Back insets
+  #define BED_TRAMMING_HEIGHT      0.0        // (mm) Z height of nozzle at tramming points
+  #define BED_TRAMMING_Z_HOP       4.0        // (mm) Z height of nozzle between tramming points
   //#define BED_TRAMMING_INCLUDE_CENTER       // Move to the center after the last corner
   //#define BED_TRAMMING_USE_PROBE
   #if ENABLED(BED_TRAMMING_USE_PROBE)
@@ -4300,9 +4300,9 @@
   #define MKS_MINI_12864
 #elif ANY(MachineEnder3V2, FORCEV2DISPLAY, MachineEnder3S1) && DISABLED(MachineEnder3Touchscreen)
   #define DWIN_MARLINUI_PORTRAIT
-#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && NONE(GraphicLCD, MachineEnder3Touchscreen, FORCE10SPRODISPLAY)
+#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && NONE(GraphicLCD, MachineEnder3Touchscreen, INSANITYAUTOMATION_DWIN)
   #define CR10_STOCKDISPLAY
-#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, SKRMiniE3V3, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineCR10Smart, MachineCR10SmartPro, MachineEnder3Touchscreen) || ENABLED(GraphicLCD)
+#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, SKRMiniE3V3, INSANITYAUTOMATION_DWIN, MachineCR6, MachineCR6Max, MachineCR10Smart, MachineCR10SmartPro, MachineEnder3Touchscreen) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #endif
 //
@@ -4694,9 +4694,9 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
 //
-#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, MachineCR5, MachineEnder7, MachineSermoonD1, MachineCR10Smart, MachineCR10SmartPro) && (NONE(GraphicLCD, OrigLCD)) || ENABLED(FORCE10SPRODISPLAY)
-  #ifndef FORCE10SPRODISPLAY
-    #define FORCE10SPRODISPLAY
+#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, MachineCR5, MachineEnder7, MachineSermoonD1, MachineCR10Smart, MachineCR10SmartPro) && (NONE(GraphicLCD, OrigLCD)) || ENABLED(INSANITYAUTOMATION_DWIN)
+  #ifndef INSANITYAUTOMATION_DWIN
+    #define INSANITYAUTOMATION_DWIN
   #endif
   #define EXTENSIBLE_UI
 #endif

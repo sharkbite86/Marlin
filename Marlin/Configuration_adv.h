@@ -336,7 +336,7 @@
  */
 #if ENABLED(THERMAL_PROTECTION_BED)
 #if(ENABLED(BedDC))
-  #if EITHER(MachineS5, MachineCR10Max)
+  #if ANY(MachineS5, MachineCR10Max)
     #define THERMAL_PROTECTION_BED_PERIOD 240    // Seconds
     #define THERMAL_PROTECTION_BED_HYSTERESIS 4 // Degrees Celsius
 
@@ -1631,7 +1631,6 @@
 
   // Scroll a longer status message into view
     #define STATUS_MESSAGE_SCROLLING
-  #endif
 
   // Apply a timeout to low-priority status messages
   //#define STATUS_MESSAGE_TIMEOUT_SEC 30 // (seconds)
@@ -2081,7 +2080,7 @@
 //
 // Additional options for DGUS / DWIN displays
 //
-#if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH) || ENABLED(FORCE10SPRODISPLAY)
+#if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH) || ENABLED(INSANITYAUTOMATION_DWIN)
   #define DGUS_RX_BUFFER_SIZE 256
   #define DGUS_TX_BUFFER_SIZE 32
   #ifndef LCD_SERIAL_PORT
@@ -2089,9 +2088,7 @@
     #define LCD_BAUDRATE 115200
   #endif
 
-  #define DGUS_RX_BUFFER_SIZE 128
-  #define DGUS_TX_BUFFER_SIZE 48
-  #if ENABLED(FORCE10SPRODISPLAY) && DISABLED(Creality422, Creality427)
+  #if ENABLED(INSANITYAUTOMATION_DWIN) && DISABLED(Creality422, Creality427)
     #define SERIAL_STATS_RX_BUFFER_OVERRUNS  // Fix Rx overrun situation (Currently only for AVR)
   #endif
   #define DGUS_UPDATE_INTERVAL_MS  500    // (ms) Interval between automatic screen updates
@@ -2340,7 +2337,6 @@
       #define BABYSTEP_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
     #endif
   #endif
-  #define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
 #endif
 
 // @section extruder

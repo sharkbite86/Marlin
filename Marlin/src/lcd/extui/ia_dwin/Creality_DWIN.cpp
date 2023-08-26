@@ -606,7 +606,7 @@ int RTSSHOW::RTS_RecData()
   if(!DWIN_SERIAL.connected())
     DWIN_SERIAL.begin(115200);
 
-  //#if ENABLED(DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS)
+  #if ENABLED(DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS) && defined(__AVR__)
     if ((!DWIN_SERIAL.available() && DWIN_SERIAL.buffer_overruns()) || DWIN_SERIAL.dropped() > 0) {
       // Overrun, but reset the flag only when the buffer is empty
       // We want to extract as many as valid datagrams possible...
@@ -615,9 +615,7 @@ int RTSSHOW::RTS_RecData()
       //DWIN_SERIAL.reset_rx_overun();
       DWIN_SERIAL.flush();
     }
-    #endif
-
-
+  #endif
   while (DWIN_SERIAL.available()) {
     switch (rx_datagram_state) {
 
@@ -791,7 +789,7 @@ void RTSSHOW::RTS_SndData(const char *str, unsigned long addr, unsigned char cmd
     uint8_t expected_tx = 6 + len; // 6 bytes header + payload.
     const millis_t try_until = ExtUI::safe_millis() + 1000;
 
-    #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+    #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS) && defined(__AVR__)
       while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
         if (ELAPSED(ExtUI::safe_millis(), try_until)) return; // Stop trying after 1 second
 
@@ -923,7 +921,7 @@ void RTSSHOW::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen,
   uint8_t expected_tx = 6 + valueslen; // 6 bytes header + payload.
     const millis_t try_until = ExtUI::safe_millis() + 1000;
 
-    #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+    #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS) && defined(__AVR__)
       while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
         if (ELAPSED(ExtUI::safe_millis(), try_until)) return; // Stop trying after 1 second
 
