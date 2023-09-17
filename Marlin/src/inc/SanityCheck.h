@@ -1546,6 +1546,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #else
     #ifndef BED_TRAMMING_INSET_LFRB
       #error "LCD_BED_TRAMMING requires BED_TRAMMING_INSET_LFRB values."
+    #endif
   #endif
 #endif
 
