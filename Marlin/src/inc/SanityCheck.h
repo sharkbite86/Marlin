@@ -1537,14 +1537,15 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 #if ENABLED(LCD_BED_TRAMMING)
-  #ifndef BED_TRAMMING_INSET_LFRB
-    #error "LCD_BED_TRAMMING requires BED_TRAMMING_INSET_LFRB values."
-  #elif ENABLED(BED_TRAMMING_USE_PROBE)
+  #if ENABLED(BED_TRAMMING_USE_PROBE)
     #if !HAS_BED_PROBE
       #error "BED_TRAMMING_USE_PROBE requires a real probe."
     #elif ENABLED(SENSORLESS_PROBING)
       #error "BED_TRAMMING_USE_PROBE is incompatible with SENSORLESS_PROBING."
     #endif
+  #else
+    #ifndef BED_TRAMMING_INSET_LFRB
+      #error "LCD_BED_TRAMMING requires BED_TRAMMING_INSET_LFRB values."
   #endif
 #endif
 

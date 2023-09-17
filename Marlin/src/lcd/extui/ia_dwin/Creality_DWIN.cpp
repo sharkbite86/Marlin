@@ -1045,7 +1045,12 @@ void RTSSHOW::RTS_HandleData()
 		return;
   }
 
-  constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
+  #if ENABLED(LCD_BED_TRAMMING) && DISABLED(BED_TRAMMING_USE_PROBE)
+    constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
+  #else if ENABLED(BED_TRAMMING_USE_PROBE)
+    float lfrb[4] = getBedProbeLimits();
+  #endif
+
   //SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
 
 	switch (Checkkey)
