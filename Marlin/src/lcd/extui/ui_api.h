@@ -58,11 +58,12 @@ namespace ExtUI {
 
   static constexpr size_t eeprom_data_size = 48;
 
-  enum axis_t     : uint8_t { X, Y, Z, I, J, K, U, V, W, X2, Y2, Z2, Z3, Z4 };
-  enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5, E6, E7 };
-  enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
-  enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
-  enum result_t   : uint8_t { PID_STARTED, PID_BAD_HEATER_ID, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
+  enum axis_t       : uint8_t { X, Y, Z, I, J, K, U, V, W, X2, Y2, Z2, Z3, Z4 };
+  enum extruder_t   : uint8_t { E0, E1, E2, E3, E4, E5, E6, E7 };
+  enum heater_t     : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
+  enum fan_t        : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
+  enum result_t     : uint8_t { PID_STARTED, PID_BAD_HEATER_ID, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
+  struct probe_limits { float pos[4];};
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
@@ -292,7 +293,7 @@ namespace ExtUI {
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t);
     void setProbeOffset_mm(const_float_t, const axis_t);
-    float[4] getBedProbeLimits();
+    probe_limits getBedProbeLimits();
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
