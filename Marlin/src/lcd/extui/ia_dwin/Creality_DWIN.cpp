@@ -1047,7 +1047,7 @@ void RTSSHOW::RTS_HandleData()
 
   #if ENABLED(LCD_BED_TRAMMING) && DISABLED(BED_TRAMMING_USE_PROBE)
     constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
-  #else if ENABLED(BED_TRAMMING_USE_PROBE)
+  #elif ENABLED(BED_TRAMMING_USE_PROBE)
     float lfrb[4] = { getBedProbeLimits().pos[0] + 0.01f, getBedProbeLimits().pos[1] + 0.01f, getBedProbeLimits().pos[2] - 0.01f, getBedProbeLimits().pos[3] - 0.01f};
   #endif
 
@@ -1653,6 +1653,9 @@ void RTSSHOW::RTS_HandleData()
         break;
       }
       }
+      #if ENABLED(BED_TRAMMING_USE_PROBE)
+        char g30CommandStr[20];
+      #endif
       switch(recdat.data[0])
       {
         case 1: // Z-axis to home
@@ -1749,42 +1752,67 @@ void RTSSHOW::RTS_HandleData()
 
         case 6: // Assitant Level ,  Centre 1
         {
-          setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
-          setAxisPosition_mm(X_CENTER, (axis_t)X);
-          setAxisPosition_mm(Y_CENTER, (axis_t)Y);
-          waitway = 6;
+          #if ENABLED(BED_TRAMMING_USE_PROBE)
+            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), X_CENTER, Y_CENTER);
+            injectCommands(g30CommandStr);
+          #else
+            setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
+            setAxisPosition_mm(X_CENTER, (axis_t)X);
+            setAxisPosition_mm(Y_CENTER, (axis_t)Y);
+            waitway = 6;
+          #endif
           break;
         }
         case 7: // Assitant Level , Front Left 2
         {
-          setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
-          setAxisPosition_mm((X_MIN_BED + lfrb[0]), (axis_t)X);
-          setAxisPosition_mm((Y_MIN_BED + lfrb[1]), (axis_t)Y);
-          waitway = 6;
+          #if ENABLED(BED_TRAMMING_USE_PROBE)
+            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), lfrb[0], lfrb[1]);
+            injectCommands(g30CommandStr);
+          #else
+            setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
+            setAxisPosition_mm((X_MIN_BED + lfrb[0]), (axis_t)X);
+            setAxisPosition_mm((Y_MIN_BED + lfrb[1]), (axis_t)Y);
+            waitway = 6;
+          #endif
           break;
         }
         case 8: // Assitant Level , Front Right 3
         {
-          setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
-          setAxisPosition_mm((X_MAX_BED - lfrb[2]), (axis_t)X);
-          setAxisPosition_mm((Y_MIN_BED + lfrb[1]), (axis_t)Y);
-          waitway = 6;
+          #if ENABLED(BED_TRAMMING_USE_PROBE)
+            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), lfrb[2], lfrb[1]);
+            injectCommands(g30CommandStr);
+          #else
+            setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
+            setAxisPosition_mm((X_MAX_BED - lfrb[2]), (axis_t)X);
+            setAxisPosition_mm((Y_MIN_BED + lfrb[1]), (axis_t)Y);
+            waitway = 6;
+          #endif
           break;
         }
         case 9: // Assitant Level , Back Right 4
         {
-          setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
-          setAxisPosition_mm((X_MAX_BED - lfrb[2]), (axis_t)X);
-          setAxisPosition_mm((Y_MAX_BED - lfrb[3]), (axis_t)Y);
-          waitway = 6;
+          #if ENABLED(BED_TRAMMING_USE_PROBE)
+            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), lfrb[2], lfrb[3]);
+            injectCommands(g30CommandStr);
+          #else
+            setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
+            setAxisPosition_mm((X_MAX_BED - lfrb[2]), (axis_t)X);
+            setAxisPosition_mm((Y_MAX_BED - lfrb[3]), (axis_t)Y);
+            waitway = 6;
+          #endif
           break;
         }
         case 10: // Assitant Level , Back Left 5
         {
-          setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
-          setAxisPosition_mm((X_MIN_BED + lfrb[0]), (axis_t)X);
-          setAxisPosition_mm((Y_MAX_BED - lfrb[3]), (axis_t)Y);
-          waitway = 6;
+          #if ENABLED(BED_TRAMMING_USE_PROBE)
+            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), lfrb[0], lfrb[3]);
+            injectCommands(g30CommandStr);
+          #else
+            setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
+            setAxisPosition_mm((X_MIN_BED + lfrb[0]), (axis_t)X);
+            setAxisPosition_mm((Y_MAX_BED - lfrb[3]), (axis_t)Y);
+            waitway = 6;
+          #endif
           break;
         }
         case 11: // Autolevel switch
