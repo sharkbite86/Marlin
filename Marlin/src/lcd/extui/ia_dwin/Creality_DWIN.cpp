@@ -1051,7 +1051,7 @@ void RTSSHOW::RTS_HandleData()
   #if ENABLED(LCD_BED_TRAMMING) && DISABLED(BED_TRAMMING_USE_PROBE)
     constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
   #else if ENABLED(BED_TRAMMING_USE_PROBE)
-    float lfrb[4] = getBedProbeLimits();
+    float lfrb[4] = { getBedProbeLimits().pos[0] + 0.01f, getBedProbeLimits().pos[1] + 0.01f, getBedProbeLimits().pos[2] - 0.01f, getBedProbeLimits().pos[3] - 0.01f};
   #endif
 
   //SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
