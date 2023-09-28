@@ -1051,7 +1051,8 @@ void RTSSHOW::RTS_HandleData()
   #if ENABLED(LCD_BED_TRAMMING) && DISABLED(BED_TRAMMING_USE_PROBE)
     constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
   #elif ENABLED(BED_TRAMMING_USE_PROBE)
-    float lfrb[4] = { getBedProbeLimits().pos[0] + 0.01f, getBedProbeLimits().pos[1] + 0.01f, getBedProbeLimits().pos[2] - 0.01f, getBedProbeLimits().pos[3] - 0.01f};
+    float lfrb[4] = { getBedProbeLimits().pos[0] + 1, getBedProbeLimits().pos[1] + 1, getBedProbeLimits().pos[2] - 1, getBedProbeLimits().pos[3] - 1};
+    SERIAL_ECHOLN("ProbePnts : ",  lfrb[0], " - ", lfrb[1], " - ", lfrb[2],  " - ", lfrb[3]);
   #endif
 
   //SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
@@ -1756,7 +1757,8 @@ void RTSSHOW::RTS_HandleData()
         case 6: // Assitant Level ,  Centre 1
         {
           #if ENABLED(BED_TRAMMING_USE_PROBE)
-            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), X_CENTER, Y_CENTER);
+            sprintf(g30CommandStr, "G30X%iY%i", X_CENTER, Y_CENTER);
+            SERIAL_ECHOLN(g30CommandStr);
             injectCommands(g30CommandStr);
           #else
             setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
@@ -1769,7 +1771,8 @@ void RTSSHOW::RTS_HandleData()
         case 7: // Assitant Level , Front Left 2
         {
           #if ENABLED(BED_TRAMMING_USE_PROBE)
-            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), lfrb[0], lfrb[1]);
+            sprintf(g30CommandStr, "G30X%iY%i", (int)lfrb[0], (int)lfrb[1]);
+            SERIAL_ECHOLN(g30CommandStr);
             injectCommands(g30CommandStr);
           #else
             setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
@@ -1782,7 +1785,8 @@ void RTSSHOW::RTS_HandleData()
         case 8: // Assitant Level , Front Right 3
         {
           #if ENABLED(BED_TRAMMING_USE_PROBE)
-            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), lfrb[2], lfrb[1]);
+            sprintf(g30CommandStr, "G30X%iY%i", (int)lfrb[2], (int)lfrb[1]);
+            SERIAL_ECHOLN(g30CommandStr);
             injectCommands(g30CommandStr);
           #else
             setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
@@ -1795,7 +1799,8 @@ void RTSSHOW::RTS_HandleData()
         case 9: // Assitant Level , Back Right 4
         {
           #if ENABLED(BED_TRAMMING_USE_PROBE)
-            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), lfrb[2], lfrb[3]);
+            sprintf(g30CommandStr, "G30X%iY%i", (int)lfrb[2], (int)lfrb[3]);
+            SERIAL_ECHOLN(g30CommandStr);
             injectCommands(g30CommandStr);
           #else
             setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
@@ -1808,7 +1813,8 @@ void RTSSHOW::RTS_HandleData()
         case 10: // Assitant Level , Back Left 5
         {
           #if ENABLED(BED_TRAMMING_USE_PROBE)
-            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), lfrb[0], lfrb[3]);
+            sprintf(g30CommandStr, "G30X%iY%i", (int)lfrb[0], (int)lfrb[3]);
+            SERIAL_ECHOLN(g30CommandStr);
             injectCommands(g30CommandStr);
           #else
             setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);

@@ -709,7 +709,7 @@
  */
 #if ENABLED(MachineEnder3S1)
   #define E0_AUTO_FAN_PIN PC0
-#elif HOTENDS == 1
+#elif HOTENDS == 1 && MOTHERBOARD == BOARD_RAMPS_CREALITY
   #define E0_AUTO_FAN_PIN 7
 #endif
 #define E1_AUTO_FAN_PIN -1
