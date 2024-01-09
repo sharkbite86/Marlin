@@ -3228,7 +3228,11 @@
   #endif
 
   #if AXIS_IS_TMC_CONFIG(E0)
-    #define E0_CURRENT      960
+    #if ENABLED(TOOLHEAD_Twin_Nebula_175)
+      #define E0_CURRENT      750
+    #else
+      #define E0_CURRENT      960
+    #endif
     #define E0_MICROSTEPS    16
     #define E0_RSENSE         0.12
     #define E0_CHAIN_POS     -1

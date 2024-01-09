@@ -4,6 +4,8 @@
 //#define Workhorse
 //#define TazPro
 
+//#define TOOLHEAD_Twin_Nebula_175            // TAZ Pro Dual Extruder
+
 //#define TazDualZ
 
 #if ENABLED(TazPro)
@@ -312,8 +314,12 @@
 #if ENABLED(SWITCHING_NOZZLE)
   #define SWITCHING_NOZZLE_SERVO_NR 0
   #define SWITCHING_NOZZLE_E1_SERVO_NR 1          // If two servos are used, the index of the second
-  #define SWITCHING_NOZZLE_SERVO_ANGLES { 55, 120 }   // A pair of angles for { E0, E1 }.
+  #if ENABLED(TOOLHEAD_Twin_Nebula_175)
+    #define SWITCHING_NOZZLE_SERVO_ANGLES {{ 75, 125 }, { 75, 125 }}
+  #else
+    #define SWITCHING_NOZZLE_SERVO_ANGLES {{ 55, 120 }, { 55, 120 }}   // A pair of angles for { E0, E1 }.
                                                     // For Dual Servo use two pairs: { { lower, raise }, { lower, raise } }
+  #endif
   #define SWITCHING_NOZZLE_SERVO_DWELL 2500         // Dwell time to wait for servo to make physical move
 #endif
 
@@ -1365,6 +1371,8 @@
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 200, 420 }
 #elif ENABLED(Taz6)
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 1600, 830 }
+#elif ENABLED(TOOLHEAD_Twin_Nebula_175)
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 500, 410 }
 #elif ANY(Workhorse, TazPro)
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 500, 420 }
 #endif
@@ -2031,14 +2039,23 @@
 #elif ENABLED(TazPro)
   #define X_BED_SIZE 280 // <-- changed
   #define Y_BED_SIZE 280 // <-- changed
-
-  // Travel limits (mm) after homing, corresponding to endstop positions.
-  #define X_MIN_POS -27 // <-- changed
-  #define Y_MIN_POS -36 // <-- changed
-  #define Z_MIN_POS -9 // <-- changed
-  #define X_MAX_POS 299 // <-- changed
-  #define Y_MAX_POS 292 // <-- changed
-  #define Z_MAX_POS 292 // <-- changed
+  #if ENABLED(LULZBOT_TOOLHEAD_X_MAX_ADJ)
+    // Travel limits (mm) after homing, corresponding to endstop positions.
+    #define X_MIN_POS -18 // <-- changed
+    #define Y_MIN_POS -38 // <-- changed
+    #define Z_MIN_POS -12 // <-- changed
+    #define X_MAX_POS 296 // <-- changed
+    #define Y_MAX_POS 282 // <-- changed
+    #define Z_MAX_POS 289 // <-- changed
+  #else
+    // Travel limits (mm) after homing, corresponding to endstop positions.
+    #define X_MIN_POS -27 // <-- changed
+    #define Y_MIN_POS -36 // <-- changed
+    #define Z_MIN_POS -9 // <-- changed
+    #define X_MAX_POS 299 // <-- changed
+    #define Y_MAX_POS 292 // <-- changed
+    #define Z_MAX_POS 292 // <-- changed
+  #endif
 #endif
 //#define I_MIN_POS 0
 //#define I_MAX_POS 50
@@ -2156,7 +2173,7 @@
   // Commands to execute on filament runout.
   // With multiple runout sensors use the %c placeholder for the current tool in commands (e.g., "M600 T%c")
   // NOTE: After 'M412 H1' the host handles filament runout and this script does not apply.
-  #define FILAMENT_RUNOUT_SCRIPT "M600"
+  #define FILAMENT_RUNOUT_SCRIPT "M600 T%c"
 
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
