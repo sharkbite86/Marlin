@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "DW7.4.8"
+#define SHORT_BUILD_VERSION "DW7.4.9"
 
 /**
  * Verbose version identifier which should contain a reference to the location
