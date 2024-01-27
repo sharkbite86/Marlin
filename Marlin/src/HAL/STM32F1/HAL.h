@@ -34,7 +34,6 @@
 #include "../shared/HAL_SPI.h"
 
 #include "fastio.h"
-#include "watchdog.h"
 
 #include <stdint.h>
 #include <util/atomic.h>
@@ -83,7 +82,7 @@
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 
-#if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
+#if ANY(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
   #define NUM_UARTS 5
 #else
   #define NUM_UARTS 3
@@ -140,8 +139,8 @@
     #define LCD_SERIAL MSERIAL(1) // dummy port
     static_assert(false, "LCD_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
   #endif
-  #if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
-    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+  #if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH) || ENABLED(DWINOS_4)
+    #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
   #endif
 #endif
 
@@ -191,7 +190,7 @@ typedef int8_t pin_t;
   #define HAL_ADC_RESOLUTION 12
 #endif
 
-#define HAL_ADC_VREF         3.3
+#define HAL_ADC_VREF_MV   3300
 
 uint16_t analogRead(const pin_t pin); // need hal.adc_enable() first
 void analogWrite(const pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
@@ -206,7 +205,9 @@ void analogWrite(const pin_t pin, int pwm_val8); // PWM only! mul by 257 in mapl
 #define JTAG_DISABLE()    afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
 #define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
 
-#define PLATFORM_M997_SUPPORT
+#ifndef PLATFORM_M997_SUPPORT
+  #define PLATFORM_M997_SUPPORT
+#endif
 void flashFirmware(const int16_t);
 
 #define HAL_CAN_SET_PWM_FREQ      // This HAL supports PWM Frequency adjustment
@@ -247,6 +248,10 @@ public:
   // Earliest possible init, before setup()
   MarlinHAL() {}
 
+  // Watchdog
+  static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
+
   static void init();          // Called early in setup()
   static void init_board() {}  // Called less early in setup()
   static void reboot();        // Restart the firmware from 0x0
@@ -280,7 +285,7 @@ public:
   // Called by Temperature::init for each sensor at startup
   static void adc_enable(const pin_t pin) { pinMode(pin, INPUT_ANALOG); }
 
-  // Begin ADC sampling on the given channel
+  // Begin ADC sampling on the given pin. Called from Temperature::isr!
   static void adc_start(const pin_t pin);
 
   // Is the ADC ready for reading?

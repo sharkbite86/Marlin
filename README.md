@@ -72,8 +72,32 @@ This firmware is provided to the public as-is with no warranty or guarantee. It'
 
 We have now created a dedicated Discord server to handle support and archive relevant guides and instructions. Patreon supporters will get priority assistance.
 
+## We will NOT handle any support requests for any built compiled from upstream code. The display library from here was taken and submitted upstream without consultation or properly tagging authorship of changes. It was kept off the upstream repo as it was explicitly designed as a drop in library before the Extensible UI API methodology was butchered by hybrid applications with direct includes being repeatedly duplicated. We will not now or ever spend the time to chase bugs caused by changes to the API data types made without concern for backwards compatability.
+
+Extensible UI was designed to allow UI code to live standalone long term. If the API was managed and either versioned or functions overloaded, not changed, UI's no longer being actively maintained would not require maintenance by the Marlin team. The intention was any UI set would drop into the Lib folder and just work. This UI has been maintained under that mindset despite the upstream implementations being full of macros requiring direct pointer access to processed variables, making them fundamentally incompatible with the API, however still relying on its event trigger mechanism.
+
+As another reason this was not placed upstream was to eliminate the nead to develop around merge conflicts following previous code theft issues which have cuased most development to now proceed in the dark, the merge upstream was caught by exactly that, merge issues while adding IDEX functionality.
+
+Due to the blatent disregard to intentions and correct attribution, all support Marlin links have been removed from this repo and open PRs closed, and as long as the situation remains, no further work will be submitted upstream.
+
+Shout out to Tom Brazier, as nearly all notable improvements to the Marlin core code since the last release have come from him.
+
 Insanity Automation Discord - https://discord.gg/TKmJ85PyG4
-Marlin Firmware Discord - https://discord.gg/n5NJ59y
+
+## Primary Notes for DW7.4.8
+   - Added Linear Adv and Input Shaping Screens
+   - Signifigant improvement in response times following changes to new generation machines
+   -- The DWIN OS 3.5 had an option to enable NOACK with an addon bin file. 4.0 has a specific throttled response OS revision. 4.5 needed a totally different UI image flashed. No way it could all live together without completely confusing users so we set about figuring out how to keep universal support and found a balance in data send cycles that the 2560 buffers could still handle the replies without overunning.
+   - Added support for changing runout sensor type on the LCD
+   - Added toggle to change babystepping increment on the LCD
+   - Thanks to EvilGremlin for some of the icon and display graphics work
+
+## Primary Notes for DW7.4.7
+   - Added IDEX screens
+   - Fan adjustment now numeric instead of simple on/off
+   - Tap Z offset on adjustment screen to type numeric value
+   - Sync to 2.1.2 with LA now on for all builds, Silent specific builds eliminated
+   - TODO note prior to building release batches - Primary outstanding bug is upstream issue causing M600 to fail to resume, verified on both DWIN and Standard full graphics displays.
 
 ## Primary Notes for DW7.4.6
   - Added Support for the Ender 2 Pro
@@ -144,11 +168,8 @@ Please keep in mind when flashing the Creality 32 bit boards with the binary fil
 
 For this branch, we still have some active goals open that we plan to continue working on provided there is continued interest in the project.
 - CR10 Smart Power controls and network reset pin output to web interface device
-- Add temp reporting to leveling screens so preheat is less of a mystery
-- Revise aux leveling to use probe and deviation reporting when present
-- Determine cause of clicking on Sermoon (need to get hands on a machine)
-- Add CR5 Support
-- Add Ender 3 S1 support
+- Screens for IS and LA adjustment
+
 
 
 ## Creality Firmware Branches
@@ -172,27 +193,16 @@ For this branch, we still have some active goals open that we plan to continue w
 
 [Marlin Commit History](https://github.com/MarlinFirmware/Marlin/pulls?q=is%3Apr+is%3Aclosed+author%3AInsanityAutomation)
 
-
 ## Marlin
-This is just one of many forks of Marlin. We don't try to bury that behind fancy marketting or anything else. As you can see from the links above, most of the work done here is submitted back to the mainstream Marlin
-branches. The end goal of every project is to get it to the point where it is merged and maintained there. See marlin resources, including how to contribute to the Marlin Project as well, down below.
+This is just one of many forks of Marlin. We don't try to bury that behind fancy marketting or anything else.
 
+<p align="center"><img src="buildroot/share/pixmaps/logo/marlin-outrun-nf-500.png" height="250" alt="MarlinFirmware's logo" /></p>
 
-## Building Marlin 2.0
+<h1 align="center">Marlin 3D Printer Firmware</h1>
 
-To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino.cc/en/main/software) or [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). We've posted detailed instructions on [Building Marlin with Arduino](http://marlinfw.org/docs/basics/install_arduino.html) and [Building Marlin with PlatformIO for ReArm](http://marlinfw.org/docs/basics/install_rearm.html) (which applies well to other 32-bit boards).
-
-
-## The current Marlin dev team consists of:
-
- - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - USA &nbsp; [![Flattr Scott](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=thinkyhead&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
- - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - USA
- - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - USA
- - Chris Pepper [[@p3p](https://github.com/p3p)] - UK
- - João Brazio [[@jbrazio](https://github.com/jbrazio)] - Portugal
- - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)] - Netherlands &nbsp; [![Flattr Erik](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
-
-## License
+<p align="center">
+    <a href="/LICENSE"><img alt="GPL-V3.0 License" src="https://img.shields.io/github/license/marlinfirmware/marlin.svg"></a>
+</p>
 
 Marlin is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
 

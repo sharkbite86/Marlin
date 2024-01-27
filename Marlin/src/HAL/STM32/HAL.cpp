@@ -24,14 +24,13 @@
 
 #ifdef HAL_STM32
 
-#include "HAL.h"
-#include "usb_serial.h"
-
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
 
+#include "usb_serial.h"
+
 #ifdef USBCON
-  DefaultSerial1 MSerial0(false, SerialUSB);
+  DefaultSerial1 MSerialUSB(false, SerialUSB);
 #endif
 
 #if ENABLED(SRAM_EEPROM_EMULATION)
@@ -71,7 +70,7 @@ void MarlinHAL::init() {
   constexpr int cpuFreq = F_CPU;
   UNUSED(cpuFreq);
 
-  #if ENABLED(SDSUPPORT) && DISABLED(SDIO_SUPPORT) && (defined(SDSS) && SDSS != -1)
+  #if HAS_MEDIA && DISABLED(ONBOARD_SDIO) && (defined(SDSS) && SDSS != -1)
     OUT_WRITE(SDSS, HIGH); // Try to set SDSS inactive before any other SPI users start up
   #endif
 
@@ -140,6 +139,29 @@ uint8_t MarlinHAL::get_reset_source() {
 }
 
 void MarlinHAL::clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
+
+// ------------------------
+// Watchdog Timer
+// ------------------------
+
+#if ENABLED(USE_WATCHDOG)
+
+  #define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
+
+  #include <IWatchdog.h>
+
+  void MarlinHAL::watchdog_init() {
+    IF_DISABLED(DISABLE_WATCHDOG_INIT, IWatchdog.begin(WDT_TIMEOUT_US));
+  }
+
+  void MarlinHAL::watchdog_refresh() {
+    IWatchdog.reload();
+    #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
+      TOGGLE(LED_PIN);  // heartbeat indicator
+    #endif
+  }
+
+#endif
 
 extern "C" {
   extern unsigned int _ebss; // end of bss section
