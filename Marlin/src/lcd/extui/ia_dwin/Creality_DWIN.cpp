@@ -2432,7 +2432,7 @@ void SetTouchScreenConfiguration() {
   if (Settings.display_sound) cfg_bits |= 1UL << 3; // 3: audio
   if (Settings.display_standby) cfg_bits |= 1UL << 2; // 2: backlight on standby
   if(Settings.screen_rotation==10) cfg_bits |= 1UL << 1; // 1 & 0: Inversion
-  #if DISABLED(LOWRES_DWIN)
+  #if (DISABLED(LOWRES_DWIN) && DISABLED(DWIN_PORTRAIT)) || (ENABLED(LOWRES_DWIN) && ENABLED(DWIN_PORTRAIT))
     cfg_bits |= 1UL << 0; // Portrait Mode or 800x480 display has 0 point rotated 90deg from 480x272 display
   #endif
 

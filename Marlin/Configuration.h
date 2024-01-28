@@ -4,7 +4,7 @@
    Select Machine
 */
 
-
+#define DWIN_PORTRAIT
 
 // Touchscreen
 //#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
