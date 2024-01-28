@@ -4655,9 +4655,7 @@
 //
 // CR-6 OEM touch screen. A DWIN display with touch.
 //
-#if ANY(MachineCR6, MachineCR6Max, MachineEnder3Touchscreen)
-  #define DGUS_LCD_UI_CREALITY_TOUCH
-#endif
+//#define DGUS_LCD_UI_CREALITY_TOUCH
 
 //
 // Touch-screen LCD for Malyan M200/M300 printers
@@ -4697,7 +4695,7 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
 //
-#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, MachineCR5, MachineEnder7, MachineSermoonD1, MachineCR10Smart, MachineCR10SmartPro) && (NONE(GraphicLCD, OrigLCD)) || ENABLED(INSANITYAUTOMATION_DWIN)
+#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, MachineCR5, MachineEnder7, MachineSermoonD1, MachineCR10Smart, MachineCR10SmartPro) && (NONE(GraphicLCD, OrigLCD)) || ENABLED(INSANITYAUTOMATION_DWIN) || ANY(MachineCR6, MachineCR6Max, MachineEnder3Touchscreen)
   #ifndef INSANITYAUTOMATION_DWIN
     #define INSANITYAUTOMATION_DWIN
   #endif
