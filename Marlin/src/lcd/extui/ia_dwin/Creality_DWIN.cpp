@@ -358,19 +358,33 @@ if(idleThrottling == 400) {
 }
   if(idleThrottling == 500) {
 
-  #if ENABLED(CASE_LIGHT_ENABLE)
+  #if CASE_LIGHT_ENABLE
     if(getCaseLightState())
       rtscheck.RTS_SndData(3, LedToggle); /*On*/
     else
       rtscheck.RTS_SndData(2, LedToggle); /*Off*/
+  #else
+    rtscheck.RTS_SndData(2, LedToggle); /*Off*/
   #endif
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
+  #if POWER_LOSS_RECOVERY
     if(getPowerLossRecoveryEnabled())
       rtscheck.RTS_SndData(3, PowerLossToggle); /*On*/
     else
       rtscheck.RTS_SndData(2, PowerLossToggle); /*Off*/
+  #else
+    rtscheck.RTS_SndData(2, PowerLossToggle); /*Off*/
   #endif
+
+  #if HAS_FILAMENT_SENSOR
+  if(getFilamentRunoutEnabled())
+      rtscheck.RTS_SndData(3, RunoutToggle); /*On*/
+    else
+      rtscheck.RTS_SndData(2, RunoutToggle); /*Off*/
+  #else
+    rtscheck.RTS_SndData(2, RunoutToggle); /*Off*/
+  #endif
+
 }
 
   if (startprogress == 0)
