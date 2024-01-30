@@ -74,7 +74,6 @@ namespace ExtUI {
 #define	PrintscheduleIcon		0x100E
 #define	Timehour			0x1010
 #define	Timemin				0x1012
-#define	IconPrintstatus		0x1014
 #define	Percentage			0x1016
 #define	FanKeyIcon			0x101E
 #define Flowrate        0x1300

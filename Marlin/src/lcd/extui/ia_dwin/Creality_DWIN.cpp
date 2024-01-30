@@ -310,6 +310,10 @@ if(idleThrottling == 400) {
       rtscheck.RTS_SndData(28, RunoutMode);
     if(getRunoutMode(getActiveTool()) == 7)
       rtscheck.RTS_SndData(25, RunoutMode);
+    if(getFilamentRunoutEnabled(getActiveTool()))
+      rtscheck.RTS_SndData(3, RunoutToggle); /*On*/
+    else
+      rtscheck.RTS_SndData(2, RunoutToggle); /*Off*/
   #endif
 
   switch(babystepIncrementIndex)
@@ -367,22 +371,13 @@ if(idleThrottling == 400) {
     rtscheck.RTS_SndData(2, LedToggle); /*Off*/
   #endif
 
-  #if POWER_LOSS_RECOVERY
+  #if ENABLED(POWER_LOSS_RECOVERY)
     if(getPowerLossRecoveryEnabled())
       rtscheck.RTS_SndData(3, PowerLossToggle); /*On*/
     else
       rtscheck.RTS_SndData(2, PowerLossToggle); /*Off*/
   #else
     rtscheck.RTS_SndData(2, PowerLossToggle); /*Off*/
-  #endif
-
-  #if HAS_FILAMENT_SENSOR
-  if(getFilamentRunoutEnabled())
-      rtscheck.RTS_SndData(3, RunoutToggle); /*On*/
-    else
-      rtscheck.RTS_SndData(2, RunoutToggle); /*Off*/
-  #else
-    rtscheck.RTS_SndData(2, RunoutToggle); /*Off*/
   #endif
 
 }
