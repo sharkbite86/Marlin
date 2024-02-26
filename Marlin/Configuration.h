@@ -3030,10 +3030,10 @@
     #define Z_MAX_POS 405
     #define ClipClearance 5
   #elif ANY(MachineEnder3, MachineEnder3V2)
-    #define X_BED_SIZE 230
-    #define Y_BED_SIZE 230
+    #define X_BED_SIZE 220
+    #define Y_BED_SIZE 220
     #define Z_MAX_POS 250
-    #define X_MAX_POS 245
+    #define X_MAX_POS 220
     #define Y_MAX_POS 240
     #define ClipClearance 15
   #elif ANY(MachineEnder3S1)
