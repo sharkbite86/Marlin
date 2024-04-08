@@ -120,6 +120,7 @@
 //
 // LCD / Controller
 //
+
 #if ENABLED(CR10_STOCKDISPLAY)
   #define BTN_ENC                           PA15
   #define BTN_EN1                           PA9
@@ -176,16 +177,8 @@
 //
 #define CASE_LIGHT_PIN                      PA13
 
-#ifndef NEOPIXEL_PIN
-#define NEOPIXEL_PIN                        PA8
-#endif
-
-#define CASE_LIGHT_PIN                      LED_CONTROL_PIN
-
-#define SUICIDE_PIN                         PC13
-
-#ifndef SUICIDE_PIN_INVERTING
-  #define SUICIDE_PIN_INVERTING               false
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PA8
 #endif
 
 #define SUICIDE_PIN                         PC13
