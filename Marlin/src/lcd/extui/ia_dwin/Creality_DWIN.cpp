@@ -1215,7 +1215,7 @@ void RTSSHOW::RTS_HandleData()
         tmp_zprobe_offset = ((float)recdat.data[0]) / 100;
       }
       SERIAL_ECHOLNPGM("Requested Offset ", tmp_zprobe_offset);
-      if (WITHIN((tmp_zprobe_offset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+      if (WITHIN((tmp_zprobe_offset), PROBE_OFFSET_Z_MIN, PROBE_OFFSET_Z_MAX))
       {
         int16_t tmpSteps = mmToWholeSteps(getZOffset_mm() - tmp_zprobe_offset, (axis_t)Z);
         if(tmpSteps==0)
@@ -1672,7 +1672,7 @@ void RTSSHOW::RTS_HandleData()
         case 2: // Z-axis to Up
         {
           SERIAL_ECHOLNPGM("Requested Offset ", tmp_zprobe_offset);
-          if (WITHIN((getZOffset_mm()+tmp_zprobe_adjust), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+          if (WITHIN((getZOffset_mm()+tmp_zprobe_adjust), PROBE_OFFSET_Z_MIN, PROBE_OFFSET_Z_MAX))
           {
             int16_t tmpSteps = mmToWholeSteps(tmp_zprobe_adjust, (axis_t)Z);
             if(tmpSteps==0)
@@ -1697,7 +1697,7 @@ void RTSSHOW::RTS_HandleData()
         case 3: // Z-axis to Down
         {
           SERIAL_ECHOLNPGM("Requested Offset ", tmp_zprobe_offset);
-          if (WITHIN((getZOffset_mm()-tmp_zprobe_adjust), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+          if (WITHIN((getZOffset_mm()-tmp_zprobe_adjust), PROBE_OFFSET_Z_MIN, PROBE_OFFSET_Z_MAX))
           {
             int16_t tmpSteps = mmToWholeSteps((tmp_zprobe_adjust), (axis_t)Z);
             if(tmpSteps==0)
@@ -2862,7 +2862,7 @@ void onSettingsLoaded(bool success)
 #endif
 
 #if HAS_PID_HEATING
-  void onPidTuning(const result_t rst) {
+  void onPIDTuning(const pidresult_t rst) {
     // Called for temperature PID tuning result
     rtscheck.RTS_SndData(pid_hotendAutoTemp, HotendPID_AutoTmp);
     rtscheck.RTS_SndData(pid_bedAutoTemp, BedPID_AutoTmp);
@@ -2949,6 +2949,24 @@ void onPowerLoss()
 
 }
 
+void onHeatingError(signed char)
+{
+
+}
+
+void onStartM303(int, signed char, int) {
+
+}
+
+void onAxisEnabled(ExtUI::axis_t) {
+
+}
+void onAxisDisabled(ExtUI::axis_t){}
+void onSetMinExtrusionTemp(int){}
+void onMinTempError(signed char){}
+void onMaxTempError(signed char){}
+
+void onPauseMode(PauseMessage, PauseMode, unsigned char) {}
 
 } // namespace ExtUI
 

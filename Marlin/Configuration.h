@@ -1356,7 +1356,8 @@
   #define DEFAULT_XJERK 20.0
   #define DEFAULT_YJERK 5.0
   #define DEFAULT_ZJERK  0.2
-  #define DEFAULT_ZJERK  5.0
+  #define DEFAULT_EJERK  5.0
+  //#define DEFAULT_ZJERK  5.0
   //#define DEFAULT_IJERK  0.3
   //#define DEFAULT_JJERK  0.3
   //#define DEFAULT_KJERK  0.3
@@ -1753,8 +1754,8 @@
 //#define PROBE_OFFSET_XMAX  50   // (mm)
 //#define PROBE_OFFSET_YMIN -50   // (mm)
 //#define PROBE_OFFSET_YMAX  50   // (mm)
-#define PROBE_OFFSET_ZMIN -9   // (mm)
-#define PROBE_OFFSET_ZMAX  9   // (mm)
+#define PROBE_OFFSET_Z_MIN -9   // (mm)
+#define PROBE_OFFSET_Z_MAX  9   // (mm)
 
 // Enable the M48 repeatability test to test probe accuracy
 //#define Z_MIN_PROBE_REPEATABILITY_TEST
@@ -1841,7 +1842,7 @@
 //#define INVERT_U_DIR false
 //#define INVERT_V_DIR false
 //#define INVERT_W_DIR false
-
+#define INVERT_X2_DIR INVERT_X_DIR
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.

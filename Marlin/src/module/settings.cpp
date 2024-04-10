@@ -1929,10 +1929,6 @@ void MarlinSettings::postprocess() {
       //
       #if HAS_FILAMENT_SENSOR
       {
-        int8_t runout_sensor_enabled;
-        _FIELD_TEST(runout_sensor_enabled);
-        EEPROM_READ(runout_sensor_enabled);
-
         bool runout_enabled[NUM_RUNOUT_SENSORS];
         float runout_distance_mm[NUM_RUNOUT_SENSORS];
         RunoutMode runout_mode[NUM_RUNOUT_SENSORS];
