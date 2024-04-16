@@ -358,33 +358,19 @@ if(idleThrottling == 400) {
 }
   if(idleThrottling == 500) {
 
-  #if CASE_LIGHT_ENABLE
+  #if ENABLED(CASE_LIGHT_ENABLE)
     if(getCaseLightState())
       rtscheck.RTS_SndData(3, LedToggle); /*On*/
     else
       rtscheck.RTS_SndData(2, LedToggle); /*Off*/
-  #else
-    rtscheck.RTS_SndData(2, LedToggle); /*Off*/
   #endif
 
-  #if POWER_LOSS_RECOVERY
+  #if ENABLED(POWER_LOSS_RECOVERY)
     if(getPowerLossRecoveryEnabled())
       rtscheck.RTS_SndData(3, PowerLossToggle); /*On*/
     else
       rtscheck.RTS_SndData(2, PowerLossToggle); /*Off*/
-  #else
-    rtscheck.RTS_SndData(2, PowerLossToggle); /*Off*/
   #endif
-
-  #if HAS_FILAMENT_SENSOR
-  if(getFilamentRunoutEnabled())
-      rtscheck.RTS_SndData(3, RunoutToggle); /*On*/
-    else
-      rtscheck.RTS_SndData(2, RunoutToggle); /*Off*/
-  #else
-    rtscheck.RTS_SndData(2, RunoutToggle); /*Off*/
-  #endif
-
 }
 
   if (startprogress == 0)
@@ -620,7 +606,7 @@ int RTSSHOW::RTS_RecData()
   if(!DWIN_SERIAL.connected())
     DWIN_SERIAL.begin(115200);
 
-  #if ENABLED(DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS) && defined(__AVR__)
+  //#if ENABLED(DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS)
     if ((!DWIN_SERIAL.available() && DWIN_SERIAL.buffer_overruns()) || DWIN_SERIAL.dropped() > 0) {
       // Overrun, but reset the flag only when the buffer is empty
       // We want to extract as many as valid datagrams possible...
@@ -629,7 +615,8 @@ int RTSSHOW::RTS_RecData()
       //DWIN_SERIAL.reset_rx_overun();
       DWIN_SERIAL.flush();
     }
-  #endif
+  //#endif
+
   while (DWIN_SERIAL.available()) {
     switch (rx_datagram_state) {
 
@@ -803,18 +790,16 @@ void RTSSHOW::RTS_SndData(const char *str, unsigned long addr, unsigned char cmd
     uint8_t expected_tx = 6 + len; // 6 bytes header + payload.
     const millis_t try_until = ExtUI::safe_millis() + 1000;
 
-    #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS) && defined(__AVR__)
-      while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
-        if (ELAPSED(ExtUI::safe_millis(), try_until)) return; // Stop trying after 1 second
+    while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
+      if (ELAPSED(ExtUI::safe_millis(), try_until)) return; // Stop trying after 1 second
 
-        #ifdef ARDUINO_ARCH_STM32
-          DWIN_SERIAL.flush();
-        #else
-          DWIN_SERIAL.flushTX();
-        #endif
-        delay(50);
-      }
-    #endif
+      #ifdef ARDUINO_ARCH_STM32
+        DWIN_SERIAL.flush();
+      #else
+        DWIN_SERIAL.flushTX();
+      #endif
+      delay(50);
+    }
 
     int dataRec2;
     do { dataRec2 = rtscheck.RTS_RecData(); } while (dataRec2 > 0); // Since OS4 returns an ack on an 82 command, receive and purge it now
@@ -935,18 +920,16 @@ void RTSSHOW::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen,
   uint8_t expected_tx = 6 + valueslen; // 6 bytes header + payload.
     const millis_t try_until = ExtUI::safe_millis() + 1000;
 
-    #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS) && defined(__AVR__)
-      while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
-        if (ELAPSED(ExtUI::safe_millis(), try_until)) return; // Stop trying after 1 second
+    while (expected_tx > DWIN_SERIAL.get_tx_buffer_free()) {
+      if (ELAPSED(ExtUI::safe_millis(), try_until)) return; // Stop trying after 1 second
 
-        #ifdef ARDUINO_ARCH_STM32
-          DWIN_SERIAL.flush();
-        #else
-          DWIN_SERIAL.flushTX();
-        #endif
-        delay(50);
-      }
-    #endif
+      #ifdef ARDUINO_ARCH_STM32
+        DWIN_SERIAL.flush();
+      #else
+        DWIN_SERIAL.flushTX();
+      #endif
+      delay(50);
+    }
 
   int dataRec2;
   do { dataRec2 = rtscheck.RTS_RecData(); } while (dataRec2 > 0); // Since OS4 returns an ack on an 82 command, receive and purge it now
@@ -1065,8 +1048,7 @@ void RTSSHOW::RTS_HandleData()
   #if ENABLED(LCD_BED_TRAMMING) && DISABLED(BED_TRAMMING_USE_PROBE)
     constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
   #elif ENABLED(BED_TRAMMING_USE_PROBE)
-    float lfrb[4] = { getBedProbeLimits().pos[0] + 1, getBedProbeLimits().pos[1] + 1, getBedProbeLimits().pos[2] - 1, getBedProbeLimits().pos[3] - 1};
-    SERIAL_ECHOLN("ProbePnts : ",  lfrb[0], " - ", lfrb[1], " - ", lfrb[2],  " - ", lfrb[3]);
+    float lfrb[4] = { getBedProbeLimits().pos[0] + 0.01f, getBedProbeLimits().pos[1] + 0.01f, getBedProbeLimits().pos[2] - 0.01f, getBedProbeLimits().pos[3] - 0.01f};
   #endif
 
   //SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
@@ -1233,7 +1215,7 @@ void RTSSHOW::RTS_HandleData()
         tmp_zprobe_offset = ((float)recdat.data[0]) / 100;
       }
       SERIAL_ECHOLNPGM("Requested Offset ", tmp_zprobe_offset);
-      if (WITHIN((tmp_zprobe_offset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+      if (WITHIN((tmp_zprobe_offset), PROBE_OFFSET_Z_MIN, PROBE_OFFSET_Z_MAX))
       {
         int16_t tmpSteps = mmToWholeSteps(getZOffset_mm() - tmp_zprobe_offset, (axis_t)Z);
         if(tmpSteps==0)
@@ -1690,7 +1672,7 @@ void RTSSHOW::RTS_HandleData()
         case 2: // Z-axis to Up
         {
           SERIAL_ECHOLNPGM("Requested Offset ", tmp_zprobe_offset);
-          if (WITHIN((getZOffset_mm()+tmp_zprobe_adjust), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+          if (WITHIN((getZOffset_mm()+tmp_zprobe_adjust), PROBE_OFFSET_Z_MIN, PROBE_OFFSET_Z_MAX))
           {
             int16_t tmpSteps = mmToWholeSteps(tmp_zprobe_adjust, (axis_t)Z);
             if(tmpSteps==0)
@@ -1715,7 +1697,7 @@ void RTSSHOW::RTS_HandleData()
         case 3: // Z-axis to Down
         {
           SERIAL_ECHOLNPGM("Requested Offset ", tmp_zprobe_offset);
-          if (WITHIN((getZOffset_mm()-tmp_zprobe_adjust), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+          if (WITHIN((getZOffset_mm()-tmp_zprobe_adjust), PROBE_OFFSET_Z_MIN, PROBE_OFFSET_Z_MAX))
           {
             int16_t tmpSteps = mmToWholeSteps((tmp_zprobe_adjust), (axis_t)Z);
             if(tmpSteps==0)
@@ -1771,8 +1753,7 @@ void RTSSHOW::RTS_HandleData()
         case 6: // Assitant Level ,  Centre 1
         {
           #if ENABLED(BED_TRAMMING_USE_PROBE)
-            sprintf(g30CommandStr, "G30X%iY%i", X_CENTER, Y_CENTER);
-            SERIAL_ECHOLN(g30CommandStr);
+            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), X_CENTER, Y_CENTER);
             injectCommands(g30CommandStr);
           #else
             setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
@@ -1785,8 +1766,7 @@ void RTSSHOW::RTS_HandleData()
         case 7: // Assitant Level , Front Left 2
         {
           #if ENABLED(BED_TRAMMING_USE_PROBE)
-            sprintf(g30CommandStr, "G30X%iY%i", (int)lfrb[0], (int)lfrb[1]);
-            SERIAL_ECHOLN(g30CommandStr);
+            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), lfrb[0], lfrb[1]);
             injectCommands(g30CommandStr);
           #else
             setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
@@ -1799,8 +1779,7 @@ void RTSSHOW::RTS_HandleData()
         case 8: // Assitant Level , Front Right 3
         {
           #if ENABLED(BED_TRAMMING_USE_PROBE)
-            sprintf(g30CommandStr, "G30X%iY%i", (int)lfrb[2], (int)lfrb[1]);
-            SERIAL_ECHOLN(g30CommandStr);
+            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), lfrb[2], lfrb[1]);
             injectCommands(g30CommandStr);
           #else
             setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
@@ -1813,8 +1792,7 @@ void RTSSHOW::RTS_HandleData()
         case 9: // Assitant Level , Back Right 4
         {
           #if ENABLED(BED_TRAMMING_USE_PROBE)
-            sprintf(g30CommandStr, "G30X%iY%i", (int)lfrb[2], (int)lfrb[3]);
-            SERIAL_ECHOLN(g30CommandStr);
+            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), lfrb[2], lfrb[3]);
             injectCommands(g30CommandStr);
           #else
             setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
@@ -1827,8 +1805,7 @@ void RTSSHOW::RTS_HandleData()
         case 10: // Assitant Level , Back Left 5
         {
           #if ENABLED(BED_TRAMMING_USE_PROBE)
-            sprintf(g30CommandStr, "G30X%iY%i", (int)lfrb[0], (int)lfrb[3]);
-            SERIAL_ECHOLN(g30CommandStr);
+            sprintf_P(g30CommandStr, PSTR("G30X%sY%s"), lfrb[0], lfrb[3]);
             injectCommands(g30CommandStr);
           #else
             setAxisPosition_mm(BED_TRAMMING_Z_HOP, (axis_t)Z);
@@ -2885,7 +2862,7 @@ void onSettingsLoaded(bool success)
 #endif
 
 #if HAS_PID_HEATING
-  void onPidTuning(const result_t rst) {
+  void onPIDTuning(const pidresult_t rst) {
     // Called for temperature PID tuning result
     rtscheck.RTS_SndData(pid_hotendAutoTemp, HotendPID_AutoTmp);
     rtscheck.RTS_SndData(pid_bedAutoTemp, BedPID_AutoTmp);
@@ -2972,6 +2949,24 @@ void onPowerLoss()
 
 }
 
+void onHeatingError(signed char)
+{
+
+}
+
+void onStartM303(int, signed char, int) {
+
+}
+
+void onAxisEnabled(ExtUI::axis_t) {
+
+}
+void onAxisDisabled(ExtUI::axis_t){}
+void onSetMinExtrusionTemp(int){}
+void onMinTempError(signed char){}
+void onMaxTempError(signed char){}
+
+void onPauseMode(PauseMessage, PauseMode, unsigned char) {}
 
 } // namespace ExtUI
 

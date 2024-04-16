@@ -77,6 +77,7 @@ void GcodeSuite::M591() {
 }
 
 void GcodeSuite::M591_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
   report_heading_etc(forReplay, F(STR_FILAMENT_RUNOUT_SENSOR));
   for(int e=0; e < NUM_RUNOUT_SENSORS; e++)
     SERIAL_ECHOLNPGM(
