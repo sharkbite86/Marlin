@@ -1242,6 +1242,10 @@
  *  X<1>         Set the given parameters only for the X axis.
  *  Y<1>         Set the given parameters only for the Y axis.
  */
+
+//#define INPUT_SHAPING_X //TDS
+//#define INPUT_SHAPING_Y //TDS
+
 #if ENABLED(MachineLargeROM)
   #define INPUT_SHAPING_X
   #define INPUT_SHAPING_Y
@@ -3030,9 +3034,9 @@
   #endif
   #define FILAMENT_CHANGE_UNLOAD_ACCEL        25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
   #if ANY(MachineCR10SPro, MachineCR10SProV2, MachineEnder6)
-    #define FILAMENT_CHANGE_UNLOAD_LENGTH      75
+    #define FILAMENT_CHANGE_UNLOAD_LENGTH      90 //TDS was 75
   #elif ENABLED(DirectDrive)
-    #define FILAMENT_CHANGE_UNLOAD_LENGTH      125
+    #define FILAMENT_CHANGE_UNLOAD_LENGTH      125 //TDS might want to change this instead of above?
   #elif ANY(MachineEnder5Plus, MachineCR10Max, MachineCR10S4, MachineCR10S5)
     #define FILAMENT_CHANGE_UNLOAD_LENGTH   700
   #elif ANY(MachineEnder2, MachineEnder2Pro)
@@ -4268,14 +4272,14 @@
  * User-defined buttons to run custom G-code.
  * Up to 25 may be defined.
  */
-//#define CUSTOM_USER_BUTTONS
+#define CUSTOM_USER_BUTTONS //TDS
 #if ENABLED(CUSTOM_USER_BUTTONS)
-  //#define BUTTON1_PIN -1
-  #if PIN_EXISTS(BUTTON1)
-    #define BUTTON1_HIT_STATE     LOW       // State of the triggered button. NC=LOW. NO=HIGH.
+  #define BUTTON1_PIN 65 //TDS pin 58 is D12 (Doesn't seem to register a click). Pin 65 is digital A11
+  #if PIN_EXISTS(BUTTON1) //TDS
+    #define BUTTON1_HIT_STATE     HIGH       // State of the triggered button. NC=LOW. NO=HIGH. //TDS
     #define BUTTON1_WHEN_PRINTING false     // Button allowed to trigger during printing?
-    #define BUTTON1_GCODE         "G28"
-    #define BUTTON1_DESC          "Homing"  // Optional string to set the LCD status
+    #define BUTTON1_GCODE         "M702" //TDS
+    #define BUTTON1_DESC          "Unloading Filament"  // Optional string to set the LCD status //TDS
   #endif
 
   //#define BUTTON2_PIN -1
@@ -4698,6 +4702,9 @@
   //
   //#define PINS_DEBUGGING
 //#endif
+
+//#define DIRECT_PIN_CONTROL //TDS
+//#define PINS_DEBUGGING //TDS
 
 // Enable Tests that will run at startup and produce a report
 //#define MARLIN_TEST_BUILD

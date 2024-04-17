@@ -104,7 +104,7 @@
 //Stepper09Deg // 0.9 degree per step motor on the extruder - doubles ESteps
 
  //#define MicroswissDirectDrive
- //#define DirectDrive // Any direct drive extruder, reduces filament change lengths
+ #define DirectDrive // Any direct drive extruder, reduces filament change lengths //TDS
 
 /*
    Choose bed type below. If you have an extenrally controlled
@@ -174,7 +174,7 @@
    Melzi board users may only select ABL_BI for bilinear leveling
    If a probe is enabled and nothing selected here, defaults to Bilinear
 */
-//#define ABL_BI
+//#define ABL_BI //TDS already defined by default
 //#define ABL_UBL
 
 /*
@@ -248,7 +248,7 @@
    Standard is recommended in most other scenarios.
 */
 //#define MeshFast
-//#define MeshStd
+//#define MeshStd //TDS defined by default
 //#define MeshFine
 //#define MeshExtreme
 
@@ -2174,7 +2174,7 @@
 #elif ENABLED(MachineCR5)
   #define EStepsmm 137.65
 #elif ANY(MachineCR10SPro, MachineCR10Max, MachineCRXPro, MachineEnder6, MachineEnder7, MachineCR30)
-  #define EStepsmm 140
+  #define EStepsmm 690 //TDS, Original was 140, Updated for Orbiter 2.0. 690 seemed to make 9.9mm instead of 10mm?
 #elif ENABLED(MachineCR2020)
   #define EStepsmm 113
 #else
@@ -2227,9 +2227,9 @@
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #elif (ANY(MachineCR10SPro, MachineCR6, MachineCR6Max, MachineCR30))
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 70 }
-  #define DEFAULT_MAX_ACCELERATION      { 750, 750, 100, 60 }
+  #define DEFAULT_MAX_ACCELERATION      { 750, 750, 100, 3000 } //TDS E was 60
   #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
-  #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
+  #define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts //TDS
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #elif (ENABLED(MachineCR10Std))
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 75 }
@@ -2651,7 +2651,7 @@
      #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
    #endif
 #elif ANY(MachineCR10SPro, MachineCR10Max) && ENABLED(HotendStock) && DISABLED(MicroswissDirectDrive)
-  #define NOZZLE_TO_PROBE_OFFSET { -27, 0, 0 }
+  #define NOZZLE_TO_PROBE_OFFSET { -45, -1.30, 0 } //TDS Do I need to edit this line? Might just do it by gcode M851 X-45 Y-1.30 Z-3.70
 #elif (ANY(ABL_BLTOUCH, ABL_EZABL,ABL_NCSW) && ENABLED(E3DHemera))
     #define NOZZLE_TO_PROBE_OFFSET { -40, 0, 0 }
 #elif ENABLED(MachineCR10SV2)
@@ -2951,7 +2951,7 @@
     #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
   #else
-    #define INVERT_E0_DIR false
+    #define INVERT_E0_DIR true //TDS was false. True since Orbiter 2.0 is opposite stock
     #define INVERT_E1_DIR true
   #endif
 #endif
@@ -3167,7 +3167,7 @@
   #elif ENABLED(MachineCR10SProV2)
     #define X_BED_SIZE 300
     #define Y_BED_SIZE 300
-    #define Z_MAX_POS 400
+    #define Z_MAX_POS 350 //TDS was 400
     #define X_MAX_POS 315
     #define Y_MAX_POS 310
     #define ClipClearance 5
@@ -3368,7 +3368,7 @@
   #if ENABLED(FilamentEncoder)
     #define FILAMENT_RUNOUT_DISTANCE_MM 12
   #elif ANY(MachineEnder5Plus, MachineCR10SPro, MachineCR10SProV2)
-    #define FILAMENT_RUNOUT_DISTANCE_MM 10
+    #define FILAMENT_RUNOUT_DISTANCE_MM 1 //TDS basically the same unit after all
   #else
     #define FILAMENT_RUNOUT_DISTANCE_MM 5
   #endif
@@ -3852,9 +3852,9 @@
 #define PREHEAT_1_TEMP_CHAMBER 35
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_2_LABEL       "ABS"
-#define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    110
+#define PREHEAT_2_LABEL       "PETG" //TDS
+#define PREHEAT_2_TEMP_HOTEND 230 //TDS
+#define PREHEAT_2_TEMP_BED    70 //TDS
 #define PREHEAT_2_TEMP_CHAMBER 35
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
