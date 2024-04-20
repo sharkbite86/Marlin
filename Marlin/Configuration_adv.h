@@ -3034,9 +3034,9 @@
   #endif
   #define FILAMENT_CHANGE_UNLOAD_ACCEL        25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
   #if ANY(MachineCR10SPro, MachineCR10SProV2, MachineEnder6)
-    #define FILAMENT_CHANGE_UNLOAD_LENGTH      90 //TDS was 75
+    #define FILAMENT_CHANGE_UNLOAD_LENGTH      100 //TDS was 75
   #elif ENABLED(DirectDrive)
-    #define FILAMENT_CHANGE_UNLOAD_LENGTH      125 //TDS might want to change this instead of above?
+    #define FILAMENT_CHANGE_UNLOAD_LENGTH      100 //TDS might want to change this instead of above? //TDS was 125
   #elif ANY(MachineEnder5Plus, MachineCR10Max, MachineCR10S4, MachineCR10S5)
     #define FILAMENT_CHANGE_UNLOAD_LENGTH   700
   #elif ANY(MachineEnder2, MachineEnder2Pro)
@@ -4278,7 +4278,7 @@
   #if PIN_EXISTS(BUTTON1) //TDS
     #define BUTTON1_HIT_STATE     HIGH       // State of the triggered button. NC=LOW. NO=HIGH. //TDS
     #define BUTTON1_WHEN_PRINTING false     // Button allowed to trigger during printing?
-    #define BUTTON1_GCODE         "M702" //TDS
+    #define BUTTON1_GCODE         "M702 \n M104 S0" //TDS Unload filament, turn off heat
     #define BUTTON1_DESC          "Unloading Filament"  // Optional string to set the LCD status //TDS
   #endif
 
