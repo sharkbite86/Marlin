@@ -4703,8 +4703,8 @@
   //#define PINS_DEBUGGING
 //#endif
 
-//#define DIRECT_PIN_CONTROL //TDS
-//#define PINS_DEBUGGING //TDS
+#define DIRECT_PIN_CONTROL //TDS
+#define PINS_DEBUGGING //TDS
 
 // Enable Tests that will run at startup and produce a report
 //#define MARLIN_TEST_BUILD
