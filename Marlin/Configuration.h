@@ -1524,9 +1524,9 @@
       #define DEFAULT_Kd 54.3
     #elif ENABLED(HotendStock)
       #if ANY(MachineCR10SPro, MachineCR10Max)
-        #define DEFAULT_Kp 25.25
-        #define DEFAULT_Ki 2.17
-        #define DEFAULT_Kd 73.44
+        #define DEFAULT_Kp 26.4 //TDS was 25.25
+        #define DEFAULT_Ki 2.6 //TDS was 2.17
+        #define DEFAULT_Kd 66.7 //TDS was 73.44
       #elif ENABLED(MachineEnder5Plus)
         #define  DEFAULT_Kp 14.72
         #define  DEFAULT_Ki 0.89
@@ -1678,9 +1678,9 @@
     #define DEFAULT_bedKi 1.17
     #define DEFAULT_bedKd 1349.52
   #else
-    #define  DEFAULT_bedKp 690.34
-    #define  DEFAULT_bedKi 111.47
-    #define  DEFAULT_bedKd 1068.83
+    #define  DEFAULT_bedKp 87.6 //TDS was 690.34
+    #define  DEFAULT_bedKi 14.8 //TDS was 111.47
+    #define  DEFAULT_bedKd 344.6 //TDS was 1068.83
   #endif
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
@@ -2174,7 +2174,7 @@
 #elif ENABLED(MachineCR5)
   #define EStepsmm 137.65
 #elif ANY(MachineCR10SPro, MachineCR10Max, MachineCRXPro, MachineEnder6, MachineEnder7, MachineCR30)
-  #define EStepsmm 690 //TDS, Original was 140, Updated for Orbiter 2.0. 690 seemed to make 9.9mm instead of 10mm?
+  #define EStepsmm 680.5 //TDS, Original was 140, Updated for Orbiter 2.0. 690 is stock. 680.5 seems to work in my case
 #elif ENABLED(MachineCR2020)
   #define EStepsmm 113
 #else
