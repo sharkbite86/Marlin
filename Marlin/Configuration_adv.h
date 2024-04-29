@@ -2426,7 +2426,7 @@
   #if ENABLED(DISTINCT_E_FACTORS)
     #define ADVANCE_K { 0.0 }    // (mm) Compression length per 1mm/s extruder speed, per extruder
   #else
-    #define ADVANCE_K 0.0        // (mm) Compression length applying to all extruders
+    #define ADVANCE_K 0.0        // (mm) Compression length applying to all extruders //TDS I want this! but is it in the menus?
   #endif
   //#define ADVANCE_K_EXTRA       // Add a second linear advance constant, configurable with M900 L.
   //#define LA_DEBUG              // Print debug information to serial during operation. Disable for production use.
@@ -4278,7 +4278,7 @@
   #if PIN_EXISTS(BUTTON1) //TDS
     #define BUTTON1_HIT_STATE     HIGH       // State of the triggered button. NC=LOW. NO=HIGH. //TDS
     #define BUTTON1_WHEN_PRINTING false     // Button allowed to trigger during printing?
-    #define BUTTON1_GCODE         "M702 \n M104 S0" //TDS Unload filament, turn off heat
+    #define BUTTON1_GCODE         "M702 \n M226 P2 S1 \n M701 \n M104" //TDS "M702 \n M104 S0" Unload filament, turn off heat. Want to use "M702 \n M226 P2 S1 \n M701"
     #define BUTTON1_DESC          "Unloading Filament"  // Optional string to set the LCD status //TDS
   #endif
 

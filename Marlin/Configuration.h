@@ -2651,7 +2651,7 @@
      #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
    #endif
 #elif ANY(MachineCR10SPro, MachineCR10Max) && ENABLED(HotendStock) && DISABLED(MicroswissDirectDrive)
-  #define NOZZLE_TO_PROBE_OFFSET { -45, -1.30, 0 } //TDS Do I need to edit this line? Might just do it by gcode M851 X-45 Y-1.30 Z-3.70
+  #define NOZZLE_TO_PROBE_OFFSET { -43, -1.30, 0 } //TDS Do I need to edit this line? Might just do it by gcode M851 X-43 Y-1.30 Z-3.70
 #elif (ANY(ABL_BLTOUCH, ABL_EZABL,ABL_NCSW) && ENABLED(E3DHemera))
     #define NOZZLE_TO_PROBE_OFFSET { -40, 0, 0 }
 #elif ENABLED(MachineCR10SV2)
