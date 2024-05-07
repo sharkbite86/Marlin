@@ -1524,9 +1524,9 @@
       #define DEFAULT_Kd 54.3
     #elif ENABLED(HotendStock)
       #if ANY(MachineCR10SPro, MachineCR10Max)
-        #define DEFAULT_Kp 26.4 //TDS was 25.25
-        #define DEFAULT_Ki 2.6 //TDS was 2.17
-        #define DEFAULT_Kd 66.7 //TDS was 73.44
+        #define DEFAULT_Kp 26.9 //TDS was 25.25
+        #define DEFAULT_Ki 2.5 //TDS was 2.17
+        #define DEFAULT_Kd 70.0 //TDS was 73.44
       #elif ENABLED(MachineEnder5Plus)
         #define  DEFAULT_Kp 14.72
         #define  DEFAULT_Ki 0.89
@@ -1678,9 +1678,9 @@
     #define DEFAULT_bedKi 1.17
     #define DEFAULT_bedKd 1349.52
   #else
-    #define  DEFAULT_bedKp 87.6 //TDS was 690.34
-    #define  DEFAULT_bedKi 14.8 //TDS was 111.47
-    #define  DEFAULT_bedKd 344.6 //TDS was 1068.83
+    #define  DEFAULT_bedKp 85.9 //TDS was 690.34
+    #define  DEFAULT_bedKi 14.5 //TDS was 111.47
+    #define  DEFAULT_bedKd 337.9 //TDS was 1068.83
   #endif
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
@@ -2174,7 +2174,7 @@
 #elif ENABLED(MachineCR5)
   #define EStepsmm 137.65
 #elif ANY(MachineCR10SPro, MachineCR10Max, MachineCRXPro, MachineEnder6, MachineEnder7, MachineCR30)
-  #define EStepsmm 680.5 //TDS, Original was 140, Updated for Orbiter 2.0. 690 is stock. 680.5 seems to work in my case
+  #define EStepsmm 685 //TDS, Original was 140, Updated for Orbiter 2.0. 690 is stock. 680.5 seems to work in my case
 #elif ENABLED(MachineCR2020)
   #define EStepsmm 113
 #else
@@ -2226,9 +2226,9 @@
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #elif (ANY(MachineCR10SPro, MachineCR6, MachineCR6Max, MachineCR30))
-  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 70 }
-  #define DEFAULT_MAX_ACCELERATION      { 750, 750, 100, 3000 } //TDS E was 60
-  #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
+  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 120 } //TDS E was 70
+  #define DEFAULT_MAX_ACCELERATION      { 800, 800, 100, 3000 } //TDS E was 60, X and Y were 750
+  #define DEFAULT_ACCELERATION          800    // X, Y, Z and E acceleration for printing moves //TDS was 750
   #define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts //TDS
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #elif (ENABLED(MachineCR10Std))
@@ -2310,7 +2310,7 @@
     #define DEFAULT_YJERK 5.0
   #endif
   #define DEFAULT_ZJERK  0.3
-  #define DEFAULT_EJERK  5.0
+  #define DEFAULT_EJERK  5.0 //TDS 5-10 is good for Orbiter 2.0
   //#define DEFAULT_IJERK  0.3
   //#define DEFAULT_JJERK  0.3
   //#define DEFAULT_KJERK  0.3
@@ -2651,7 +2651,7 @@
      #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
    #endif
 #elif ANY(MachineCR10SPro, MachineCR10Max) && ENABLED(HotendStock) && DISABLED(MicroswissDirectDrive)
-  #define NOZZLE_TO_PROBE_OFFSET { -43, -1.30, 0 } //TDS Do I need to edit this line? Might just do it by gcode M851 X-43 Y-1.30 Z-3.70
+  #define NOZZLE_TO_PROBE_OFFSET { -43, -1.30, -3.15 } //TDS Do I need to edit this line? Might just do it by gcode M851 X-43 Y-1.30 Z-3.15
 #elif (ANY(ABL_BLTOUCH, ABL_EZABL,ABL_NCSW) && ENABLED(E3DHemera))
     #define NOZZLE_TO_PROBE_OFFSET { -40, 0, 0 }
 #elif ENABLED(MachineCR10SV2)

@@ -1243,8 +1243,8 @@
  *  Y<1>         Set the given parameters only for the Y axis.
  */
 
-//#define INPUT_SHAPING_X //TDS
-//#define INPUT_SHAPING_Y //TDS
+#define INPUT_SHAPING_X //TDS
+#define INPUT_SHAPING_Y //TDS
 
 #if ENABLED(MachineLargeROM)
   #define INPUT_SHAPING_X
@@ -2426,7 +2426,7 @@
   #if ENABLED(DISTINCT_E_FACTORS)
     #define ADVANCE_K { 0.0 }    // (mm) Compression length per 1mm/s extruder speed, per extruder
   #else
-    #define ADVANCE_K 0.0        // (mm) Compression length applying to all extruders //TDS I want this! but is it in the menus?
+    #define ADVANCE_K 0.24        // (mm) Compression length applying to all extruders //TDS I want this! but is it in the menus? K=.22 L=.02 from Orbiter 2.0 manual
   #endif
   //#define ADVANCE_K_EXTRA       // Add a second linear advance constant, configurable with M900 L.
   //#define LA_DEBUG              // Print debug information to serial during operation. Disable for production use.
@@ -2488,7 +2488,7 @@
  * the probe to be unable to reach any points.
  */
 #if PROBE_SELECTED && !IS_KINEMATIC
-  //#define PROBING_MARGIN_LEFT PROBING_MARGIN
+  #define PROBING_MARGIN_LEFT PROBING_MARGIN //TDS probe gets a bit too close to the left side
   //#define PROBING_MARGIN_RIGHT PROBING_MARGIN
   #define PROBING_MARGIN_FRONT (PROBING_MARGIN + ClipClearance)
   #define PROBING_MARGIN_BACK (PROBING_MARGIN + ClipClearance)
@@ -4278,7 +4278,7 @@
   #if PIN_EXISTS(BUTTON1) //TDS
     #define BUTTON1_HIT_STATE     HIGH       // State of the triggered button. NC=LOW. NO=HIGH. //TDS
     #define BUTTON1_WHEN_PRINTING false     // Button allowed to trigger during printing?
-    #define BUTTON1_GCODE         "M702 \n M226 P2 S1 \n M701 \n M104" //TDS "M702 \n M104 S0" Unload filament, turn off heat. Want to use "M702 \n M226 P2 S1 \n M701"
+    #define BUTTON1_GCODE         "M702 \n M104 S0" //TDS "M702 \n M104 S0" Unload filament, turn off heat. Want to use "M702 \n M226 P2 S1 \n M701" but it ain't workin'!
     #define BUTTON1_DESC          "Unloading Filament"  // Optional string to set the LCD status //TDS
   #endif
 
@@ -4703,8 +4703,8 @@
   //#define PINS_DEBUGGING
 //#endif
 
-#define DIRECT_PIN_CONTROL //TDS
-#define PINS_DEBUGGING //TDS
+//#define DIRECT_PIN_CONTROL //TDS These were handy! but I think I'm good now
+//#define PINS_DEBUGGING //TDS
 
 // Enable Tests that will run at startup and produce a report
 //#define MARLIN_TEST_BUILD
