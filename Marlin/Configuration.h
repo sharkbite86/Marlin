@@ -2226,11 +2226,11 @@
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #elif (ANY(MachineCR10SPro, MachineCR6, MachineCR6Max, MachineCR30))
-  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 120 } //TDS E was 70
-  #define DEFAULT_MAX_ACCELERATION      { 800, 800, 100, 3000 } //TDS E was 60, X and Y were 750
-  #define DEFAULT_ACCELERATION          800    // X, Y, Z and E acceleration for printing moves //TDS was 750
+  #define DEFAULT_MAX_FEEDRATE          { 120, 120, 10, 120 } //TDS X&Y were 500, E was 70
+  #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 3000 } //TDS E was 60, X and Y were 750
+  #define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration for printing moves //TDS was 750
   #define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts //TDS
-  #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
+  #define DEFAULT_TRAVEL_ACCELERATION   800    // X, Y, Z acceleration for travel (non printing) moves //TDS was 300
 #elif (ENABLED(MachineCR10Std))
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 75 }
   #define DEFAULT_MAX_ACCELERATION      { 1500, 1500, 100, 75 }
@@ -2307,7 +2307,7 @@
     #define DEFAULT_YJERK 20.0
   #else
     #define DEFAULT_XJERK 10.0
-    #define DEFAULT_YJERK 5.0
+    #define DEFAULT_YJERK 10.0 //TDS was 5
   #endif
   #define DEFAULT_ZJERK  0.3
   #define DEFAULT_EJERK  5.0 //TDS 5-10 is good for Orbiter 2.0

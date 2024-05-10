@@ -171,7 +171,7 @@
 #elif(ENABLED(MachineCRX))
   #define CUSTOM_MACHINE_NAME "TM3D CR-X"
 #elif ENABLED(MachineCR10SProV2)
-  #define CUSTOM_MACHINE_NAME "TM3D 10SProV2"
+  #define CUSTOM_MACHINE_NAME "10SProV2, Orbiter2.0" //TDS
 #elif(ENABLED(MachineCR10SPro))
   #define CUSTOM_MACHINE_NAME "TM3D 10S Pro"
 #elif(ENABLED(MachineCR10Max))
@@ -213,7 +213,7 @@
  * The WEBSITE_URL is the location where users can get more information such as
  * documentation about a specific Marlin release.
  */
-#define WEBSITE_URL "tinymachines3d.com"
+#define WEBSITE_URL "1kAcc 15kStp" //TDS
 
 /**
  * Set the vendor info the serial USB interface, if changable
