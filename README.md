@@ -1,14 +1,16 @@
-﻿My own personal fork of Marlin Firmware for my CR-10S Pro V2. Mods include:
+﻿## Sharkbite86's Notes
 
--Orbiter 2.0
-  -Set to 685 Esteps/mm
--Orbiter Runout sensor with unload button
-  -Runs an unload command at 200C and turns off hotend
--Microswiss all metal hotend
-  -300C max
--HeroMe 7 cooling and hotend mounting system
--Custom tuning for IS and LA
-  -max 120mm/s XY feedrate speed as limited by RAM useage (max of 7kb out of the 8kb available or things start to go crazy)
+My own personal fork of Marlin Firmware for my CR-10S Pro V2. Mods include:
+
+- Orbiter 2.0
+  - - Set to 685 Esteps/mm
+- Orbiter Runout sensor with unload button
+  - - Runs an unload command at 200C and turns off hotend
+- Microswiss all metal hotend
+  - - 300C max
+- HeroMe 7 cooling and hotend mounting system
+- Custom tuning for IS and LA
+  - - max 120mm/s XY feedrate speed as limited by RAM useage (max of 7kb out of the 8kb available or things start to go crazy)
 
 Currently using the added DWIN480272_LandscapeIdex.7z file as that was the latest available from InsanityAutomation despite having a wrong title screen (not Creality, easy swap if I cared)
 
