@@ -99,7 +99,7 @@
 //Stepper09Deg // 0.9 degree per step motor on the extruder - doubles ESteps
 
  //#define MicroswissDirectDrive
- //#define DirectDrive // Any direct drive extruder, reduces filament change lengths
+#define DirectDrive // Any direct drive extruder, reduces filament change lengths //TDS
 
 /*
    Choose bed type below. If you have an extenrally controlled
@@ -1303,9 +1303,9 @@
       #define DEFAULT_Kd 54.3
     #elif ENABLED(HotendStock)
       #if ANY(MachineCR10SPro, MachineCR10Max)
-        #define DEFAULT_Kp 25.25
-        #define DEFAULT_Ki 2.17
-        #define DEFAULT_Kd 73.44
+        #define DEFAULT_Kp 26.9 //TDS was 25.25
+        #define DEFAULT_Ki 2.5 //TDS was 2.17
+        #define DEFAULT_Kd 70.0 //TDS was 73.44
       #elif ENABLED(MachineEnder5Plus)
         #define  DEFAULT_Kp 14.72
         #define  DEFAULT_Ki 0.89
@@ -1404,9 +1404,9 @@
     #define DEFAULT_bedKi 1.17
     #define DEFAULT_bedKd 1349.52
   #else
-    #define  DEFAULT_bedKp 690.34
-    #define  DEFAULT_bedKi 111.47
-    #define  DEFAULT_bedKd 1068.83
+    #define  DEFAULT_bedKp 85.9 //TDS was 690.34
+    #define  DEFAULT_bedKi 14.5 //TDS was 111.47
+    #define  DEFAULT_bedKd 337.9 //TDS was 1068.83
   #endif
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
@@ -1474,7 +1474,7 @@
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
 #define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MINTEMP 170
+#define EXTRUDE_MINTEMP 200 //TDS was 175
 
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
@@ -1810,7 +1810,7 @@
 #elif ENABLED(MachineCR5)
   #define EStepsmm 137.65
 #elif ANY(MachineCR10SPro, MachineCR10Max, MachineCRXPro, MachineEnder6, MachineEnder7, MachineCR30)
-  #define EStepsmm 140
+  #define EStepsmm 685 //TDS, Original was 140, Updated for Orbiter 2.0. 690 is stock. 680.5 seems to work in my case
 #elif ENABLED(MachineCR2020)
   #define EStepsmm 113
 #else
@@ -1857,11 +1857,11 @@
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #elif (ANY(MachineCR10SPro, MachineCR6, MachineCR6Max, MachineCR30))
-  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 70 }
-  #define DEFAULT_MAX_ACCELERATION      { 750, 750, 100, 60 }
+  #define DEFAULT_MAX_FEEDRATE          { 120, 120, 10, 120 } //TDS X&Y were 500, E was 70
+  #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 3000 } //TDS E was 60, X and Y were 750
   #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
-  #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
-  #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
+  #define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts //TDS
+  #define DEFAULT_TRAVEL_ACCELERATION   750    // X, Y, Z acceleration for travel (non printing) moves //TDS was 300
 #elif (ENABLED(MachineCR10Std))
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 75 }
   #define DEFAULT_MAX_ACCELERATION      { 1500, 1500, 100, 75 }
@@ -1938,9 +1938,10 @@
     #define DEFAULT_YJERK 30.0
   #else
     #define DEFAULT_XJERK 10.0
-    #define DEFAULT_YJERK 5.0
+    #define DEFAULT_YJERK 10.0 //TDS was 5
   #endif
   #define DEFAULT_ZJERK  0.3
+  #define DEFAULT_EJERK  5.0 //TDS 5-10 is good for Orbiter 2.0
   //#define DEFAULT_IJERK  0.3
   //#define DEFAULT_JJERK  0.3
   //#define DEFAULT_KJERK  0.3
@@ -2205,7 +2206,7 @@
      #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
    #endif
 #elif ANY(MachineCR10SPro, MachineCR10Max) && ENABLED(HotendStock) && DISABLED(MicroswissDirectDrive)
-  #define NOZZLE_TO_PROBE_OFFSET { -27, 0, 0 }
+  #define NOZZLE_TO_PROBE_OFFSET { -43, -1.30, -3.15 } //TDS Was { -27, 0, 0 } also gcode: M851 X-43 Y-1.30 Z-3.15
 #elif (ANY(ABL_BLTOUCH, ABL_EZABL,ABL_NCSW) && ENABLED(E3DHemera))
     #define NOZZLE_TO_PROBE_OFFSET { -40, 0, 0 }
 #elif ENABLED(MachineCR10SV2)
@@ -2483,7 +2484,7 @@
     #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
   #else
-    #define INVERT_E0_DIR false
+    #define INVERT_E0_DIR true //TDS was false. True since Orbiter 2.0 is opposite stock
     #define INVERT_E1_DIR true
   #endif
 #endif
@@ -2660,7 +2661,7 @@
   #elif ENABLED(MachineCR10SProV2)
     #define X_BED_SIZE 300
     #define Y_BED_SIZE 300
-    #define Z_MAX_POS 400
+    #define Z_MAX_POS 350 //TDS was 400
     #define X_MAX_POS 315
     #define Y_MAX_POS 310
     #define ClipClearance 5
@@ -2863,7 +2864,7 @@
   #if ENABLED(FilamentEncoder)
     #define FILAMENT_RUNOUT_DISTANCE_MM 12
   #elif ANY(MachineEnder5Plus, MachineCR10SPro, MachineCR10SProV2)
-    #define FILAMENT_RUNOUT_DISTANCE_MM 10
+    #define FILAMENT_RUNOUT_DISTANCE_MM 1 //TDS sensor integrated onto extruder
   #else
     #define FILAMENT_RUNOUT_DISTANCE_MM 5
   #endif
@@ -3290,9 +3291,9 @@
 #define PREHEAT_1_TEMP_CHAMBER 35
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_2_LABEL       "ABS"
-#define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    110
+#define PREHEAT_2_LABEL       "PETG" //TDS was "ABS"
+#define PREHEAT_2_TEMP_HOTEND 230 //TDS was 240
+#define PREHEAT_2_TEMP_BED    70 //TDS was 110
 #define PREHEAT_2_TEMP_CHAMBER 35
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
